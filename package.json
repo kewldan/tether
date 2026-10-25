@@ -2,6 +2,13 @@
   "name": "adb-gui",
   "private": true,
   "version": "0.1.0",
+  "description": "A quiet, fast desktop GUI for Android Debug Bridge",
+  "license": "MIT",
+  "author": "kewldan <kewldanil1@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kewldan/adb-gui"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

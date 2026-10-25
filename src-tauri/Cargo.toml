@@ -1,8 +1,10 @@
 [package]
 name = "adb-gui"
 version = "0.1.0"
-description = "Cross-platform GUI for Android Debug Bridge"
-authors = ["kewldan"]
+description = "A quiet, fast desktop GUI for Android Debug Bridge"
+authors = ["kewldan <kewldanil1@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/kewldan/adb-gui"
 edition = "2024"
 
 [lib]
