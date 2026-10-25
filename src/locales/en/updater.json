@@ -8,5 +8,6 @@
   "failed": "Couldn't install the update. Try again later.",
   "check": "Check for updates",
   "checking": "Checking for updates…",
-  "upToDate": "Tether is up to date"
+  "upToDate": "Tether is up to date",
+  "checkFailed": "Couldn't check for updates"
 }

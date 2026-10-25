@@ -53,6 +53,7 @@ import { LICENSE_URL } from "@/features/onboarding/NotFoundScreen";
 import { tildify } from "@/features/onboarding/parts";
 import { pickFile, pickFolder } from "@/features/settings/pickers";
 import { Segmented } from "@/features/settings/Segmented";
+import { useUpdater } from "@/features/updater/store";
 import { useAdb } from "@/lib/adb";
 import { isMac, modKey, os } from "@/lib/platform";
 import { type AdbMode, type Language, useSettings } from "@/lib/settings";
@@ -732,7 +733,12 @@ function useAboutRows(): Row[] {
       id: "version",
       title: t("about.version.title"),
       desc: t("about.version.desc", { os }),
-      control: <span className="font-mono tabular-nums">{version ?? "…"}</span>,
+      control: (
+        <>
+          <span className="font-mono tabular-nums">{version ?? "…"}</span>
+          <UpdateButton />
+        </>
+      ),
     },
     {
       id: "licenses",
@@ -788,4 +794,29 @@ function useAboutRows(): Row[] {
       ),
     },
   ];
+}
+
+/** "Check for updates" with the result inline; drives the update toast. */
+function UpdateButton() {
+  const { t } = useTranslation("updater");
+  const status = useUpdater((s) => s.status);
+  const check = useUpdater((s) => s.check);
+  const label =
+    status === "checking"
+      ? t("checking")
+      : status === "upToDate"
+        ? t("upToDate")
+        : status === "error"
+          ? t("checkFailed")
+          : t("check");
+  return (
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={status === "checking" || status === "downloading"}
+      onClick={() => void check()}
+    >
+      {label}
+    </Button>
+  );
 }
