@@ -1,0 +1,51 @@
+{
+  "create": "Создать bugreport",
+  "task": "Bugreport · {{name}}",
+  "intro": {
+    "title": "Полный отчёт об ошибке",
+    "body": "Логи, dumpsys всех сервисов, трассировки ANR и tombstone-файлы в одном zip — первое, что просят Android-разработчики.",
+    "noDevice": "Подключите устройство, чтобы создать bugreport."
+  },
+  "creating": "Создаём bugreport…",
+  "creatingBody": "Обычно 1–3 минуты. Телефон может подтормаживать — Tether при этом можно пользоваться.",
+  "steps": {
+    "start": "Запуск dumpstate",
+    "collect": "Сбор состояния системы ({{pct}}%)",
+    "collected": "Состояние системы собрано",
+    "pull": {
+      "macos": "Упаковка zip и копирование на Mac",
+      "windows": "Упаковка zip и копирование на ПК",
+      "linux": "Упаковка zip и копирование на компьютер"
+    },
+    "pullProgress": "Копирование zip · {{received}} из {{total}}"
+  },
+  "left": "≈ {{time}} осталось",
+  "cancel": "Отменить",
+  "cancelled": "Bugreport отменён. Устройство может досоздать его в фоне; ничего не сохранено.",
+  "failed": "Не удалось создать bugreport",
+  "done": "Готово · {{name}}",
+  "includes": "внутри {{anr}} и {{tombstones}}",
+  "anr_one": "{{count}} трассировка ANR",
+  "anr_few": "{{count}} трассировки ANR",
+  "anr_many": "{{count}} трассировок ANR",
+  "anr_other": "{{count}} трассировки ANR",
+  "tombstones_one": "{{count}} tombstone",
+  "tombstones_few": "{{count}} tombstone",
+  "tombstones_many": "{{count}} tombstone",
+  "tombstones_other": "{{count}} tombstone",
+  "copyPath": "Скопировать путь",
+  "pathCopied": "Путь скопирован",
+  "perfetto": "Открыть в Perfetto",
+  "perfettoHint": "Откроет ui.perfetto.dev — перетащите туда zip, чтобы изучить его",
+  "previous": "Предыдущие отчёты",
+  "savedTo": "Сохраняются в",
+  "none": "Отчётов пока нет.",
+  "reveal": "Показать",
+  "delete": "Удалить",
+  "deleteTitle": "Удалить этот bugreport?",
+  "deleteFailed": "Не удалось удалить bugreport",
+  "failedRow": "Ошибка · {{name}} · {{message}}",
+  "retry": "Повторить",
+  "retryUnavailable": "{{name}} не подключено",
+  "dismiss": "Убрать из списка"
+}

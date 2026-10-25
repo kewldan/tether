@@ -1,0 +1,47 @@
+{
+  "create": "Create bugreport",
+  "task": "Bugreport · {{name}}",
+  "intro": {
+    "title": "Capture a full bugreport",
+    "body": "Logs, dumpsys of every service, ANR traces and tombstones in one zip — what Android engineers ask for first.",
+    "noDevice": "Connect a device to create a bugreport."
+  },
+  "creating": "Creating bugreport…",
+  "creatingBody": "Usually 1–3 minutes. The phone may feel slow meanwhile — you can keep using Tether.",
+  "steps": {
+    "start": "Starting dumpstate",
+    "collect": "Collecting system state ({{pct}}%)",
+    "collected": "System state collected",
+    "pull": {
+      "macos": "Packing zip & pulling to Mac",
+      "windows": "Packing zip & pulling to PC",
+      "linux": "Packing zip & pulling to computer"
+    },
+    "pullProgress": "Pulling zip · {{received}} of {{total}}"
+  },
+  "left": "≈ {{time}} left",
+  "cancel": "Cancel",
+  "cancelled": "Bugreport cancelled. The device may finish it in the background; nothing was saved.",
+  "failed": "Bugreport failed",
+  "done": "Done · {{name}}",
+  "includes": "includes {{anr}} and {{tombstones}}",
+  "anr_one": "{{count}} ANR trace",
+  "anr_other": "{{count}} ANR traces",
+  "tombstones_one": "{{count}} tombstone",
+  "tombstones_other": "{{count}} tombstones",
+  "copyPath": "Copy path",
+  "pathCopied": "Path copied",
+  "perfetto": "Open in Perfetto",
+  "perfettoHint": "Opens ui.perfetto.dev — drop the zip there to explore it",
+  "previous": "Previous reports",
+  "savedTo": "Saved to",
+  "none": "No bugreports yet.",
+  "reveal": "Reveal",
+  "delete": "Delete",
+  "deleteTitle": "Delete this bugreport?",
+  "deleteFailed": "Couldn't delete the bugreport",
+  "failedRow": "Failed · {{name}} · {{message}}",
+  "retry": "Try again",
+  "retryUnavailable": "{{name}} is not connected",
+  "dismiss": "Remove from list"
+}
