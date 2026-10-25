@@ -100,3 +100,30 @@ pub async fn perf_kill(
 ) -> AppResult<()> {
     perf::kill(&state.server, &serial, pid, package.as_deref()).await
 }
+
+/// Writes exported samples to the Downloads folder and returns the path.
+#[tauri::command]
+pub async fn perf_export_csv(
+    app: tauri::AppHandle,
+    file_name: String,
+    contents: String,
+) -> AppResult<String> {
+    use tauri::Manager;
+
+    let valid = file_name.ends_with(".csv")
+        && file_name
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || "-_.".contains(c));
+    if !valid {
+        return Err(AppError::InvalidInput(format!(
+            "bad file name {file_name:?}"
+        )));
+    }
+    let dir = app
+        .path()
+        .download_dir()
+        .map_err(|e| AppError::Device(e.to_string()))?;
+    let path = dir.join(file_name);
+    tokio::fs::write(&path, contents).await?;
+    Ok(path.to_string_lossy().into_owned())
+}

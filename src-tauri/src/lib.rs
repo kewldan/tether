@@ -74,6 +74,7 @@ pub fn run() {
             commands::perf::perf_unsubscribe,
             commands::perf::perf_processes,
             commands::perf::perf_kill,
+            commands::perf::perf_export_csv,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
