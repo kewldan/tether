@@ -1,0 +1,176 @@
+{
+  "status": {
+    "streaming": "Поток · {{rate}} строк/с",
+    "paused": "Пауза · +{{count}} новых",
+    "connecting": "Подключение…",
+    "stopped": "Остановлен",
+    "error": "Ошибка потока",
+    "noDevice": "Нет устройства"
+  },
+  "actions": {
+    "filters": "Фильтры: {{name}}",
+    "filtersNone": "нет",
+    "filtersCustom": "свои",
+    "buffer": "Буфер: {{list}}",
+    "export": "Экспорт",
+    "clear": "Очистить",
+    "pause": "Пауза",
+    "resume": "Продолжить",
+    "wrap": "Переносить строки",
+    "jumpToEnd": "К концу",
+    "newLines_one": "{{formatted}} новая строка · к концу",
+    "newLines_few": "{{formatted}} новые строки · к концу",
+    "newLines_many": "{{formatted}} новых строк · к концу",
+    "newLines_other": "{{formatted}} новых строки · к концу",
+    "retry": "Повторить"
+  },
+  "search": {
+    "placeholder": "Поиск по логам",
+    "label": "Поиск по логам",
+    "highlight": "Подсветка",
+    "highlightHint": "Подсвечивать совпадения, не скрывая остальные строки",
+    "regex": "Регулярное выражение",
+    "matchCase": "Учитывать регистр",
+    "invalid": "Неверное регулярное выражение"
+  },
+  "levels": {
+    "label": "Уровни логов",
+    "show": "Показать уровень {{level}}",
+    "hide": "Скрыть уровень {{level}}",
+    "hint": "Shift-клик: этот уровень и выше",
+    "V": "Verbose",
+    "D": "Debug",
+    "I": "Info",
+    "W": "Warning",
+    "E": "Error",
+    "F": "Fatal"
+  },
+  "package": {
+    "add": "Пакет",
+    "follow": "{{name}} · следить за PID",
+    "followHint": "Следим за {{name}} и после перезапуска. PID: {{pids}}",
+    "remove": "Убрать фильтр по пакету",
+    "search": "Поиск пакетов…",
+    "empty": "Пакеты не найдены.",
+    "loading": "Загружаем пакеты…",
+    "userApps": "Установленные приложения",
+    "systemApps": "Системные",
+    "showSystem": "Показывать системные пакеты",
+    "custom": "Использовать «{{name}}»"
+  },
+  "tags": {
+    "add": "Тег",
+    "placeholder": "Имя тега",
+    "include": "Показывать только этот тег",
+    "exclude": "Скрыть этот тег",
+    "removeInclude": "Убрать тег {{tag}}",
+    "removeExclude": "Убрать исключение {{tag}}",
+    "hint": "Enter — показывать только тег, Shift+Enter — скрыть его.",
+    "frequent": "Частые теги"
+  },
+  "onlyCrashes": "Только краши",
+  "removeOnlyCrashes": "Снова показать все строки",
+  "columns": {
+    "time": "Время",
+    "pidTid": "PID TID",
+    "tag": "Тег",
+    "message": "Сообщение",
+    "summary": "{{total}} в буфере · показано {{shown}}",
+    "crashes_one": "{{formatted}} краш",
+    "crashes_few": "{{formatted}} краша",
+    "crashes_many": "{{formatted}} крашей",
+    "crashes_other": "{{formatted}} краша",
+    "errors_one": "{{formatted}} ошибка",
+    "errors_few": "{{formatted}} ошибки",
+    "errors_many": "{{formatted}} ошибок",
+    "errors_other": "{{formatted}} ошибки"
+  },
+  "list": {
+    "label": "Строки лога",
+    "moreLines_one": "+{{count}} строка",
+    "moreLines_few": "+{{count}} строки",
+    "moreLines_many": "+{{count}} строк",
+    "moreLines_other": "+{{count}} строки"
+  },
+  "crash": {
+    "java": "Краш",
+    "native": "Нативный краш",
+    "anr": "ANR",
+    "pid": "PID {{pid}}",
+    "copy": "Копировать стектрейс",
+    "copied": "Стектрейс скопирован",
+    "onlyCrashes": "Только краши",
+    "toggle": "Свернуть или развернуть стектрейс"
+  },
+  "restart": "{{pkg}} перезапущен · следим за PID {{from}} → {{to}}",
+  "details": {
+    "title": "Подробности строки",
+    "close": "Закрыть панель",
+    "time": "Время",
+    "pidTid": "PID · TID",
+    "uid": "UID",
+    "levelTag": "Уровень · Тег",
+    "process": "Процесс",
+    "unknown": "—",
+    "filterTag": "Фильтровать по тегу «{{tag}}»",
+    "excludeTag": "Исключить этот тег",
+    "around": "Показать ±50 строк вокруг",
+    "copyLine": "Копировать строку",
+    "copied": "Строка скопирована",
+    "presets": "Сохранённые фильтры"
+  },
+  "context": {
+    "banner": "Показаны ±50 строк вокруг {{time}}, без фильтров.",
+    "back": "Вернуться к фильтрам"
+  },
+  "presets": {
+    "warnings": "Предупреждения и ошибки",
+    "network": "Сеть (OkHttp)",
+    "crashes": "Краши и ANR",
+    "save": "Сохранить текущие фильтры…",
+    "delete": "Удалить «{{name}}»",
+    "reset": "Сбросить фильтры",
+    "dialogTitle": "Сохранить набор фильтров",
+    "dialogDescription": "Сохраняются поиск, уровни, теги, пакет и фильтр крашей.",
+    "nameLabel": "Название",
+    "namePlaceholder": "Моё приложение",
+    "saveButton": "Сохранить",
+    "saved": "Сохранено: «{{name}}»"
+  },
+  "buffers": {
+    "label": "Буферы логов",
+    "main": "main",
+    "system": "system",
+    "crash": "crash",
+    "events": "events",
+    "radio": "radio",
+    "kernel": "kernel"
+  },
+  "empty": {
+    "noMatches": "Под фильтры не подходит ни одна строка",
+    "noMatchesHint": "Текущие фильтры скрывают {{total}} строк из буфера.",
+    "resetFilters": "Сбросить фильтры",
+    "waiting": "Ждём строки лога…",
+    "noDevice": "Устройство не подключено",
+    "noDeviceHint": "Подключите устройство или запустите эмулятор, чтобы увидеть его логи."
+  },
+  "disconnected": {
+    "title": "{{name}} отключено",
+    "body": " — поток остановлен. Логи до {{time}} сохранены и остаются доступными.",
+    "bodyNoTime": " — поток остановлен. Логи сохранены и остаются доступными.",
+    "titleState": "{{name}} · {{state}}"
+  },
+  "errorBanner": {
+    "title": "Logcat остановлен",
+    "body": " — {{message}}",
+    "ended": " — поток неожиданно завершился."
+  },
+  "toast": {
+    "cleared": "Logcat очищен",
+    "undo": "Отменить",
+    "exported": "Сохранено строк: {{count}}",
+    "showInFolder": "Показать в папке",
+    "exportFailed": "Не удалось экспортировать лог",
+    "clearFailed": "Не удалось очистить лог на устройстве"
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "status": {
+    "streaming": "Streaming · {{rate}} lines/s",
+    "paused": "Paused · +{{count}} new",
+    "connecting": "Connecting…",
+    "stopped": "Stopped",
+    "error": "Stream failed",
+    "noDevice": "No device"
+  },
+  "actions": {
+    "filters": "Filters: {{name}}",
+    "filtersNone": "None",
+    "filtersCustom": "Custom",
+    "buffer": "Buffer: {{list}}",
+    "export": "Export",
+    "clear": "Clear",
+    "pause": "Pause",
+    "resume": "Resume",
+    "wrap": "Wrap lines",
+    "jumpToEnd": "Jump to end",
+    "newLines_one": "{{count}} new line · jump to end",
+    "newLines_other": "{{formatted}} new lines · jump to end",
+    "retry": "Try again"
+  },
+  "search": {
+    "placeholder": "Search logs",
+    "label": "Search logs",
+    "highlight": "Highlight",
+    "highlightHint": "Highlight matches instead of hiding other lines",
+    "regex": "Regular expression",
+    "matchCase": "Match case",
+    "invalid": "Invalid regular expression"
+  },
+  "levels": {
+    "label": "Log levels",
+    "show": "Show {{level}} level",
+    "hide": "Hide {{level}} level",
+    "hint": "Shift-click: this level and above",
+    "V": "Verbose",
+    "D": "Debug",
+    "I": "Info",
+    "W": "Warning",
+    "E": "Error",
+    "F": "Fatal"
+  },
+  "package": {
+    "add": "Package",
+    "follow": "{{name}} · follow PID",
+    "followHint": "Following {{name}} across restarts. PIDs: {{pids}}",
+    "remove": "Remove package filter",
+    "search": "Search packages…",
+    "empty": "No packages found.",
+    "loading": "Loading packages…",
+    "userApps": "Installed apps",
+    "systemApps": "System",
+    "showSystem": "Show system packages",
+    "custom": "Use “{{name}}”"
+  },
+  "tags": {
+    "add": "Tag",
+    "placeholder": "Tag name",
+    "include": "Show only this tag",
+    "exclude": "Hide this tag",
+    "removeInclude": "Remove tag {{tag}}",
+    "removeExclude": "Remove exclusion {{tag}}",
+    "hint": "Enter shows only this tag, Shift+Enter hides it.",
+    "frequent": "Frequent tags"
+  },
+  "onlyCrashes": "Only crashes",
+  "removeOnlyCrashes": "Show all lines again",
+  "columns": {
+    "time": "Time",
+    "pidTid": "PID TID",
+    "tag": "Tag",
+    "message": "Message",
+    "summary": "{{total}} in buffer · showing {{shown}}",
+    "crashes_one": "{{formatted}} crash",
+    "crashes_other": "{{formatted}} crashes",
+    "errors_one": "{{formatted}} error",
+    "errors_other": "{{formatted}} errors"
+  },
+  "list": {
+    "label": "Log lines",
+    "moreLines_one": "+{{count}} line",
+    "moreLines_other": "+{{count}} lines"
+  },
+  "crash": {
+    "java": "Crash",
+    "native": "Native crash",
+    "anr": "ANR",
+    "pid": "PID {{pid}}",
+    "copy": "Copy stack trace",
+    "copied": "Stack trace copied",
+    "onlyCrashes": "Only crashes",
+    "toggle": "Toggle stack trace"
+  },
+  "restart": "{{pkg}} restarted · following PID {{from}} → {{to}}",
+  "details": {
+    "title": "Line details",
+    "close": "Close panel",
+    "time": "Time",
+    "pidTid": "PID · TID",
+    "uid": "UID",
+    "levelTag": "Level · Tag",
+    "process": "Process",
+    "unknown": "—",
+    "filterTag": "Filter by tag “{{tag}}”",
+    "excludeTag": "Exclude this tag",
+    "around": "Show ±50 lines around",
+    "copyLine": "Copy line",
+    "copied": "Line copied",
+    "presets": "Saved filters"
+  },
+  "context": {
+    "banner": "Showing ±50 lines around {{time}}, without filters.",
+    "back": "Back to filtered view"
+  },
+  "presets": {
+    "warnings": "Warnings & errors",
+    "network": "Network (OkHttp)",
+    "crashes": "Crashes & ANRs",
+    "save": "Save current filters…",
+    "delete": "Delete “{{name}}”",
+    "reset": "Reset filters",
+    "dialogTitle": "Save filter preset",
+    "dialogDescription": "Keeps the search, levels, tags, package and crash filter.",
+    "nameLabel": "Name",
+    "namePlaceholder": "My app",
+    "saveButton": "Save",
+    "saved": "Saved “{{name}}”"
+  },
+  "buffers": {
+    "label": "Log buffers",
+    "main": "main",
+    "system": "system",
+    "crash": "crash",
+    "events": "events",
+    "radio": "radio",
+    "kernel": "kernel"
+  },
+  "empty": {
+    "noMatches": "No lines match the filters",
+    "noMatchesHint": "{{total}} lines in the buffer are hidden by the current filters.",
+    "resetFilters": "Reset filters",
+    "waiting": "Waiting for log lines…",
+    "noDevice": "No device connected",
+    "noDeviceHint": "Connect a device or start an emulator to see its logs."
+  },
+  "disconnected": {
+    "title": "{{name}} disconnected",
+    "body": " — the stream stopped. Logs up to {{time}} are kept and stay readable.",
+    "bodyNoTime": " — the stream stopped. Logs are kept and stay readable.",
+    "titleState": "{{name}} · {{state}}"
+  },
+  "errorBanner": {
+    "title": "Logcat stopped",
+    "body": " — {{message}}",
+    "ended": " — the stream ended unexpectedly."
+  },
+  "toast": {
+    "cleared": "Logcat cleared",
+    "undo": "Undo",
+    "exported": "Saved {{count}} lines",
+    "showInFolder": "Show in folder",
+    "exportFailed": "Couldn't export the log",
+    "clearFailed": "Couldn't clear the device log"
+  }
+}
