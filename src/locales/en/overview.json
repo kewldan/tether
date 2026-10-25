@@ -1,0 +1,186 @@
+{
+  "copyInfo": "Copy device info",
+  "infoCopied": "Device info copied as Markdown",
+  "copySerial": "Copy serial",
+  "serialCopied": "Serial copied",
+  "patch": "Patch {{date}}",
+  "fingerprint": "Build fingerprint",
+  "root": {
+    "adb_root": "adb root",
+    "su": "Rooted (su)",
+    "none": "Not rooted"
+  },
+  "noDevice": {
+    "title": "No device selected",
+    "body": "Plug in a phone with USB debugging on, pair one wirelessly, or start an emulator.",
+    "devices": "All devices"
+  },
+  "notReady": {
+    "title": "{{name}} is not ready",
+    "body": "The device is {{state}}. Its overview appears once it is online.",
+    "cantSee": "Can't see your device?"
+  },
+  "disconnected": {
+    "title": "{{name}} disconnected",
+    "body": " — waiting for it to come back. Everything below is from {{time}} and stays readable.",
+    "cantSee": "Can't reconnect?"
+  },
+  "loadFailed": "Couldn't read the device",
+  "actions": {
+    "screenshot": "Screenshot",
+    "record": "Record",
+    "stop": "Stop {{time}}",
+    "stopping": "Saving…",
+    "mirror": "Mirror",
+    "installApk": "Install APK",
+    "shell": "Shell",
+    "reboot": "Reboot"
+  },
+  "reboot": {
+    "button": "Reboot",
+    "options": "Reboot options",
+    "system": "Reboot",
+    "recovery": "Reboot to recovery",
+    "bootloader": "Reboot to bootloader",
+    "sideload": "Reboot to sideload",
+    "power_off": "Power off",
+    "confirm": {
+      "system": "Reboot {{name}}?",
+      "recovery": "Reboot {{name}} to recovery?",
+      "bootloader": "Reboot {{name}} to the bootloader?",
+      "sideload": "Reboot {{name}} to sideload?",
+      "power_off": "Power off {{name}}?"
+    },
+    "body": "Running apps close and the device disconnects for a while. Unsaved work on the device is lost.",
+    "bodyPowerOff": "The device shuts down and disconnects. You'll need to turn it on by hand.",
+    "started": "{{name}} is rebooting",
+    "poweringOff": "{{name}} is shutting down",
+    "failed": "Couldn't reboot the device"
+  },
+  "toast": {
+    "show": "Show",
+    "screenshotSaved": "Screenshot saved",
+    "screenshotFailed": "Couldn't take a screenshot",
+    "recordingSaved": "Recording saved",
+    "recordingFailed": "Recording failed"
+  },
+  "battery": {
+    "title": "Battery",
+    "status": {
+      "unknown": "Unknown",
+      "charging": "Charging",
+      "discharging": "On battery",
+      "not_charging": "Not charging",
+      "full": "Full"
+    },
+    "source": {
+      "ac": "AC",
+      "usb": "USB",
+      "wireless": "Wireless",
+      "dock": "Dock"
+    },
+    "rate": "{{rate}}%/min",
+    "fullIn": "full in {{time}}",
+    "emptyIn": "≈ {{time}} left",
+    "temperature": "Temperature",
+    "health": "Health",
+    "voltage": "Voltage",
+    "healthValue": {
+      "unknown": "Unknown",
+      "good": "Good",
+      "overheat": "Overheat",
+      "dead": "Dead",
+      "over_voltage": "Over voltage",
+      "failure": "Failure",
+      "cold": "Cold"
+    },
+    "chart": "Battery level over the last minutes",
+    "none": "No battery"
+  },
+  "storage": {
+    "title": "Storage",
+    "of": "of {{total}} GB used",
+    "apps": "Apps",
+    "media": "Photos & video",
+    "system": "System",
+    "other": "Other",
+    "used": "Used",
+    "free": "Free"
+  },
+  "memory": {
+    "title": "Memory",
+    "of": "of {{total}} GB · {{pct}}%",
+    "available": "Available",
+    "swap": "Swap (zRAM)",
+    "chart": "Memory usage over the last minutes"
+  },
+  "cpu": {
+    "title": "CPU",
+    "cores_one": "{{count}} core",
+    "cores_other": "{{count}} cores",
+    "maxFreq": "{{freq}} GHz max",
+    "chip": "Chip",
+    "thermal": "Thermal",
+    "chart": "Per-core load",
+    "thermalStatus": {
+      "none": "Normal",
+      "light": "Light",
+      "moderate": "Moderate",
+      "severe": "Severe",
+      "critical": "Critical",
+      "emergency": "Emergency",
+      "shutdown": "Shutdown"
+    }
+  },
+  "display": {
+    "title": "Display",
+    "upTo": "up to {{rate}} Hz",
+    "resolution": "Resolution",
+    "density": "Density",
+    "fontScale": "Font scale",
+    "overridden": "overridden"
+  },
+  "network": {
+    "title": "Network",
+    "wifiOff": "Wi-Fi off",
+    "notConnected": "Not on Wi-Fi",
+    "ip": "IP",
+    "signal": "Signal",
+    "mobile": "Mobile"
+  },
+  "uptime": {
+    "title": "Uptime",
+    "since": "Since"
+  },
+  "recent": {
+    "title": "Recent",
+    "history": "History",
+    "empty": "Screenshots, recordings, installs and other actions on this device show up here.",
+    "clear": "Clear history",
+    "dialogTitle": "History · {{name}}"
+  },
+  "ago": {
+    "now": "now",
+    "min": "{{count}} min",
+    "hour": "{{count}} h",
+    "day": "{{count}} d"
+  },
+  "markdown": {
+    "title": "Device",
+    "manufacturer": "Manufacturer",
+    "model": "Model",
+    "serial": "Serial",
+    "android": "Android",
+    "patch": "Security patch",
+    "build": "Build",
+    "fingerprint": "Fingerprint",
+    "abi": "ABI",
+    "soc": "SoC",
+    "display": "Display",
+    "memory": "Memory",
+    "storage": "Storage",
+    "battery": "Battery",
+    "root": "Root",
+    "transport": "Connection"
+  }
+}

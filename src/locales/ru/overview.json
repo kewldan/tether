@@ -1,0 +1,188 @@
+{
+  "copyInfo": "Скопировать сведения",
+  "infoCopied": "Сведения об устройстве скопированы в Markdown",
+  "copySerial": "Скопировать серийный номер",
+  "serialCopied": "Серийный номер скопирован",
+  "patch": "Патч {{date}}",
+  "fingerprint": "Отпечаток сборки",
+  "root": {
+    "adb_root": "adb root",
+    "su": "Есть root (su)",
+    "none": "Без root"
+  },
+  "noDevice": {
+    "title": "Устройство не выбрано",
+    "body": "Подключите телефон с включённой отладкой по USB, сопрягите его по Wi-Fi или запустите эмулятор.",
+    "devices": "Все устройства"
+  },
+  "notReady": {
+    "title": "{{name}} не готово",
+    "body": "Состояние устройства: {{state}}. Обзор появится, когда оно будет в сети.",
+    "cantSee": "Не видно устройство?"
+  },
+  "disconnected": {
+    "title": "{{name}} отключено",
+    "body": " — ждём, пока оно вернётся. Всё ниже — по состоянию на {{time}}, данные остаются доступны.",
+    "cantSee": "Не удаётся переподключить?"
+  },
+  "loadFailed": "Не удалось прочитать данные устройства",
+  "actions": {
+    "screenshot": "Скриншот",
+    "record": "Запись",
+    "stop": "Стоп {{time}}",
+    "stopping": "Сохраняем…",
+    "mirror": "Экран",
+    "installApk": "Установить APK",
+    "shell": "Shell",
+    "reboot": "Перезагрузка"
+  },
+  "reboot": {
+    "button": "Перезагрузить",
+    "options": "Варианты перезагрузки",
+    "system": "Перезагрузить",
+    "recovery": "В recovery",
+    "bootloader": "В загрузчик",
+    "sideload": "В режим sideload",
+    "power_off": "Выключить",
+    "confirm": {
+      "system": "Перезагрузить {{name}}?",
+      "recovery": "Перезагрузить {{name}} в recovery?",
+      "bootloader": "Перезагрузить {{name}} в загрузчик?",
+      "sideload": "Перезагрузить {{name}} в режим sideload?",
+      "power_off": "Выключить {{name}}?"
+    },
+    "body": "Запущенные приложения закроются, устройство ненадолго отключится. Несохранённые данные на устройстве пропадут.",
+    "bodyPowerOff": "Устройство выключится и отключится. Включать его придётся вручную.",
+    "started": "{{name}} перезагружается",
+    "poweringOff": "{{name}} выключается",
+    "failed": "Не удалось перезагрузить устройство"
+  },
+  "toast": {
+    "show": "Показать",
+    "screenshotSaved": "Скриншот сохранён",
+    "screenshotFailed": "Не удалось сделать скриншот",
+    "recordingSaved": "Запись сохранена",
+    "recordingFailed": "Не удалось записать экран"
+  },
+  "battery": {
+    "title": "Батарея",
+    "status": {
+      "unknown": "Неизвестно",
+      "charging": "Заряжается",
+      "discharging": "От батареи",
+      "not_charging": "Не заряжается",
+      "full": "Заряжена"
+    },
+    "source": {
+      "ac": "Сеть",
+      "usb": "USB",
+      "wireless": "Беспроводная",
+      "dock": "Док"
+    },
+    "rate": "{{rate}}%/мин",
+    "fullIn": "полная через {{time}}",
+    "emptyIn": "≈ {{time}} осталось",
+    "temperature": "Температура",
+    "health": "Состояние",
+    "voltage": "Напряжение",
+    "healthValue": {
+      "unknown": "Неизвестно",
+      "good": "Хорошее",
+      "overheat": "Перегрев",
+      "dead": "Неисправна",
+      "over_voltage": "Перенапряжение",
+      "failure": "Сбой",
+      "cold": "Переохлаждение"
+    },
+    "chart": "Уровень заряда за последние минуты",
+    "none": "Нет батареи"
+  },
+  "storage": {
+    "title": "Хранилище",
+    "of": "из {{total}} ГБ занято",
+    "apps": "Приложения",
+    "media": "Фото и видео",
+    "system": "Система",
+    "other": "Другое",
+    "used": "Занято",
+    "free": "Свободно"
+  },
+  "memory": {
+    "title": "Память",
+    "of": "из {{total}} ГБ · {{pct}}%",
+    "available": "Доступно",
+    "swap": "Подкачка (zRAM)",
+    "chart": "Использование памяти за последние минуты"
+  },
+  "cpu": {
+    "title": "Процессор",
+    "cores_one": "{{count}} ядро",
+    "cores_few": "{{count}} ядра",
+    "cores_many": "{{count}} ядер",
+    "cores_other": "{{count}} ядра",
+    "maxFreq": "до {{freq}} ГГц",
+    "chip": "Чип",
+    "thermal": "Нагрев",
+    "chart": "Загрузка по ядрам",
+    "thermalStatus": {
+      "none": "Норма",
+      "light": "Слабый",
+      "moderate": "Умеренный",
+      "severe": "Сильный",
+      "critical": "Критический",
+      "emergency": "Аварийный",
+      "shutdown": "Отключение"
+    }
+  },
+  "display": {
+    "title": "Экран",
+    "upTo": "до {{rate}} Гц",
+    "resolution": "Разрешение",
+    "density": "Плотность",
+    "fontScale": "Масштаб шрифта",
+    "overridden": "изменено"
+  },
+  "network": {
+    "title": "Сеть",
+    "wifiOff": "Wi-Fi выключен",
+    "notConnected": "Не в сети Wi-Fi",
+    "ip": "IP",
+    "signal": "Сигнал",
+    "mobile": "Мобильная"
+  },
+  "uptime": {
+    "title": "Время работы",
+    "since": "С момента"
+  },
+  "recent": {
+    "title": "Недавнее",
+    "history": "История",
+    "empty": "Здесь появятся скриншоты, записи, установки и другие действия с этим устройством.",
+    "clear": "Очистить историю",
+    "dialogTitle": "История · {{name}}"
+  },
+  "ago": {
+    "now": "сейчас",
+    "min": "{{count}} мин",
+    "hour": "{{count}} ч",
+    "day": "{{count}} д"
+  },
+  "markdown": {
+    "title": "Устройство",
+    "manufacturer": "Производитель",
+    "model": "Модель",
+    "serial": "Серийный номер",
+    "android": "Android",
+    "patch": "Патч безопасности",
+    "build": "Сборка",
+    "fingerprint": "Отпечаток",
+    "abi": "ABI",
+    "soc": "SoC",
+    "display": "Экран",
+    "memory": "Память",
+    "storage": "Хранилище",
+    "battery": "Батарея",
+    "root": "Root",
+    "transport": "Подключение"
+  }
+}
