@@ -1,10 +1,10 @@
-pub mod files;
-pub mod logcat;
-pub mod props;
-pub mod transfer;
 pub mod actions;
 pub mod bugreport;
 pub mod captures;
 pub mod dev_settings;
+pub mod files;
+pub mod logcat;
 pub mod overview;
+pub mod props;
 pub mod sections;
+pub mod transfer;
