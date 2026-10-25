@@ -1,0 +1,33 @@
+{
+  "screenshot": "Screenshot",
+  "filter": {
+    "kind": "Capture type",
+    "all": "All",
+    "screenshots": "Screenshots",
+    "recordings": "Recordings",
+    "allDevices": "All devices"
+  },
+  "day": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier"
+  },
+  "empty": "No captures yet. Screenshots and screen recordings are saved to {{dir}}.",
+  "emptyFiltered": "Nothing matches these filters.",
+  "selected": "Selected capture",
+  "copyImage": "Copy to clipboard",
+  "copyPath": "Copy file path",
+  "imageCopied": "Image copied",
+  "pathCopied": "Path copied",
+  "copyFailed": "Couldn't copy",
+  "reveal": {
+    "macos": "Show in Finder",
+    "windows": "Show in Explorer",
+    "linux": "Show in folder"
+  },
+  "delete": "Delete",
+  "deleteTitle": "Delete {{name}}?",
+  "deleteBody": "The file is removed from your computer. This can't be undone.",
+  "deleted": "{{name}} deleted",
+  "deleteFailed": "Couldn't delete the file"
+}
