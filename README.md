@@ -16,7 +16,7 @@ Devices, screen mirroring, files, apps, logcat and shell in one keyboard-first w
 </div>
 
 > [!NOTE]
-> 🚧 Tether is in early development. Features below marked ✅ work today; the rest are being built right now.
+> 🚧 Tether is in early development and has no packaged release yet. Expect rough edges.
 
 ## ✨ Highlights
 
@@ -35,16 +35,16 @@ Devices, screen mirroring, files, apps, logcat and shell in one keyboard-first w
 |---|---|---|
 | ✅ | **Devices** | Live device list over USB, Wi-Fi and emulators, with clear states (unauthorized, offline, no permissions…) |
 | ✅ | **adb setup** | Auto-detection of existing adb plus one-click platform-tools download with license consent |
-| 🚧 | **Wi-Fi pairing** | Pair Android 11+ devices with a QR code or pairing code, or connect by IP |
-| 🚧 | **Screen mirroring** | Low-latency mirroring and control powered by scrcpy-server |
-| 🚧 | **File manager** | Browse, preview, drag & drop, and push/pull with a transfer queue |
-| 🚧 | **Apps** | Install APK / split APKs on several devices at once, manage permissions, clear data, extract APKs |
-| 🚧 | **Logcat** | A log viewer that keeps up: level, tag, package and regex filters, crash detection |
-| 🚧 | **Shell** | Multi-tab terminal with snippets and run-on-all-devices |
-| 🚧 | **Device overview** | Battery, storage, memory, CPU, display and network at a glance |
-| 🚧 | **Developer toggles** | Dark mode, animation scales, DPI, layout bounds, demo mode, with one-click revert |
-| 🚧 | **Power tools** | Port forwarding, intents & deep links, performance charts, bugreports, captures gallery |
-| 🚧 | **Diagnostics** | "Can't see your device?" checklist that explains and fixes common problems |
+| ✅ | **Wi-Fi pairing** | Pair Android 11+ devices with a QR code or pairing code, or connect by IP |
+| ✅ | **Screen mirroring** | Low-latency mirroring and control powered by scrcpy-server |
+| ✅ | **File manager** | Browse, preview, drag & drop, and push/pull with a transfer queue |
+| ✅ | **Apps** | Install APK / split APKs on several devices at once, manage permissions, clear data, extract APKs |
+| ✅ | **Logcat** | A log viewer that keeps up: level, tag, package and regex filters, crash detection |
+| ✅ | **Shell** | Multi-tab terminal with snippets and run-on-all-devices |
+| ✅ | **Device overview** | Battery, storage, memory, CPU, display and network at a glance |
+| ✅ | **Developer toggles** | Dark mode, animation scales, DPI, layout bounds, demo mode, with one-click revert |
+| ✅ | **Power tools** | Port forwarding, intents & deep links, performance charts, bugreports, captures gallery |
+| ✅ | **Diagnostics** | "Can't see your device?" checklist that explains and fixes common problems |
 
 ## 📸 Screenshots
 
