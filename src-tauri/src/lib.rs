@@ -11,6 +11,8 @@ pub fn run() {
         .manage(state::AppState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
+            commands::adb::install_platform_tools,
+            commands::adb::cancel_platform_tools_install,
             commands::devices::watch_devices,
             commands::devices::device_info,
         ])

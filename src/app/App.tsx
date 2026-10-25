@@ -29,7 +29,10 @@ export function App() {
   return (
     <main className="bg-background text-foreground min-h-screen px-6">
       {adb.status === "missing" ? (
-        <AdbMissing onRetry={search} />
+        <AdbMissing
+          onRetry={search}
+          onInstalled={(install) => setAdb({ status: "found", install })}
+        />
       ) : (
         <DevicesView install={adb.status === "found" ? adb.install : null} />
       )}

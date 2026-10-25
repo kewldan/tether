@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Check, Copy, RefreshCw, TerminalSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PlatformToolsDownload } from "@/features/onboarding/PlatformToolsDownload";
+import type { AdbInstall } from "@/lib/tauri";
 
 const INSTALL_COMMANDS = [
   { os: "macOS", command: "brew install --cask android-platform-tools" },
@@ -11,7 +13,13 @@ const INSTALL_COMMANDS = [
   { os: "Arch", command: "sudo pacman -S android-tools" },
 ] as const;
 
-export function AdbMissing({ onRetry }: { onRetry: () => void }) {
+export function AdbMissing({
+  onRetry,
+  onInstalled,
+}: {
+  onRetry: () => void;
+  onInstalled: (install: AdbInstall) => void;
+}) {
   return (
     <div className="mx-auto flex max-w-xl flex-col gap-6 py-16">
       <div className="flex flex-col gap-2">
@@ -20,10 +28,13 @@ export function AdbMissing({ onRetry }: { onRetry: () => void }) {
         </div>
         <h1 className="text-xl font-semibold">adb was not found</h1>
         <p className="text-muted-foreground text-sm">
-          Install Android platform-tools with your package manager, then check
-          again. One-click download is coming soon.
+          adb-gui needs Android platform-tools to talk to your devices.
         </p>
       </div>
+      <PlatformToolsDownload onInstalled={onInstalled} />
+      <h2 className="text-muted-foreground -mb-3 text-sm font-medium">
+        Or install with a package manager
+      </h2>
       <ul className="divide-border ring-foreground/10 divide-y rounded-xl ring-1">
         {INSTALL_COMMANDS.map(({ os, command }) => (
           <InstallRow key={os} os={os} command={command} />

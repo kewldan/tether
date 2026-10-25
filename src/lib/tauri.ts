@@ -59,7 +59,21 @@ export type DevicesEvent =
   | { type: "devices"; devices: Device[] }
   | { type: "serverDown"; error: AppError };
 
+export type InstallEvent =
+  | { type: "downloading"; downloaded: number; total: number | null }
+  | { type: "extracting" };
+
 export const locateAdb = () => invoke<AdbInstall | null>("locate_adb");
+
+/** Downloads platform-tools; only call after the user accepted the license. */
+export function installPlatformTools(onEvent: (event: InstallEvent) => void) {
+  const channel = new Channel<InstallEvent>();
+  channel.onmessage = onEvent;
+  return invoke<AdbInstall>("install_platform_tools", { onEvent: channel });
+}
+
+export const cancelPlatformToolsInstall = () =>
+  invoke<void>("cancel_platform_tools_install");
 
 export const deviceInfo = (serial: string) =>
   invoke<DeviceInfo>("device_info", { serial });

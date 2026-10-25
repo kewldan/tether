@@ -21,9 +21,12 @@ tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 thiserror = "2"
-tokio = { version = "1", features = ["io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
+reqwest = "0.13"
+zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
+tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
 
 [dev-dependencies]
+tempfile = "3"
 tokio = { version = "1", features = ["io-util", "macros", "net", "rt-multi-thread", "test-util"] }
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration

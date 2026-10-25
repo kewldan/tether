@@ -5,8 +5,8 @@ Bridge. Цель — красивый, быстрый, keyboard-first инстр
 90% повседневных `adb`-команд: устройства, зеркалирование экрана, файлы,
 приложения, logcat, shell, настройки разработчика.
 
-Статус: каркас. Есть поиск adb, клиент протокола adb-сервера, живой список
-устройств (`track-devices-l`) и `getprop`; UI — временный, до готового
+Статус: каркас. Есть поиск adb, загрузка platform-tools в один клик, клиент
+протокола adb-сервера, живой список устройств (`track-devices-l`) и `getprop`; UI — временный, до готового
 дизайна.
 
 ## Ключевые решения
@@ -18,7 +18,11 @@ Bridge. Цель — красивый, быстрый, keyboard-first инстр
 2. **adb в системе не обязателен.** Если не нашли — предлагаем скачать
    platform-tools в один клик с `dl.google.com` в папку данных приложения.
    Сами бинарник **не распространяем** (лицензия Android SDK): пользователь
-   скачивает его сам и явно принимает лицензию в диалоге.
+   скачивает его сам и явно принимает лицензию в диалоге. Ставим в
+   `<app_data>/platform-tools` (`adb/installer.rs`): качаем во временную
+   папку, распаковываем, проверяем наличие adb и только потом подменяем
+   старую копию. Linux arm64 Google не публикует — там только пакетный
+   менеджер.
 3. **Не парсим вывод CLI.** Бинарник `adb` вызываем только для
    `adb start-server` (и `adb pair`, пока не реализуем pairing сами). Всё
    остальное — напрямую по протоколу adb-сервера на `localhost:5037`
@@ -35,7 +39,8 @@ Bridge. Цель — красивый, быстрый, keyboard-first инстр
 
 - **Оболочка:** Tauri 2 (последняя 2.x; 3.0 пока alpha — не берём).
 - **Бэкенд:** Rust (stable, edition 2024), `tokio`, `serde`, `thiserror`.
-  Позже: `reqwest` + `zip` (загрузка platform-tools), `tracing`.
+  `reqwest` + `zip` (только deflate) для загрузки platform-tools. Позже:
+  `tracing`.
 - **Фронтенд:** React 19 + TypeScript 7 (strict) + Vite 8, Tailwind CSS v4,
   shadcn/ui на **Base UI** (`@base-ui/react`, стиль `base-nova`, не Radix),
   иконки lucide-react, шрифт Geist. Позже: TanStack Query для запросов к бэкенду, Zustand для
@@ -131,9 +136,11 @@ pnpm tauri build      # сборка дистрибутива
 pnpm build            # tsc + vite build (проверка фронтенда)
 cd src-tauri && cargo test && cargo clippy --all-targets -- -D warnings
 cd src-tauri && cargo test --test live_server -- --ignored --nocapture
+cd src-tauri && cargo test --test live_download -- --ignored --nocapture
 ```
 
-Последняя команда ходит в настоящий adb-сервер (нужен установленный adb).
+`live_server` ходит в настоящий adb-сервер (нужен установленный adb),
+`live_download` качает ~10 МБ с `dl.google.com` во временную папку.
 ESLint/Prettier ещё не настроены.
 
 ## Git

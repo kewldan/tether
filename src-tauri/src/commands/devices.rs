@@ -7,7 +7,7 @@ use tauri::ipc::Channel;
 use crate::adb::devices::{self, Device};
 use crate::device::props::{self, DeviceInfo};
 use crate::error::{AppError, AppResult};
-use crate::state::AppState;
+use crate::state::{AppState, lock};
 
 const RETRY_DELAY: Duration = Duration::from_secs(2);
 
@@ -44,10 +44,7 @@ pub fn watch_devices(state: State<'_, AppState>, on_event: Channel<DevicesEvent>
         }
     });
 
-    let mut watcher = state
-        .device_watcher
-        .lock()
-        .unwrap_or_else(|e| e.into_inner());
+    let mut watcher = lock(&state.device_watcher);
     if let Some(previous) = watcher.replace(handle) {
         previous.abort();
     }

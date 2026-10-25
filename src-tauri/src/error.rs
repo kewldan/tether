@@ -13,6 +13,14 @@ pub enum AppError {
     AdbFailure(String),
     #[error("malformed response from adb server: {0}")]
     Protocol(String),
+    #[error("platform-tools download failed: {0}")]
+    Download(String),
+    #[error("platform-tools archive is invalid: {0}")]
+    Extract(String),
+    #[error("platform-tools are not published for {0}")]
+    UnsupportedPlatform(String),
+    #[error("operation was cancelled")]
+    Cancelled,
     #[error(transparent)]
     Io(#[from] std::io::Error),
 }
@@ -25,6 +33,10 @@ impl AppError {
             Self::ServerUnreachable(_) => "server_unreachable",
             Self::AdbFailure(_) => "adb_failure",
             Self::Protocol(_) => "protocol",
+            Self::Download(_) => "download",
+            Self::Extract(_) => "extract",
+            Self::UnsupportedPlatform(_) => "unsupported_platform",
+            Self::Cancelled => "cancelled",
             Self::Io(_) => "io",
         }
     }
@@ -36,6 +48,10 @@ impl AppError {
             }
             Self::ServerStart(_) | Self::ServerUnreachable(_) => {
                 Some("Check that nothing else occupies port 5037 and that adb can be launched.")
+            }
+            Self::Download(_) => Some("Check the internet connection and try again."),
+            Self::UnsupportedPlatform(_) => {
+                Some("Install adb with your system package manager instead.")
             }
             _ => None,
         }

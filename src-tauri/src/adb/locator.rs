@@ -7,9 +7,9 @@ use serde::Serialize;
 use tokio::process::Command;
 
 #[cfg(windows)]
-const ADB_EXE: &str = "adb.exe";
+pub(crate) const ADB_EXE: &str = "adb.exe";
 #[cfg(not(windows))]
-const ADB_EXE: &str = "adb";
+pub(crate) const ADB_EXE: &str = "adb";
 
 /// Where a candidate adb binary came from, in lookup priority order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -127,12 +127,17 @@ pub async fn locate(env: &LocatorEnv) -> Option<AdbInstall> {
     let (path, source) = candidates(env)
         .into_iter()
         .find(|(p, _)| is_executable(p))?;
+    Some(inspect(path, source).await)
+}
+
+/// Describes a known adb binary, querying its version.
+pub async fn inspect(path: PathBuf, source: AdbSource) -> AdbInstall {
     let version = adb_version(&path).await;
-    Some(AdbInstall {
+    AdbInstall {
         path,
         source,
         version,
-    })
+    }
 }
 
 fn is_executable(path: &Path) -> bool {
