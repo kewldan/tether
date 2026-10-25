@@ -1,0 +1,3 @@
+Filesystem       1K-blocks    Used Available Use% Mounted on
+/dev/block/dm-54   6082144 3088404   2851528  52% /data/user/0
+/dev/fuse          6082144 3088404   2851528  52% /storage/emulated

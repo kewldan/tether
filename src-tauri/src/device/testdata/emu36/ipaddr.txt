@@ -1,0 +1,10 @@
+16: wlan0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+    link/ether 02:15:b2:00:00:00 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.2.16/24 brd 10.0.2.255 scope global wlan0
+       valid_lft forever preferred_lft forever
+    inet6 fec0::7457:cacf:3750:62e8/64 scope site temporary dynamic 
+       valid_lft 86193sec preferred_lft 14193sec
+    inet6 fec0::4248:ab53:709a:d246/64 scope site dynamic mngtmpaddr stable-privacy 
+       valid_lft 86193sec preferred_lft 14193sec
+    inet6 fe80::9deb:4adb:1f9b:bef4/64 scope link stable-privacy 
+       valid_lft forever preferred_lft forever

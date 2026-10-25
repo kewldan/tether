@@ -21,7 +21,7 @@ pub struct DeviceInfo {
 }
 
 impl DeviceInfo {
-    fn from_props(props: &HashMap<String, String>) -> Self {
+    pub fn from_props(props: &HashMap<String, String>) -> Self {
         let get = |key: &str| props.get(key).filter(|v| !v.is_empty()).cloned();
         Self {
             manufacturer: get("ro.product.manufacturer"),

@@ -14,6 +14,8 @@ pub fn run() {
         .manage(state::AppState::default())
         .manage(commands::files::FilesState::default())
         .manage(commands::logcat::LogcatSessions::default())
+        .manage(commands::overview::OverviewState::default())
+        .manage(commands::bugreport::BugreportState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -38,6 +40,20 @@ pub fn run() {
             commands::logcat::logcat_packages,
             commands::logcat::logcat_package_processes,
             commands::logcat::logcat_export,
+            commands::overview::device_snapshot,
+            commands::overview::reboot_device,
+            commands::overview::take_screenshot,
+            commands::overview::start_recording,
+            commands::overview::stop_recording,
+            commands::overview::recording_status,
+            commands::gallery::list_captures,
+            commands::gallery::delete_capture,
+            commands::dev_settings::read_dev_settings,
+            commands::dev_settings::apply_dev_setting,
+            commands::bugreport::create_bugreport,
+            commands::bugreport::cancel_bugreport,
+            commands::bugreport::list_bugreports,
+            commands::bugreport::delete_bugreport,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
