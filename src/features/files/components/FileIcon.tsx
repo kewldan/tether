@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   File,
   FileArchive,
@@ -14,6 +13,7 @@ import {
   ScrollText,
   Video,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 import type { FileEntry } from "../api";
 import { type Category, categoryOf } from "../format";

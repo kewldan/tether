@@ -1,5 +1,4 @@
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import {
   ArrowDown,
   ArrowDownToLine,
@@ -16,7 +15,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
@@ -33,6 +31,7 @@ import {
 import { spring } from "@/lib/motion";
 import { hasMod, modKey } from "@/lib/platform";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 import { exportLogcat } from "./api";
 import type { LogLine } from "./buffer";

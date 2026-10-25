@@ -1,11 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import { Archive, Bug, Check, CircleAlert, Loader, Trash2 } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import {
@@ -40,6 +38,7 @@ import {
 } from "@/features/overview/format";
 import { os } from "@/lib/platform";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 function errorText(error: unknown) {
   return (error as Partial<AppError>)?.message ?? String(error);

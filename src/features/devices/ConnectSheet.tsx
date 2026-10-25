@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   AlertCircle,
   Check,
@@ -20,7 +19,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-
 import { useNavigation } from "@/app/navigation";
 import { deviceTone, StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +53,7 @@ import { useDevices } from "@/features/devices/store";
 import { spring } from "@/lib/motion";
 import { modKey } from "@/lib/platform";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const TABS: ConnectTab[] = ["qr", "code", "ip", "legacy"];
 const QR_SECONDS = 5 * 60;

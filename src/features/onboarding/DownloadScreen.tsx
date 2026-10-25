@@ -1,9 +1,7 @@
-import { cn } from "cn";
 import { AlertCircle, ArrowRight, Check, Loader } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
 import {
   cancelDownload,
@@ -13,6 +11,7 @@ import {
 import { IconTile, PathBox, tildify } from "@/features/onboarding/parts";
 import { spring } from "@/lib/motion";
 import type { AdbInstall, AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 type Phase =
   | { phase: "downloading"; downloaded: number; total: number | null }

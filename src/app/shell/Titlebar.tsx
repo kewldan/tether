@@ -1,14 +1,13 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { cn } from "cn";
 import { Minus, Moon, Search, Square, Sun, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
 import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { isMac, modKey } from "@/lib/platform";
 import { useSettings } from "@/lib/settings";
 import { useResolvedTheme } from "@/lib/theme";
+import { cn } from "@/lib/utils";
 
 /**
  * 40 px custom titlebar. On macOS the native traffic lights sit in the

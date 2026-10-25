@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   type ReactNode,
   type RefObject,
@@ -8,13 +7,13 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ControlMessage } from "@/features/mirror/api";
 import { keyMessages } from "@/features/mirror/keys";
 import { useMirrorSettings } from "@/features/mirror/store";
 import type { VideoSize } from "@/features/mirror/useMirrorSession";
 import { hasMod } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 /** Bezel padding around the screen, as on the board. */
 const BEZEL = 6;

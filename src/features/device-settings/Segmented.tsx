@@ -1,8 +1,7 @@
-import { cn } from "cn";
 import { motion } from "motion/react";
 import { useId } from "react";
-
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /**
  * Segmented control (`.seg` in the design): the selected pill slides on

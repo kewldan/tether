@@ -1,10 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "cn";
 import { ArrowRight, Check } from "lucide-react";
 import { motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
 import { useDeviceName } from "@/features/devices/naming";
 import { useDevices } from "@/features/devices/store";
@@ -12,6 +10,7 @@ import { adbKeyFingerprint } from "@/features/onboarding/api";
 import { Steps } from "@/features/onboarding/parts";
 import { Segmented } from "@/features/settings/Segmented";
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 export type Brand = "pixel" | "samsung" | "xiaomi" | "other";
 

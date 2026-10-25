@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   Clock,
   Cpu as CpuIcon,
@@ -10,7 +9,6 @@ import {
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
-
 import { Badge } from "@/components/ui/badge";
 import type { DeviceSnapshot } from "@/features/overview/api";
 import { formatUptime, gigabytes } from "@/features/overview/format";
@@ -19,6 +17,7 @@ import {
   chargeRate,
   useSnapshotSamples,
 } from "@/features/overview/useDeviceSnapshot";
+import { cn } from "@/lib/utils";
 
 export function MetricCard({
   title,

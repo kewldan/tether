@@ -1,5 +1,4 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import {
   Cpu,
   Ellipsis,
@@ -16,7 +15,6 @@ import {
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import type { SectionId } from "@/app/sections";
 import {
@@ -59,6 +57,7 @@ import { useDeviceInfo, useDeviceSummary } from "@/features/devices/queries";
 import { useDevices } from "@/features/devices/store";
 import { stopReconnecting } from "@/features/devices/useAutoReconnect";
 import type { AppError, Device } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const TILE: Record<Tone, string> = {
   success: "bg-selected text-secondary-foreground",

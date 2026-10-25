@@ -3,12 +3,11 @@
  * the segmented control, the "needs a device" state, the breadcrumb
  * parent and the Tether text-field look.
  */
-import { cn } from "cn";
+
 import { ChevronRight, Smartphone } from "lucide-react";
 import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import {
@@ -26,6 +25,7 @@ import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useSelectedDevice } from "@/features/devices/store";
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /** Tether text field (Components board: 30 px, radius 7, `--border2`). */
 export const fieldClass =

@@ -1,9 +1,8 @@
-import { cn } from "cn";
 import { Search, X } from "lucide-react";
 import type { ReactNode, RefObject } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { LEVELS, type Level } from "../api";
 import { compactCount, LEVEL_TEXT } from "../format";

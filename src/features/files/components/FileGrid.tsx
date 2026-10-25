@@ -3,11 +3,10 @@
 // biome-ignore-all lint/a11y/useKeyWithClickEvents: the grid container handles keys
 // biome-ignore-all lint/a11y/noStaticElementInteractions: click guards around checkboxes
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { cn } from "cn";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 
 import { type FileEntry, isDirLike } from "../api";
 import { formatBytes } from "../format";

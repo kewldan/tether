@@ -1,8 +1,6 @@
-import { cn } from "cn";
 import { ChevronsUpDown, PackageX, Search, Upload } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Kbd } from "@/components/ui/kbd";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import type { AppMeta, AppSummary } from "../api";
 import { Segmented } from "../components/Segmented";
 import { pickAndInstall, useApkDrag } from "../install/openInstaller";

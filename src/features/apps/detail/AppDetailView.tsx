@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   ChevronDown,
   ChevronRight,
@@ -14,7 +13,6 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
@@ -22,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 import type { AppMeta, AppSummary } from "../api";
 import { AppBadges } from "../components/AppBadges";
 import { AppIcon } from "../components/AppIcon";

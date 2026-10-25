@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   Camera,
   CircleDot,
@@ -20,7 +19,6 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { deviceTone, StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +27,7 @@ import { useCaptureActions } from "@/features/overview/captureActions";
 import { formatClock } from "@/features/overview/format";
 import { RebootMenu } from "@/features/overview/RebootMenu";
 import type { Device, DeviceInfo } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const QuickAction = forwardRef<
   HTMLButtonElement,

@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import { Columns2, Pencil, Play, Plus, Search, Trash2, X } from "lucide-react";
 import {
   type FormEvent,
@@ -8,7 +7,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
@@ -67,6 +65,7 @@ import {
 } from "@/features/shell/store";
 import { hasMod, modKey } from "@/lib/platform";
 import type { Device } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 /** Params already turned into a session (navigation params persist). */
 let consumedParams: object | null = null;

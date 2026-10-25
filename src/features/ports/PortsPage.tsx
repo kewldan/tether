@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   Bug,
   ChevronRight,
@@ -12,7 +11,6 @@ import {
 import { type FormEvent, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +44,7 @@ import {
 } from "@/features/ports/queries";
 import { type SavedRule, usePortsStore } from "@/features/ports/store";
 import { isMac } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 interface Row {
   direction: Direction;

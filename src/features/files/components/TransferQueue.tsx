@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   ArrowDown,
   ArrowUp,
@@ -16,10 +15,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
-
 import { Button } from "@/components/ui/button";
 import { spring } from "@/lib/motion";
 import { os } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 import { formatBytes, formatEta, formatSpeed } from "../format";
 import { reveal } from "../reveal";

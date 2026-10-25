@@ -1,9 +1,7 @@
-import { cn } from "cn";
 import { Loader, PanelLeft, Settings } from "lucide-react";
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import { useShallow } from "zustand/react/shallow";
-
 import { useNavigation } from "@/app/navigation";
 import { SECTION_IDS, SECTIONS, type SectionId } from "@/app/sections";
 import { DeviceSwitcher } from "@/app/shell/DeviceSwitcher";
@@ -16,6 +14,7 @@ import { useAdb } from "@/lib/adb";
 import { spring } from "@/lib/motion";
 import { useSettings } from "@/lib/settings";
 import { useTasks } from "@/lib/tasks";
+import { cn } from "@/lib/utils";
 
 const DEVICE_SECTIONS = SECTION_IDS.filter(
   (id) => SECTIONS[id].group === "device",

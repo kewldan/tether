@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 
 /**
  * Tiny SVG time-series chart (Performance board). Never animated: every

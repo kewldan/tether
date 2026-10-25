@@ -1,6 +1,5 @@
-import { cn } from "cn";
-
 import type { DeviceState } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 export type Tone = "success" | "warning" | "error" | "info" | "neutral";
 

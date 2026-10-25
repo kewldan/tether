@@ -1,9 +1,10 @@
 // biome-ignore-all lint/a11y/useSemanticElements: ARIA tree built from divs
 // biome-ignore-all lint/a11y/useFocusableInteractive: the buttons inside each item take focus
-import { cn } from "cn";
+
 import { ChevronDown, ChevronRight, Folder, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 import { isDirLike } from "../api";
 import { useListing } from "../queries";

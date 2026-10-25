@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   Activity,
   BatteryCharging,
@@ -22,7 +21,6 @@ import {
 import { type ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import {
   AlertDialog,
@@ -54,6 +52,7 @@ import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useSelectedDevice } from "@/features/devices/store";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const ANIMATION_SCALES = [0, 0.5, 1, 2, 5];
 const FONT_SCALES = [0.85, 1, 1.15, 1.3, 2];

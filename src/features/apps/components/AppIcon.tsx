@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 
 import type { AppIcon as Icon } from "../api";
 import { tileClass, tileLetter } from "../naming";

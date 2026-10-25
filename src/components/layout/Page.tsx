@@ -1,8 +1,7 @@
-import { cn } from "cn";
 import { ChevronRight } from "lucide-react";
 import { type ReactNode, useContext } from "react";
-
 import { PageStatusContext } from "@/components/layout/pageStatus";
+import { cn } from "@/lib/utils";
 
 /**
  * Standard page frame: 52 px header with breadcrumb and actions, then the

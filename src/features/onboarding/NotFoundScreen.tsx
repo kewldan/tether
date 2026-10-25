@@ -1,5 +1,4 @@
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import {
   Download,
   FolderOpen,
@@ -9,7 +8,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,6 +16,7 @@ import { CopyButton, IconTile, Steps } from "@/features/onboarding/parts";
 import { describe } from "@/features/onboarding/SearchScreen";
 import { Segmented } from "@/features/settings/Segmented";
 import { os } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 export const LICENSE_URL = "https://developer.android.com/studio/terms";
 

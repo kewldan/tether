@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   ArrowLeft,
   Camera,
@@ -17,7 +16,6 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +23,7 @@ import {
 } from "@/components/ui/tooltip";
 import { type ControlMessage, KEYCODE } from "@/features/mirror/api";
 import { useMirrorSettings } from "@/features/mirror/store";
+import { cn } from "@/lib/utils";
 
 function Tool({
   label,

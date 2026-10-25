@@ -1,8 +1,7 @@
-import { cn } from "cn";
 import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
-
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 /** Segmented control from the design (`.seg`): a sliding thumb on snappy. */
 export function Segmented<T extends string>({

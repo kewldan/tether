@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   ChevronLeft,
   ChevronUp,
@@ -10,7 +9,6 @@ import {
 } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -18,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { hasMod, modKey } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 import { basename, parent, resolve, segments } from "../paths";
 import { useBrowser, useFilesPrefs } from "../store";

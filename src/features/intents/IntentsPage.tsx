@@ -1,5 +1,4 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   Check,
   ChevronDown,
@@ -13,7 +12,6 @@ import {
 import { type FormEvent, type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +59,7 @@ import {
   UnderlineTabs,
   useDeviceCrumb,
 } from "@/features/performance/common";
+import { cn } from "@/lib/utils";
 
 const COMMON_ACTIONS = [
   "android.intent.action.VIEW",

@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import {
   Download,
   FolderOpen,
@@ -16,7 +15,6 @@ import {
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
@@ -58,6 +56,7 @@ import { useAdb } from "@/lib/adb";
 import { isMac, modKey, os } from "@/lib/platform";
 import { type AdbMode, type Language, useSettings } from "@/lib/settings";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const SECTION_IDS = ["general", "adb", "files", "shortcuts", "about"] as const;
 type SectionKey = (typeof SECTION_IDS)[number];

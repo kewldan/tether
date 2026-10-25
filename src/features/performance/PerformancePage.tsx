@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   ArrowDown,
   ArrowUp,
@@ -12,7 +11,6 @@ import {
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
@@ -46,6 +44,7 @@ import {
 } from "@/features/performance/common";
 import { LineChart, Swatch } from "@/features/performance/LineChart";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const KEEP_MS = 300_000;
 

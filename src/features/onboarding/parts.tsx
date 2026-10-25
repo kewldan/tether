@@ -1,9 +1,8 @@
-import { cn } from "cn";
 import { Check, Copy } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 /** Copies `text`; the icon turns into a check for a moment. */
 export function CopyButton({

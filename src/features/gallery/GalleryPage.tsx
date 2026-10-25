@@ -1,11 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import { Camera, ChevronDown, Copy, Images, Play, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import {
   AlertDialog,
@@ -50,6 +48,7 @@ import {
 } from "@/features/overview/format";
 import { os } from "@/lib/platform";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 type KindFilter = "all" | CaptureKind;
 const ALL_DEVICES = "\u0000all";

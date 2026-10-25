@@ -1,9 +1,7 @@
-import { cn } from "cn";
 import { PanelRight } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +23,7 @@ import {
   type MirrorStatus,
   useMirrorSession,
 } from "@/features/mirror/useMirrorSession";
+import { cn } from "@/lib/utils";
 
 /** Raw audio forwarding needs Android 11 (SDK 30). */
 const AUDIO_MIN_SDK = 30;

@@ -1,10 +1,8 @@
-import { cn } from "cn";
 import { Camera, LayoutGrid, List, Loader, Plus, Search } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +37,7 @@ import { Segmented } from "@/features/settings/Segmented";
 import { spring } from "@/lib/motion";
 import { useSettings } from "@/lib/settings";
 import type { AppError, Device } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 type View = "grid" | "list";
 

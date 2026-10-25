@@ -1,4 +1,4 @@
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 
 /**
  * 40 px area sparkline (no animation: charts never animate). `values` are

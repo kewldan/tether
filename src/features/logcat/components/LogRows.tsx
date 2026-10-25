@@ -1,9 +1,8 @@
-import { cn } from "cn";
 import { ChevronDown, RotateCcw, TriangleAlert } from "lucide-react";
 import { memo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import type { LogLine } from "../buffer";
 import type { Matcher } from "../filter";

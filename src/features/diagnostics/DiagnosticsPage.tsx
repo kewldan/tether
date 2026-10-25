@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl } from "@tauri-apps/plugin-opener";
-import { cn } from "cn";
 import {
   Check as CheckIcon,
   Minus,
@@ -12,7 +11,6 @@ import {
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import {
@@ -52,6 +50,7 @@ import {
 } from "@/features/onboarding/PhoneGuide";
 import { useAdb } from "@/lib/adb";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 const WIN_DRIVER_URL = "https://developer.android.com/studio/run/win-usb";
 const TEXT = {

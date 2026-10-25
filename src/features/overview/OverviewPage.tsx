@@ -1,8 +1,6 @@
-import { cn } from "cn";
 import { ChevronDown, Copy, Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
@@ -25,6 +23,7 @@ import { RebootMenu } from "@/features/overview/RebootMenu";
 import { RecentCard } from "@/features/overview/RecentCard";
 import { useDeviceSnapshot } from "@/features/overview/useDeviceSnapshot";
 import type { AppError } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 
 export default function OverviewPage() {
   const { t } = useTranslation("overview");

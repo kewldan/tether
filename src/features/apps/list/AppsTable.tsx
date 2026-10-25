@@ -1,10 +1,9 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { cn } from "cn";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { type KeyboardEvent, useRef } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
 import type { AppMeta, AppSummary } from "../api";
 import { AppBadges } from "../components/AppBadges";
 import { AppIcon } from "../components/AppIcon";

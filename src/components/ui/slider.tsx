@@ -1,7 +1,7 @@
 // Tether slider (docs/design/project/Mirror.dc.html): 4 px track on
 // --active, 16 px white thumb.
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 
 function Slider({
   className,

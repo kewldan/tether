@@ -1,8 +1,6 @@
-import { cn } from "cn";
 import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
-
 import {
   Select,
   SelectContent,
@@ -22,6 +20,7 @@ import {
 } from "@/features/mirror/store";
 import type { VideoSize } from "@/features/mirror/useMirrorSession";
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 const CODEC_LABEL: Record<VideoCodec, string> = {
   h264: "H.264",

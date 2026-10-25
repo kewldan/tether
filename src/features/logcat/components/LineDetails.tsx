@@ -1,10 +1,9 @@
-import { cn } from "cn";
 import { Ban, Copy, Filter, ListCollapse, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { modKey } from "@/lib/platform";
+import { cn } from "@/lib/utils";
 
 import type { LogLine } from "../buffer";
 import type { PackageScope } from "../filter";

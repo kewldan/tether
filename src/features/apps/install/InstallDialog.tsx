@@ -1,6 +1,5 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { cn } from "cn";
 import {
   AlertTriangle,
   Check,
@@ -12,7 +11,6 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,6 +19,7 @@ import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useDevices } from "@/features/devices/store";
 import type { Device } from "@/lib/tauri";
+import { cn } from "@/lib/utils";
 import {
   type InstallOptions,
   installedVersion,

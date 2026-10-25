@@ -1,8 +1,7 @@
-import { cn } from "cn";
 import { motion } from "motion/react";
 import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
-
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 export interface SegmentedOption<T extends string> {
   value: T;

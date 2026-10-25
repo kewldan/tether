@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   Bookmark,
   Camera,
@@ -12,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 import { formatBytes } from "../format";
 import { basename, isWithin } from "../paths";

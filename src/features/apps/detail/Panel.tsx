@@ -1,5 +1,5 @@
-import { cn } from "cn";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 /** Titled card used across the detail tabs (`.pg` on the AppDetail board). */
 export function Panel({

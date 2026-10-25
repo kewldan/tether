@@ -1,4 +1,3 @@
-import { cn } from "cn";
 import {
   ArrowRight,
   Check,
@@ -11,12 +10,12 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { AdbScan, LocationCheck } from "@/features/onboarding/api";
 import { IconTile, PathBox, Steps, tildify } from "@/features/onboarding/parts";
 import { spring } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
 const REVEAL_MS = 220;
 

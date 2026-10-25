@@ -1,12 +1,11 @@
-import { cn } from "cn";
 import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import { type AppComponent, type ComponentKind, startActivity } from "../api";
 import { Segmented } from "../components/Segmented";
 import { shortClass } from "../naming";

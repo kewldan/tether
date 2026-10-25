@@ -1,6 +1,6 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "cn";
+import { cn } from "@/lib/utils";
 
 // Tether buttons (docs/design/project/Components.dc.html): 30 px controls,
 // 26 px small, press scales to .97 on the snappy spring.
