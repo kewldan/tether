@@ -1,0 +1,384 @@
+Packages:
+  Package [com.google.android.networkstack.tethering] (7388a91):
+    appId=1073
+    sharedUser=SharedUserSetting{d00bf88 android.uid.networkstack/1073}
+    pkg=Package{edd2d21 com.google.android.networkstack.tethering}
+    codePath=/apex/com.android.tethering/priv-app/TetheringGoogle@361153320
+    resourcePath=/apex/com.android.tethering/priv-app/TetheringGoogle@361153320
+    legacyNativeLibraryDir=/apex/com.android.tethering/priv-app/TetheringGoogle@361153320/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=36 minSdk=31 targetSdk=36
+    minExtensionVersions=[]
+    versionName=16
+    hiddenApiEnforcementPolicy=0
+    usesNonSdkApi=true
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ SYSTEM HAS_CODE PERSISTENT ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE DEFAULT_TO_DEVICE_PROTECTED_STORAGE DIRECT_BOOT_AWARE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=1970-01-01 03:00:00
+    lastUpdateTime=2026-05-15 19:04:48
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=null
+    originatingPackageName=null
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{727546 version:3, signatures:[3fe45a], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ SYSTEM HAS_CODE PERSISTENT ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE DEFAULT_TO_DEVICE_PROTECTED_STORAGE DIRECT_BOOT_AWARE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=com.android.tethering
+    User 0: ceDataInode=344066 deDataInode=57429 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user_de/0/com.google.android.networkstack.tethering
+      firstInstallTime=2026-05-15 19:04:48
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+        /product/overlay/EmulatorTetheringGoogleConfigOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+        /product/overlay/EmulatorTetheringGoogleConfigOverlay.apk
+  Package [ru.tander.magnit] (a9b7307):
+    appId=10225
+    pkg=Package{fa64c34 ru.tander.magnit}
+    codePath=/data/app/~~KjSgHoA4J32HgvqGvH8cNw==/ru.tander.magnit-kRCkZM1yDZwyyra2hoLczg==
+    resourcePath=/data/app/~~KjSgHoA4J32HgvqGvH8cNw==/ru.tander.magnit-kRCkZM1yDZwyyra2hoLczg==
+    legacyNativeLibraryDir=/data/app/~~KjSgHoA4J32HgvqGvH8cNw==/ru.tander.magnit-kRCkZM1yDZwyyra2hoLczg==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=1528882 minSdk=26 targetSdk=36
+    minExtensionVersions=[]
+    versionName=8.125.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base, config.arm64_v8a, config.en, config.xxhdpi]
+    apkSigningVersion=3
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA LARGE_HEAP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE HAS_DOMAIN_URLS PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    queriesPackages=[com.huawei.appmarket, com.android.vending, ru.vk.store, ru.sbcs.store, com.kazanexpress.ke_app, ru.pyaterochka.app.browser, ru.perekrestok.app, com.yandex.lavka, ru.foodfox.client, com.deliveryclub, ru.lenta.lentochka, ru.vkusvill, club.chizhik, goldapple.ru.goldapple.customers, ru.getpharma.eapteka, com.wildberries.ru, ru.ozon.app.android, ru.beru.android, ru.megamarket.marketplace, com.lamoda.lite, ru.aliexpress.buyer, ru.yandex.taximeter, com.vkusvill.courier, com.sebbia.delivery, com.x5.courierapp, io.samokat.timelabse, ru.x5.perekrestok.darkstore, ru.ozon.flex, com.icemobile.lenta.prod, ru.bestprice.fixprice, ru.napoleonit.kb, www.metro.com, ru.myauchan.droid, ru.instamart, ru.dodopizza.app, com.avito.android, ru.yandex.taxi, com.idamob.tinkoff.android, ru.tinkoff.investing, ru.ozon.fintech.finance, ru.sovcomcard.halva.v1, ru.tinkoff.bnpl, com.edadeal.android, ru.domclick.mortgage, ru.cian.main, ru.leroymerlin.mobile, ru.sigma.gisgkh, ru.hh.android, ru.gdemoideti.parent, ru.detmir.dmbonus, ru.gosuslugi.school, com.uchi.app, ru.gosuslugi.culture, video.like, ru.farpost.dromfilter, ru.gosuslugi.auto, ru.yandex.mobile.gasstations, ru.sportmaster.app, ru.more.play, ru.aviasales, ru.rzd.pass, com.instagram.android, com.zhiliaoapp.musically, com.axlebolt.standoff2, com.playrix.homescapes, com.tanksblitz, com.yandex.bank.dev, com.yandex.bank, de.robv.android.xposed.installer, com.saurik.substrate, com.yandex.browser, ru.yandex.searchplugin, com.yandex.searchapp, ru.yandex.mail, ru.yandex.disk, ru.yandex.key, ru.yandex.auth.client, com.google.android.apps.maps, com.facebook.katana, com.facebook.lite, com.samsung.android.mapsagent, ru.vk.store.qa, ru.sberbankmobile]
+    queriesIntents=[Intent { act=android.intent.action.VIEW dat=content://*/... typ=application/* }, Intent { act=android.intent.action.VIEW cat=[android.intent.category.BROWSABLE] dat=https:/... }, Intent { act=com.vk.silentauth.action.GET_INFO }, Intent { act=android.support.customtabs.action.CustomTabsService }, Intent { act=com.vk.push.HOST_SERVICE }, Intent { act=com.vk.push.GET_DEVICE_ID }, Intent { act=android.intent.action.CREATE_DOCUMENT dat=content://*/... typ=*/* }, Intent { act=android.intent.action.VIEW dat=https:/... }, Intent { act=com.yandex.auth.action.YA_SDK_LOGIN }, Intent { act=com.appsflyer.referrer.INSTALL_PROVIDER }, Intent { act=ru.vk.store.provider.review.RemoteReviewFlowProvider }, Intent { act=ru.vk.store.provider.analytics.AnalyticsProvider }, Intent { act=ru.vk.store.RequestIgnoreBatteryOptimizations }, Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] }]
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesOptionalLibraries:
+      org.apache.http.legacy
+      android.ext.adservices
+      androidx.window.extensions
+      androidx.window.sidecar
+    usesLibraryFiles:
+      /system/framework/org.apache.http.legacy.jar
+      /system_ext/framework/androidx.window.extensions.jar
+      /system_ext/framework/androidx.window.sidecar.jar
+    timeStamp=2026-10-23 16:46:59
+    lastUpdateTime=2026-10-23 16:47:05
+    installerPackageName=ru.vk.store
+    installerPackageUid=10224
+    initiatingPackageName=ru.vk.store
+    originatingPackageName=null
+    updateOwnerPackageName=ru.vk.store
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{93e7a5d version:3, signatures:[d6ceae2b], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA LARGE_HEAP ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE HAS_DOMAIN_URLS PARTIALLY_DIRECT_BOOT_AWARE PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      ru.tander.magnit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    install permissions:
+      com.google.android.c2dm.permission.RECEIVE: granted=true
+      ru.tander.magnit.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      com.google.android.providers.gsf.permission.READ_GSERVICES: granted=true
+      android.permission.DETECT_SCREEN_CAPTURE: granted=true
+      android.permission.NFC: granted=true
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.HIGH_SAMPLING_RATE_SENSORS: granted=true
+      android.permission.ACCESS_ADSERVICES_AD_ID: granted=true
+      android.permission.INTERNET: granted=true
+      com.android.vending.CHECK_LICENSE: granted=true
+      android.permission.CHANGE_WIFI_STATE: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.ACCESS_ADSERVICES_ATTRIBUTION: granted=true
+      android.permission.USE_FINGERPRINT: granted=true
+      android.permission.DETECT_SCREEN_RECORDING: granted=true
+      android.permission.VIBRATE: granted=true
+      android.permission.ACCESS_WIFI_STATE: granted=true
+      android.permission.USE_BIOMETRIC: granted=true
+      com.android.launcher.permission.INSTALL_SHORTCUT: granted=true
+      com.google.android.gms.permission.AD_ID: granted=true
+      android.permission.WAKE_LOCK: granted=true
+    User 0: ceDataInode=378111 deDataInode=90164 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=4
+      dataDir=/data/user/0/ru.tander.magnit
+      firstInstallTime=2026-07-14 18:24:43
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      lastDisabledCaller: ru.vk.store
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.ACCESS_FINE_LOCATION: granted=false, flags=[ USER_SET|USER_FIXED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.BLUETOOTH_CONNECT: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.READ_EXTERNAL_STORAGE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED|RESTRICTION_INSTALLER_EXEMPT]
+        android.permission.ACCESS_COARSE_LOCATION: granted=false, flags=[ USER_SET|USER_FIXED|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.READ_PHONE_STATE: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.CAMERA: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.READ_CONTACTS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.BLUETOOTH_SCAN: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+      disabledComponents:
+        io.appmetrica.analytics.internal.PreloadInfoContentProvider
+      enabledComponents:
+        androidx.work.impl.background.systemalarm.RescheduleReceiver
+        androidx.work.impl.background.systemjob.SystemJobService
+  Package [com.google.android.nfc] (d4d6382):
+    appId=1027
+    sharedUser=SharedUserSetting{66b9709 android.uid.nfc/1027}
+    pkg=Package{dca3d0e com.google.android.nfc}
+    codePath=/apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@361153760
+    resourcePath=/apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@361153760
+    legacyNativeLibraryDir=/apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@361153760/lib
+    extractNativeLibs=false
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=36 minSdk=36 targetSdk=36
+    minExtensionVersions=[]
+    versionName=16
+    hiddenApiEnforcementPolicy=0
+    usesNonSdkApi=true
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP RESTORE_ANY_VERSION ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE DEFAULT_TO_DEVICE_PROTECTED_STORAGE DIRECT_BOOT_AWARE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=1970-01-01 03:00:00
+    lastUpdateTime=2026-05-15 19:04:48
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=null
+    originatingPackageName=null
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{48a732f version:3, signatures:[43c1d290], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP RESTORE_ANY_VERSION ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE DEFAULT_TO_DEVICE_PROTECTED_STORAGE DIRECT_BOOT_AWARE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=com.android.nfcservices
+    declared permissions:
+      com.android.nfc.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    User 0: ceDataInode=344492 deDataInode=57816 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=2 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user_de/0/com.google.android.nfc
+      firstInstallTime=2026-05-15 19:04:48
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      lastDisabledCaller: com.google.android.nfc
+  Package [com.android.privatespace] (9f45c66):
+    appId=10105
+    pkg=Package{e169ba7 com.android.privatespace}
+    codePath=/system/priv-app/PrivateSpace
+    resourcePath=/system/priv-app/PrivateSpace
+    legacyNativeLibraryDir=/system/priv-app/PrivateSpace/lib
+    extractNativeLibs=true
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=36 minSdk=36 targetSdk=36
+    minExtensionVersions=[]
+    versionName=16
+    hiddenApiEnforcementPolicy=0
+    usesNonSdkApi=true
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=true
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2025-12-11 10:07:04
+    lastUpdateTime=2026-05-15 19:04:47
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=null
+    originatingPackageName=null
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{d375854 version:3, signatures:[b2d95fc0], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE PRIVILEGED PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      com.android.privatespace.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    install permissions:
+      android.permission.ACCESS_HIDDEN_PROFILES_FULL: granted=true
+      com.android.privatespace.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.FOREGROUND_SERVICE_MEDIA_PROCESSING: granted=true
+      android.permission.INTERACT_ACROSS_USERS: granted=true
+    User 0: ceDataInode=0 deDataInode=0 installed=false hidden=false suspended=false distractionFlags=0 stopped=true notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=null
+      firstInstallTime=2026-05-15 19:04:47
+      uninstallReason=1
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ SYSTEM_FIXED|GRANTED_BY_DEFAULT]
+  Package [com.google.android.webview] (6baf987):
+    appId=10173
+    pkg=Package{b0d90b4 com.google.android.webview}
+    codePath=/data/app/~~-i2HuweBYvV1Rqu0oPzdGA==/com.google.android.webview-LQOA95BnoztDmi5-JZN0yA==
+    resourcePath=/data/app/~~-i2HuweBYvV1Rqu0oPzdGA==/com.google.android.webview-LQOA95BnoztDmi5-JZN0yA==
+    legacyNativeLibraryDir=/data/app/~~-i2HuweBYvV1Rqu0oPzdGA==/com.google.android.webview-LQOA95BnoztDmi5-JZN0yA==/lib
+    extractNativeLibs=false
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=699813532 minSdk=29 targetSdk=35
+    minExtensionVersions=[]
+    versionName=134.0.6998.135
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA UPDATED_SYSTEM_APP ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE ISOLATED_SPLIT_LOADING PRODUCT PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    usesStaticLibraries:
+      com.google.android.trichromelibrary version:699813532
+    usesOptionalLibraries:
+      androidx.window.extensions
+      android.ext.adservices
+    usesLibraryFiles:
+      /data/app/~~fJGH0TFrDCKHNqLDSdKmhw==/com.google.android.trichromelibrary_699813532-kupZ-B08YP6YaC6694kaDA==/TrichromeLibrary.apk
+      /system_ext/framework/androidx.window.extensions.jar
+    timeStamp=2026-05-15 19:04:49
+    lastUpdateTime=2026-05-15 19:04:48
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=null
+    originatingPackageName=null
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{615a4dd version:3, signatures:[f4ae824f], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA UPDATED_SYSTEM_APP ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE ISOLATED_SPLIT_LOADING PRODUCT PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    install permissions:
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.FOREGROUND_SERVICE_SPECIAL_USE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+    User 0: ceDataInode=344447 deDataInode=57777 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/com.google.android.webview
+      firstInstallTime=2026-05-15 19:04:48
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      lastDisabledCaller: android
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED]
+
+Hidden system packages:
+  Package [com.google.android.webview] (728d035):
+    appId=10173
+    pkg=Package{9cefcca com.google.android.webview}
+    codePath=/product/app/WebViewGoogle-Stub
+    resourcePath=/product/app/WebViewGoogle-Stub
+    legacyNativeLibraryDir=/product/app/WebViewGoogle-Stub/lib
+    extractNativeLibs=true
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=699813532 minSdk=26 targetSdk=35
+    minExtensionVersions=[]
+    versionName=134.0.6998.135
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=0
+    flags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privateFlags=[ PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRODUCT PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2025-12-11 10:05:58
+    lastUpdateTime=1970-01-01 02:59:59
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=null
+    originatingPackageName=null
+    packageSource=0
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{c635e3b version:0, signatures:[], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ SYSTEM HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE ]
+    privatePkgFlags=[ PRIVATE_FLAG_REQUEST_LEGACY_EXTERNAL_STORAGE PRODUCT PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    install permissions:
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.RECEIVE_BOOT_COMPLETED: granted=true
+      android.permission.FOREGROUND_SERVICE_SPECIAL_USE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+    User 0: ceDataInode=0 deDataInode=0 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/com.google.android.webview
+      firstInstallTime=1970-01-01 02:59:59
+      uninstallReason=0
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED]

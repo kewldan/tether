@@ -19,6 +19,7 @@ pub fn run() {
         .manage(commands::shell::ShellSessions::default())
         .manage(commands::perf::PerfSubscriptions::default())
         .manage(commands::connection::ConnectionState::default())
+        .manage(commands::apps::AppsState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -98,6 +99,30 @@ pub fn run() {
             commands::connection::devices_exec,
             commands::connection::devices_screenshot,
             commands::diagnostics::diagnostics_run,
+            commands::apps::list_apps,
+            commands::apps::app_details,
+            commands::apps::app_components,
+            commands::apps::app_storage,
+            commands::apps::app_ops,
+            commands::apps::app_battery,
+            commands::apps::load_app_meta,
+            commands::apps::launch_app,
+            commands::apps::start_activity,
+            commands::apps::force_stop_app,
+            commands::apps::clear_app_data,
+            commands::apps::set_app_enabled,
+            commands::apps::uninstall_app,
+            commands::apps::install_existing_app,
+            commands::apps::set_app_permission,
+            commands::apps::reset_app_permissions,
+            commands::apps::set_app_op,
+            commands::apps::set_standby_bucket,
+            commands::apps::set_battery_unrestricted,
+            commands::apps::inspect_package_file,
+            commands::apps::installed_version,
+            commands::apps::install_package,
+            commands::apps::cancel_apps_job,
+            commands::apps::extract_apks,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

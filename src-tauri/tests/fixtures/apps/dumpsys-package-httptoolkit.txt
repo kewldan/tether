@@ -1,0 +1,206 @@
+Activity Resolver Table:
+  Schemes:
+      https:
+        f152955 tech.httptoolkit.android.v1/tech.httptoolkit.android.main.MainActivity filter 312c5b
+          Action: "android.intent.action.VIEW"
+          Category: "android.intent.category.BROWSABLE"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "https"
+          Authority: "android.httptoolkit.tech": -1
+          Path: "PatternMatcher{PREFIX: /connect}"
+          AutoVerify=true
+        9d5ccf8 tech.httptoolkit.android.v1/tech.httptoolkit.android.RemoteControlMainActivity filter 44c05d1
+          Action: "tech.httptoolkit.android.ACTIVATE"
+          Category: "android.intent.category.DEFAULT"
+          Scheme: "https"
+          Authority: "android.httptoolkit.tech": -1
+          Path: "PatternMatcher{PREFIX: /connect}"
+
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        f152955 tech.httptoolkit.android.v1/tech.httptoolkit.android.main.MainActivity filter b58af6a
+          Action: "android.intent.action.MAIN"
+          Category: "android.intent.category.LAUNCHER"
+          Category: "android.intent.category.LEANBACK_LAUNCHER"
+      tech.httptoolkit.android.DEACTIVATE:
+        9d5ccf8 tech.httptoolkit.android.v1/tech.httptoolkit.android.RemoteControlMainActivity filter eca5836
+          Action: "tech.httptoolkit.android.DEACTIVATE"
+          Category: "android.intent.category.DEFAULT"
+
+Receiver Resolver Table:
+  Non-Data Actions:
+      androidx.profileinstaller.action.SAVE_PROFILE:
+        2cc3337 tech.httptoolkit.android.v1/androidx.profileinstaller.ProfileInstallReceiver filter 8dbc1c2
+          Action: "androidx.profileinstaller.action.SAVE_PROFILE"
+      androidx.profileinstaller.action.INSTALL_PROFILE:
+        2cc3337 tech.httptoolkit.android.v1/androidx.profileinstaller.ProfileInstallReceiver filter c16c0a4
+          Action: "androidx.profileinstaller.action.INSTALL_PROFILE"
+      androidx.profileinstaller.action.SKIP_FILE:
+        2cc3337 tech.httptoolkit.android.v1/androidx.profileinstaller.ProfileInstallReceiver filter 73a2e0d
+          Action: "androidx.profileinstaller.action.SKIP_FILE"
+      androidx.profileinstaller.action.BENCHMARK_OPERATION:
+        2cc3337 tech.httptoolkit.android.v1/androidx.profileinstaller.ProfileInstallReceiver filter 8a6cbd3
+          Action: "androidx.profileinstaller.action.BENCHMARK_OPERATION"
+
+Service Resolver Table:
+  Non-Data Actions:
+      android.net.VpnService:
+        9514310 tech.httptoolkit.android.v1/tech.httptoolkit.android.ProxyVpnService filter 8689e09 permission android.permission.BIND_VPN_SERVICE
+          Action: "android.net.VpnService"
+          Action: "tech.httptoolkit.android.ProxyVpnService"
+      tech.httptoolkit.android.ProxyVpnService:
+        9514310 tech.httptoolkit.android.v1/tech.httptoolkit.android.ProxyVpnService filter 8689e09 permission android.permission.BIND_VPN_SERVICE
+          Action: "android.net.VpnService"
+          Action: "tech.httptoolkit.android.ProxyVpnService"
+
+Domain verification status:
+  tech.httptoolkit.android.v1:
+    ID: a434f49e-8622-4ff0-aec2-f4f51890b935
+    Signatures: [BB:D3:D4:0E:A6:26:BE:5C:C9:76:A9:62:22:C5:D5:AE:B3:78:8D:FF:15:62:BA:97:C9:08:B6:58:C8:55:DE:89]
+    Domain verification state:
+      android.httptoolkit.tech: verified
+    User all:
+      Verification link handling allowed: true
+      Selection state:
+        Disabled:
+          android.httptoolkit.tech
+
+Permissions:
+  Permission [tech.httptoolkit.android.v1.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION] (bad9ac5):
+    sourcePackage=tech.httptoolkit.android.v1
+    uid=10229 gids=[] type=0 prot=signature
+    perm=PermissionInfo{7711c1a tech.httptoolkit.android.v1.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION}
+    flags=0x0
+
+Registered ContentProviders:
+  tech.httptoolkit.android.v1/androidx.startup.InitializationProvider:
+    Provider{7d5134b tech.httptoolkit.android.v1/androidx.startup.InitializationProvider}
+  tech.httptoolkit.android.v1/io.sentry.android.core.SentryPerformanceProvider:
+    Provider{89c4128 tech.httptoolkit.android.v1/io.sentry.android.core.SentryPerformanceProvider}
+  tech.httptoolkit.android.v1/io.sentry.android.core.SentryInitProvider:
+    Provider{3521e41 tech.httptoolkit.android.v1/io.sentry.android.core.SentryInitProvider}
+
+ContentProvider Authorities:
+  [tech.httptoolkit.android.v1.SentryPerformanceProvider]:
+    Provider{89c4128 tech.httptoolkit.android.v1/io.sentry.android.core.SentryPerformanceProvider}
+      applicationInfo=ApplicationInfo{674dfe6 tech.httptoolkit.android.v1}
+  [tech.httptoolkit.android.v1.androidx-startup]:
+    Provider{7d5134b tech.httptoolkit.android.v1/androidx.startup.InitializationProvider}
+      applicationInfo=ApplicationInfo{ddf9927 tech.httptoolkit.android.v1}
+  [tech.httptoolkit.android.v1.SentryInitProvider]:
+    Provider{3521e41 tech.httptoolkit.android.v1/io.sentry.android.core.SentryInitProvider}
+      applicationInfo=ApplicationInfo{40847d4 tech.httptoolkit.android.v1}
+
+Key Set Manager:
+  [tech.httptoolkit.android.v1]
+      Signing KeySets: 72
+
+Packages:
+  Package [tech.httptoolkit.android.v1] (f615d7d):
+    appId=10229
+    pkg=Package{29f1472 tech.httptoolkit.android.v1}
+    codePath=/data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==
+    resourcePath=/data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==
+    legacyNativeLibraryDir=/data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==/lib
+    extractNativeLibs=true
+    primaryCpuAbi=arm64-v8a
+    secondaryCpuAbi=null
+    cpuAbiOverride=null
+    versionCode=36 minSdk=21 targetSdk=35
+    minExtensionVersions=[]
+    versionName=1.6.0
+    hiddenApiEnforcementPolicy=2
+    usesNonSdkApi=false
+    splits=[base]
+    apkSigningVersion=3
+    flags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE LARGE_HEAP ]
+    privateFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE HAS_DOMAIN_URLS PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    forceQueryable=false
+    pageSizeCompat=0
+    scannedAsStoppedSystemApp=false
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2026-10-06 23:01:03
+    lastUpdateTime=2026-10-06 23:01:03
+    installerPackageName=null
+    installerPackageUid=-1
+    initiatingPackageName=com.android.shell
+    originatingPackageName=null
+    packageSource=1
+    appMetadataFilePath=null
+    appMetadataSource=0
+    signatures=PackageSignatures{822a0c3 version:3, signatures:[f2fe8bfc], past signatures:[]}
+    installPermissionsFixed=false
+    pkgFlags=[ HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP KILL_AFTER_RESTORE LARGE_HEAP ]
+    privatePkgFlags=[ PRIVATE_FLAG_ACTIVITIES_RESIZE_MODE_RESIZEABLE_VIA_SDK_VERSION ALLOW_AUDIO_PLAYBACK_CAPTURE HAS_DOMAIN_URLS PRIVATE_FLAG_ALLOW_NATIVE_HEAP_POINTER_TAGGING ]
+    apexModuleName=null
+    declared permissions:
+      tech.httptoolkit.android.v1.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: prot=signature
+    requested permissions:
+      com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE
+      android.permission.POST_NOTIFICATIONS
+      tech.httptoolkit.android.v1.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+      android.permission.FOREGROUND_SERVICE
+      android.permission.INTERNET
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC
+      android.permission.ACCESS_NETWORK_STATE
+      android.permission.CAMERA
+      android.permission.QUERY_ALL_PACKAGES
+    install permissions:
+      tech.httptoolkit.android.v1.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION: granted=true
+      android.permission.FOREGROUND_SERVICE: granted=true
+      android.permission.INTERNET: granted=true
+      android.permission.FOREGROUND_SERVICE_DATA_SYNC: granted=true
+      android.permission.ACCESS_NETWORK_STATE: granted=true
+      android.permission.QUERY_ALL_PACKAGES: granted=true
+    User 0: ceDataInode=360863 deDataInode=98316 installed=true hidden=false suspended=false distractionFlags=0 stopped=false notLaunched=false enabled=0 instant=false virtual=false quarantined=false
+      installReason=0
+      dataDir=/data/user/0/tech.httptoolkit.android.v1
+      firstInstallTime=2026-10-06 23:01:03
+      uninstallReason=0
+      overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      legacy overlay paths:
+        /product/overlay/NavigationBarModeGestural/NavigationBarModeGesturalOverlay.apk
+        /product/overlay/EmulationPixel10Pro/EmulationPixel10ProOverlay.apk
+      gids=[3003]
+      runtime permissions:
+        android.permission.POST_NOTIFICATIONS: granted=true, flags=[ USER_SET|USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+        android.permission.CAMERA: granted=false, flags=[ USER_SENSITIVE_WHEN_GRANTED|USER_SENSITIVE_WHEN_DENIED]
+
+Queries:
+  system apps queryable: false
+  queries via forceQueryable:
+  queries via package name:
+  queries via component:
+    com.google.android.apps.messaging:
+      tech.httptoolkit.android.v1
+    com.google.android.settings.intelligence:
+      tech.httptoolkit.android.v1
+    ru.tander.magnit:
+      tech.httptoolkit.android.v1
+    com.apegroup.mcdonaldsrussia:
+      tech.httptoolkit.android.v1
+  queryable via interaction:
+    User 0:
+      [com.android.inputdevices,com.android.location.fused,com.android.settings,com.android.localtransport,com.android.emulator.multidisplay,com.android.DeviceAsWebcam,com.android.dynsystem,com.android.server.telecom,android,com.android.providers.settings,com.android.keychain]:
+        tech.httptoolkit.android.v1
+      com.google.android.as:
+        tech.httptoolkit.android.v1
+      com.google.android.gms:
+        tech.httptoolkit.android.v1
+      com.google.android.inputmethod.latin:
+        tech.httptoolkit.android.v1
+      com.android.systemui:
+        tech.httptoolkit.android.v1
+      com.google.android.apps.nexuslauncher:
+        tech.httptoolkit.android.v1
+      tech.httptoolkit.android.v1:
+        [com.android.inputdevices,com.android.location.fused,com.android.settings,com.android.localtransport,com.android.emulator.multidisplay,com.android.DeviceAsWebcam,com.android.dynsystem,com.android.server.telecom,android,com.android.providers.settings,com.android.keychain]
+  queryable via uses-library:
+
+Dexopt state:
+  [tech.httptoolkit.android.v1]
+    path: /data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==/base.apk
+      arm64: [status=verify] [reason=install] [primary-abi]
+        [location is /data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==/oat/arm64/base.odex]

@@ -7,6 +7,8 @@ pub mod intents;
 pub mod logcat;
 pub mod overview;
 pub mod perf;
+pub mod apk;
+pub mod packages;
 pub mod props;
 pub mod sections;
 pub mod summary;

@@ -1,0 +1,6 @@
+package:/data/app/~~KjSgHoA4J32HgvqGvH8cNw==/ru.tander.magnit-kRCkZM1yDZwyyra2hoLczg==/base.apk=ru.tander.magnit versionCode:1528882  installer=ru.vk.store uid:10225
+package:/data/app/~~jL2eYrntNWQ1qMj9Ir6OjQ==/tech.httptoolkit.android.v1-k6So4MVkXtIqD80OavpydQ==/base.apk=tech.httptoolkit.android.v1 versionCode:36  installer=null uid:10229
+package:/apex/com.android.nfcservices/priv-app/NfcNciApexGoogle@361153760/NfcNciApexGoogle.apk=com.google.android.nfc versionCode:36  installer=null uid:1027
+package:/product/app/Camera2/Camera2.apk=com.android.camera2 versionCode:20002000  installer=null uid:10158
+package:/apex/com.android.tethering/priv-app/TetheringGoogle@361153320/TetheringGoogle.apk=com.google.android.networkstack.tethering versionCode:36  installer=null uid:1073
+package:/data/app/~~-i2HuweBYvV1Rqu0oPzdGA==/com.google.android.webview-LQOA95BnoztDmi5-JZN0yA==/WebViewGoogle.apk=com.google.android.webview versionCode:699813532  installer=null uid:10173
