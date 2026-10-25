@@ -1,10 +1,11 @@
 use std::time::Duration;
 
 use serde::Serialize;
-use tauri::State;
 use tauri::ipc::Channel;
+use tauri::{AppHandle, Manager, State};
 
 use crate::adb::devices::{self, Device};
+use crate::commands::connection::ConnectionState;
 use crate::device::props::{self, DeviceInfo};
 use crate::error::{AppError, AppResult};
 use crate::state::{AppState, lock};
@@ -22,14 +23,25 @@ pub enum DevicesEvent {
 /// resubscribes whenever the connection drops. Calling it again replaces the
 /// previous subscription.
 #[tauri::command]
-pub fn watch_devices(state: State<'_, AppState>, on_event: Channel<DevicesEvent>) -> AppResult<()> {
+pub fn watch_devices(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    on_event: Channel<DevicesEvent>,
+) -> AppResult<()> {
     let adb = state.adb().ok_or(AppError::AdbNotFound)?;
     let server = state.server;
 
     let handle = tauri::async_runtime::spawn(async move {
+        let conn = app.state::<ConnectionState>();
         loop {
+            let mut tracking = false;
             let result = async {
+                let was_running = server.version().await.is_ok();
                 server.ensure_running(&adb.path).await?;
+                if !was_running {
+                    conn.server_started();
+                }
+                tracking = true;
                 devices::track(&server, |devices| {
                     let _ = on_event.send(DevicesEvent::Devices { devices });
                 })
@@ -38,6 +50,11 @@ pub fn watch_devices(state: State<'_, AppState>, on_event: Channel<DevicesEvent>
             .await;
 
             if let Err(error) = result {
+                // Losing a live subscription means someone killed or
+                // restarted the server; diagnostics counts these.
+                if tracking {
+                    conn.server_dropped(&error);
+                }
                 let _ = on_event.send(DevicesEvent::ServerDown { error });
             }
             tokio::time::sleep(RETRY_DELAY).await;

@@ -18,6 +18,7 @@ pub fn run() {
         .manage(commands::bugreport::BugreportState::default())
         .manage(commands::shell::ShellSessions::default())
         .manage(commands::perf::PerfSubscriptions::default())
+        .manage(commands::connection::ConnectionState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -75,6 +76,27 @@ pub fn run() {
             commands::perf::perf_processes,
             commands::perf::perf_kill,
             commands::perf::perf_export_csv,
+            commands::adb::adb_scan,
+            commands::adb::adb_use_path,
+            commands::adb::adb_key_fingerprint,
+            commands::adb::adb_server_status,
+            commands::adb::adb_ensure_server,
+            commands::adb::adb_restart_server,
+            commands::connection::wifi_mdns_services,
+            commands::connection::wifi_qr_session,
+            commands::connection::wifi_pair,
+            commands::connection::wifi_cancel_pair,
+            commands::connection::wifi_connect,
+            commands::connection::wifi_disconnect,
+            commands::connection::wifi_tcpip,
+            commands::connection::device_wifi_ip,
+            commands::connection::devices_reboot,
+            commands::connection::devices_reconnect,
+            commands::connection::devices_reconnect_offline,
+            commands::connection::devices_summary,
+            commands::connection::avd_list,
+            commands::connection::avd_launch,
+            commands::diagnostics::diagnostics_run,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
