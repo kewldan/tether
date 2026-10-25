@@ -26,6 +26,7 @@ Devices, screen mirroring, files, apps, logcat and shell in one keyboard-first w
 - ⌨️ **Keyboard-first.** `⌘K` / `Ctrl+K` command palette for every action, device and screen.
 - 🧠 **Speaks adb natively.** Uses the adb server protocol directly instead of scraping CLI output, so it stays fast and reliable.
 - 🎨 **Designed, not assembled.** A dense, calm interface with real dark and light themes, spring animations and accessible contrast.
+- 🔄 **Updates itself.** Signed over-the-air updates: one click, and it restarts on the new version.
 - 🌍 **English and Russian** out of the box.
 
 ## 🧰 Features
@@ -75,6 +76,8 @@ bun run lint          # Biome
 bun run build         # type-check and build the frontend
 cd src-tauri && cargo test && cargo clippy --all-targets -- -D warnings
 ```
+
+Releases and OTA updates are described in [docs/releasing.md](docs/releasing.md).
 
 ### 🏗️ Tech stack
 

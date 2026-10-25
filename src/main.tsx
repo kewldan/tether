@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import { App } from "@/app/App";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { UpdateNotifier } from "@/features/updater/UpdateNotifier";
 
 if (import.meta.env.DEV && !("__TAURI_INTERNALS__" in window)) {
   const { installMockBackend } = await import("@/dev/mockBackend");
@@ -28,6 +29,7 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         <TooltipProvider>
           <App />
           <Toaster position="bottom-right" />
+          <UpdateNotifier />
         </TooltipProvider>
       </MotionConfig>
     </QueryClientProvider>

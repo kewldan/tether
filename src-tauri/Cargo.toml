@@ -26,6 +26,7 @@ thiserror = "2"
 reqwest = "0.13"
 zip = { version = "9", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 tokio = { version = "1", features = ["fs", "io-util", "macros", "net", "process", "rt-multi-thread", "sync", "time"] }
+tauri-plugin-process = "2"
 
 [dev-dependencies]
 tempfile = "3"
@@ -38,3 +39,6 @@ lto = true
 opt-level = 3
 panic = "abort"
 strip = true
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2"
