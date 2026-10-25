@@ -66,5 +66,6 @@
   "historyEmpty": "Intents you send appear here.",
   "favoritesEmpty": "Save an intent from the builder to reuse it.",
   "clearHistory": "Clear history",
-  "removeFavorite": "Remove from favorites"
+  "removeFavorite": "Remove from favorites",
+  "commandHint": "Set an action, data URI or component to build the command."
 }

@@ -258,7 +258,14 @@ function Builder({
     placeholderData: keepPreviousData,
     retry: false,
   });
-  const invalid = command.isError ? errorMessage(command.error) : null;
+  // Nothing to run yet: show a hint instead of the backend's validation error.
+  const empty =
+    !spec.action.trim() && !spec.data.trim() && !spec.component.trim();
+  const invalid = empty
+    ? t("commandHint")
+    : command.isError
+      ? errorMessage(command.error)
+      : null;
 
   const copy = async () => {
     if (!command.data || invalid) return;
@@ -431,7 +438,11 @@ function Builder({
       <div
         className={cn(
           "bg-sidebar rounded-md border px-3 py-2.5 font-mono text-[11.5px] leading-[18px] break-all whitespace-pre-wrap",
-          invalid ? "text-error" : "text-secondary-foreground",
+          empty
+            ? "text-muted-foreground"
+            : invalid
+              ? "text-error"
+              : "text-secondary-foreground",
         )}
         aria-live="polite"
       >
