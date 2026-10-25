@@ -6,7 +6,7 @@
 
 Devices, screen mirroring, files, apps, logcat and shell in one keyboard-first window. No more copy-pasting `adb` commands.
 
-[![CI](https://github.com/kewldan/adb-gui/actions/workflows/ci.yml/badge.svg)](https://github.com/kewldan/adb-gui/actions/workflows/ci.yml)
+[![CI](https://github.com/kewldan/tether/actions/workflows/ci.yml/badge.svg)](https://github.com/kewldan/tether/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-6D5AE6.svg)](LICENSE)
 ![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Windows%20%7C%20Linux-3DD68C)
 ![Built with Tauri](https://img.shields.io/badge/built%20with-Tauri%202-24C8DB)

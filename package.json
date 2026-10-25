@@ -7,7 +7,7 @@
   "author": "kewldan <kewldanil1@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kewldan/adb-gui"
+    "url": "https://github.com/kewldan/tether"
   },
   "type": "module",
   "scripts": {
