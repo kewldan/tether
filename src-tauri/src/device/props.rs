@@ -18,6 +18,9 @@ pub struct DeviceInfo {
     pub security_patch: Option<String>,
     pub fingerprint: Option<String>,
     pub abi: Option<String>,
+    /// AVD name of an emulator (`Pixel_10_Pro`), shown instead of the
+    /// generic `sdk_gphone64_arm64` model.
+    pub avd_name: Option<String>,
 }
 
 impl DeviceInfo {
@@ -31,6 +34,7 @@ impl DeviceInfo {
             security_patch: get("ro.build.version.security_patch"),
             fingerprint: get("ro.build.fingerprint"),
             abi: get("ro.product.cpu.abi"),
+            avd_name: get("ro.boot.qemu.avd_name").map(|n| n.replace('_', " ")),
         }
     }
 }

@@ -2,13 +2,14 @@ import { useKnownDevices } from "@/features/devices/known";
 import type { Device, DeviceInfo } from "@/lib/tauri";
 
 /**
- * Human name of a device: the local alias from "Rename…", then getprop
- * model, then adb's model, then serial. Reads aliases without subscribing;
+ * Human name of a device: the local alias from "Rename…", then the
+ * emulator's AVD name, then getprop model, then adb's model, then serial. Reads aliases without subscribing;
  * components that must re-render on rename use {@link useDeviceName}.
  */
 export function deviceName(device: Device, info?: DeviceInfo | null): string {
   return (
     useKnownDevices.getState().aliases[device.serial] ??
+    info?.avdName ??
     info?.model ??
     device.model ??
     device.serial
@@ -24,5 +25,5 @@ export function useDeviceName(
     device ? s.aliases[device.serial] : undefined,
   );
   if (!device) return null;
-  return alias ?? info?.model ?? device.model ?? device.serial;
+  return alias ?? info?.avdName ?? info?.model ?? device.model ?? device.serial;
 }

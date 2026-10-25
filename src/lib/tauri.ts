@@ -47,6 +47,8 @@ export interface DeviceInfo {
   securityPatch: string | null;
   fingerprint: string | null;
   abi: string | null;
+  /** Emulator AVD name with spaces ("Pixel 10 Pro"). */
+  avdName?: string | null;
 }
 
 export interface AppError {
