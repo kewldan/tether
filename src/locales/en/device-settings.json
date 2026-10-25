@@ -1,0 +1,62 @@
+{
+  "changedCount_one": "{{count}} changed",
+  "changedCount_other": "{{count}} changed",
+  "changed": "changed",
+  "revertAll": "Restore all original values",
+  "reverted": "Original values restored",
+  "applyFailed": "Couldn't change the setting",
+  "loadFailed": "Couldn't read the device settings",
+  "noDevice": "Connect a device to change its developer settings.",
+  "sections": {
+    "display": "Display & UI",
+    "overlays": "Debugging overlays",
+    "locale": "Locale",
+    "connectivity": "Connectivity"
+  },
+  "darkTheme": {
+    "title": "Dark theme"
+  },
+  "animation": {
+    "title": "Animation scale",
+    "hint": "window, transition and animator"
+  },
+  "fontScale": {
+    "title": "Font scale",
+    "hint": "system font size"
+  },
+  "screen": {
+    "title": "Screen size & density",
+    "hint": "wm size · wm density · original {{original}}",
+    "reset": "Reset",
+    "apply": "Apply",
+    "width": "Width",
+    "height": "Height",
+    "density": "Density"
+  },
+  "demo": {
+    "title": "Demo mode",
+    "hint": "Clean status bar for screenshots: 12:00, full battery, full signal, no notifications"
+  },
+  "overlays": {
+    "showTouches": "Show touches",
+    "pointerLocation": "Pointer location",
+    "layoutBounds": "Layout bounds",
+    "gpuProfiling": "GPU rendering bars",
+    "stayAwake": "Stay awake on charge"
+  },
+  "locale": {
+    "title": "System language",
+    "hint": "Shown for reference: Android has no shell command to switch the system language live. Change it in the device's Settings."
+  },
+  "connectivity": {
+    "wifi": "Wi-Fi",
+    "mobileData": "Mobile data",
+    "airplane": "Airplane",
+    "note": "Turning Wi-Fi off disconnects wireless adb sessions — you'll be asked first."
+  },
+  "wifiOff": {
+    "title": "Turn off Wi-Fi on {{name}}?",
+    "body": "This device is connected over Wi-Fi. Turning Wi-Fi off ends the adb session, and you'll need USB to turn it back on.",
+    "confirm": "Turn off Wi-Fi"
+  }
+}
