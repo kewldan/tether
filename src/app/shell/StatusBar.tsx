@@ -5,14 +5,22 @@ import { deviceTone, StatusDot } from "@/components/status/StatusDot";
 import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useSelectedDevice } from "@/features/devices/store";
+import { useDeviceSnapshot } from "@/features/overview/useDeviceSnapshot";
+import { useActiveForwards } from "@/features/ports/queries";
 
 /** 24 px status bar with facts about the selected device. */
 export function StatusBar() {
   const { t } = useTranslation();
   const device = useSelectedDevice();
-  const { data: info } = useDeviceInfo(
-    device?.state.kind === "device" ? device.serial : null,
-  );
+  const readySerial = device?.state.kind === "device" ? device.serial : null;
+  const { data: info } = useDeviceInfo(readySerial);
+  const { data: snapshot } = useDeviceSnapshot(readySerial);
+  const forwards = useActiveForwards();
+  const battery = snapshot?.battery;
+  const portRules = [
+    ...forwards.forward.map((r) => `${r.local} → ${stripTcp(r.remote)}`),
+    ...forwards.reverse.map((r) => `${r.local} ← ${stripTcp(r.remote)}`),
+  ];
 
   const items: ReactNode[] = device
     ? [
@@ -24,6 +32,11 @@ export function StatusBar() {
           {device.serial}
         </span>,
         t(`transport.${device.transport}`),
+        battery?.level != null && (
+          <span key="battery" className="tabular-nums">
+            {battery.level}%{battery.status === "charging" ? " ⚡" : ""}
+          </span>
+        ),
         info?.androidVersion &&
           (info.sdk
             ? t("androidSdk", { version: info.androidVersion, sdk: info.sdk })
@@ -46,6 +59,15 @@ export function StatusBar() {
           {item}
         </Fragment>
       ))}
+      {device && portRules.length > 0 && (
+        <span className="ml-auto truncate font-mono">
+          {portRules.join(" · ")}
+        </span>
+      )}
     </footer>
   );
+}
+
+function stripTcp(spec: string) {
+  return spec.startsWith("tcp:") ? spec.slice(4) : spec;
 }

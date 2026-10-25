@@ -8,8 +8,10 @@ import { useNavigation } from "@/app/navigation";
 import { SECTION_IDS, SECTIONS, type SectionId } from "@/app/sections";
 import { DeviceSwitcher } from "@/app/shell/DeviceSwitcher";
 import { StatusDot } from "@/components/status/StatusDot";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDevices } from "@/features/devices/store";
+import { useLogcatSession } from "@/features/logcat/session";
 import { useAdb } from "@/lib/adb";
 import { spring } from "@/lib/motion";
 import { useSettings } from "@/lib/settings";
@@ -87,6 +89,9 @@ function NavItem({
   const navigate = useNavigation((s) => s.navigate);
   const Icon = SECTIONS[id].icon;
   const label = t(`nav.${id}`);
+  const crashes = useLogcatSession((s) =>
+    id === "logcat" ? s.unseenCrashes : 0,
+  );
 
   return (
     <button
@@ -117,6 +122,11 @@ function NavItem({
       >
         {label}
       </motion.span>
+      {crashes > 0 && !collapsed && (
+        <Badge variant="error" className="ml-auto h-[18px] tabular-nums">
+          {crashes}
+        </Badge>
+      )}
     </button>
   );
 }
