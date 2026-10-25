@@ -96,6 +96,8 @@ pub fn run() {
             commands::connection::devices_summary,
             commands::connection::avd_list,
             commands::connection::avd_launch,
+            commands::connection::devices_exec,
+            commands::connection::devices_screenshot,
             commands::diagnostics::diagnostics_run,
         ])
         .run(tauri::generate_context!())

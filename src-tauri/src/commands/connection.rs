@@ -2,13 +2,14 @@
 //! emulators, and the bookkeeping diagnostics needs (server restarts).
 
 use std::collections::VecDeque;
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant, SystemTime};
 
 use serde::{Deserialize, Serialize};
-use tauri::State;
 use tauri::ipc::Channel;
+use tauri::{AppHandle, Manager, State};
 
 use crate::adb::avd::{self, Avd};
 use crate::adb::devices::{self, Device, Transport};
@@ -417,4 +418,55 @@ pub fn avd_launch(state: State<'_, AppState>, name: String) -> AppResult<()> {
     let emulator = avd::emulator_binary(adb.as_ref().map(|a| a.path.as_path()))
         .ok_or_else(|| AppError::Device("the Android emulator is not installed".into()))?;
     avd::launch(&emulator, &name)
+}
+
+/// Runs a shell command (no PTY) for the multi-device "Run command…".
+#[tauri::command]
+pub async fn devices_exec(
+    state: State<'_, AppState>,
+    serial: String,
+    command: String,
+) -> AppResult<String> {
+    if command.trim().is_empty() {
+        return Err(AppError::InvalidInput("empty command".into()));
+    }
+    state.server.exec_text(&serial, &command).await
+}
+
+/// Saves `screencap -p` to `<dir>/Screenshot_<serial>_<unix ms>.png`
+/// (`dir` defaults to `<Pictures>/Tether`). Returns the file path.
+#[tauri::command]
+pub async fn devices_screenshot(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    serial: String,
+    dir: Option<String>,
+) -> AppResult<String> {
+    let dir = match dir.filter(|d| !d.is_empty()) {
+        Some(d) => PathBuf::from(d),
+        None => app
+            .path()
+            .picture_dir()
+            .map_err(|e| AppError::Device(e.to_string()))?
+            .join("Tether"),
+    };
+    let png = state.server.exec(&serial, "screencap -p").await?;
+    if !png.starts_with(b"\x89PNG") {
+        let head = &png[..png.len().min(200)];
+        return Err(AppError::Device(
+            String::from_utf8_lossy(head).trim().to_owned(),
+        ));
+    }
+    tokio::fs::create_dir_all(&dir).await?;
+    let stamp = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let safe: String = serial
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() { c } else { '_' })
+        .collect();
+    let path = dir.join(format!("Screenshot_{safe}_{stamp}.png"));
+    tokio::fs::write(&path, png).await?;
+    Ok(path.display().to_string())
 }

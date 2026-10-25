@@ -37,13 +37,19 @@ async fn wireless_host_services() {
     println!("services: {:?}", wireless::mdns_services(&server).await);
 
     // Nothing listens there: a refused connect is an error, not a device.
-    let err = wireless::connect(&server, "127.0.0.1:5599").await.unwrap_err();
+    let err = wireless::connect(&server, "127.0.0.1:5599")
+        .await
+        .unwrap_err();
     println!("connect: {err}");
     let err = wireless::pair(&server, "127.0.0.1:5599", "123456")
         .await
         .unwrap_err();
     println!("pair: {err}");
-    assert!(wireless::disconnect(&server, "127.0.0.1:5599").await.is_err());
+    assert!(
+        wireless::disconnect(&server, "127.0.0.1:5599")
+            .await
+            .is_err()
+    );
 }
 
 #[tokio::test]
@@ -67,7 +73,9 @@ async fn emulator_summary_and_address() {
         .exec_text(&emu.serial, "getprop ro.boot.qemu.avd_name")
         .await
         .unwrap();
-    let avds = avd::avd_home().map(|h| avd::list_in(&h)).unwrap_or_default();
+    let avds = avd::avd_home()
+        .map(|h| avd::list_in(&h))
+        .unwrap_or_default();
     println!("avd {:?} of {avds:?}", name.trim());
     assert!(avds.iter().any(|a| a.name == name.trim()));
 }
