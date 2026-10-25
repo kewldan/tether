@@ -37,6 +37,10 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "resources": {
+      "resources/scrcpy-server": "resources/scrcpy-server",
+      "resources/SCRCPY-NOTICE": "resources/SCRCPY-NOTICE"
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

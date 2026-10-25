@@ -13,3 +13,4 @@ pub mod overview;
 pub mod perf;
 pub mod ports;
 pub mod shell;
+pub mod mirror;

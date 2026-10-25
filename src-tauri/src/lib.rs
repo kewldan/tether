@@ -2,6 +2,7 @@ pub mod adb;
 mod commands;
 pub mod device;
 pub mod error;
+pub mod mirror;
 mod state;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -20,6 +21,7 @@ pub fn run() {
         .manage(commands::perf::PerfSubscriptions::default())
         .manage(commands::connection::ConnectionState::default())
         .manage(commands::apps::AppsState::default())
+        .manage(mirror::MirrorState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -123,6 +125,9 @@ pub fn run() {
             commands::apps::install_package,
             commands::apps::cancel_apps_job,
             commands::apps::extract_apks,
+            commands::mirror::mirror_start,
+            commands::mirror::mirror_stop,
+            commands::mirror::mirror_control,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
