@@ -1,0 +1,41 @@
+Tasks: 386 total,   1 running, 385 sleeping,   0 stopped,   0 zombie
+  Mem:  4010748K total,  3598388K used,   412360K free,    33448K buffers
+ Swap:  3008056K total,   750056K used,  2258000K free,  1773404K cached
+400%cpu   3%user   0%nice   9%sys 376%idle   0%iow   9%irq   3%sirq   0%host
+  PID USER         %CPU    RSS S[NAME]
+  524 root          0.0 191812 S zygote64
+  991 wifi          0.0   8176 S wpa_supplicant
+  641 wifi          0.0   7472 S wificond
+ 1100 webview_zygote 0.0 97052 S webview_zygote
+  246 root          0.0   8648 S vold
+  102 root          0.0   9292 S ueventd
+  615 nobody        0.0   4212 S traced_probes
+  616 nobody        0.0   7788 S traced
+10740 shell         2.9   5512 R top
+  287 tombstoned    0.0   3448 S tombstoned
+ 4327 u0_a229       0.0 156044 S tech.httptoolkit.android.v1
+  744 system        2.9 439460 S system_server
+  574 system        0.0  37776 S surfaceflinger
+  639 root          0.0   6532 S storaged
+  523 statsd        0.0   6732 S statsd
+10738 shell         0.0   3844 S sh
+  235 shell         0.0   3520 S sh
+  233 system        0.0   6584 S servicemanager
+ 5971 u0_a224       0.0 153588 S ru.vk.store
+ 6860 u0_a225       0.0 172308 S ru.tander.magnit
+ 3226 u0_a226       0.0 167840 S ru.pyaterochka.app.browser
+  237 root          0.0   3932 S qemu-props
+  227 prng_seeder   0.0   5816 S prng_seeder
+  987 thread_network 0.0  3456 S ot-rcp
+  979 thread_network 0.0  6696 S ot-daemon
+  540 bluetooth     0.0   5976 S android.hardware.bluetooth-service.default
+  955 system        0.0   5552 S android.hardware.biometrics.fingerprint-service.ranchu
+  546 hsm           0.0   4636 S android.hardware.authsecret-service.example
+  527 audioserver   0.0  13528 S android.hardware.audio.service
+  582 shell         0.0   9804 S adbd
+   59 root          0.0      0 S [watchdogd]
+  865 root          0.0      0 S [vivid-000-tch-cap]
+  226 root          0.0      0 S [sugov:3]
+  225 root          0.0      0 S [sugov:2]
+  224 root          0.0      0 S [sugov:1]
+  223 root          0.0      0 S [sugov:0]

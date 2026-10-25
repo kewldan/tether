@@ -6,3 +6,7 @@ pub mod files;
 pub mod gallery;
 pub mod logcat;
 pub mod overview;
+pub mod intents;
+pub mod perf;
+pub mod ports;
+pub mod shell;

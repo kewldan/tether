@@ -5,6 +5,8 @@ pub mod dev_settings;
 pub mod files;
 pub mod logcat;
 pub mod overview;
+pub mod intents;
+pub mod perf;
 pub mod props;
 pub mod sections;
 pub mod transfer;

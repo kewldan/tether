@@ -1,0 +1,16 @@
+Applications Graphics Acceleration Info:
+Uptime: 1109333 Realtime: 1109333
+
+** Graphics info for pid 1011 [com.android.systemui] **
+
+Stats since: 432180373247ns
+Total frames rendered: 360
+Janky frames: 293 (81.39%)
+Janky frames (legacy): 296 (82.22%)
+50th percentile: 46ms
+90th percentile: 117ms
+95th percentile: 250ms
+99th percentile: 700ms
+Number Missed Vsync: 65
+Number High input latency: 126
+Number Slow UI thread: 143

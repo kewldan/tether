@@ -1,0 +1,19 @@
+Inter-|   Receive                                                |  Transmit
+ face |bytes    packets errs drop fifo frame compressed multicast|bytes    packets errs drop fifo colls carrier compressed
+    lo:   20432     328    0    0    0     0          0         0    20432     328    0    0    0     0       0          0
+dummy0:       0       0    0    0    0     0          0         0    33258     137    0    0    0     0       0          0
+  ifb0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+  ifb1:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+ tunl0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+  gre0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+gretap0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+erspan0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+ip_vti0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+ip6_vti0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+  sit0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+ip6tnl0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+ip6gre0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+hwsim0:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0
+  eth0:  154441     287    0    0    0     0          0         0    96872     383    0    0    0     0       0          0
+ wlan0: 69566048   62213    0    0    0     0          0         0 16119398   26652    0    0    0     0       0          0
+thread-wpan:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0

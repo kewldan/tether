@@ -16,6 +16,8 @@ pub fn run() {
         .manage(commands::logcat::LogcatSessions::default())
         .manage(commands::overview::OverviewState::default())
         .manage(commands::bugreport::BugreportState::default())
+        .manage(commands::shell::ShellSessions::default())
+        .manage(commands::perf::PerfSubscriptions::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -54,6 +56,24 @@ pub fn run() {
             commands::bugreport::cancel_bugreport,
             commands::bugreport::list_bugreports,
             commands::bugreport::delete_bugreport,
+            commands::shell::shell_open,
+            commands::shell::shell_write,
+            commands::shell::shell_resize,
+            commands::shell::shell_close,
+            commands::shell::shell_exec,
+            commands::ports::ports_list,
+            commands::ports::ports_add,
+            commands::ports::ports_remove,
+            commands::ports::ports_remove_all,
+            commands::ports::ports_free_host_port,
+            commands::intents::intent_send,
+            commands::intents::intent_command,
+            commands::intents::input_text,
+            commands::intents::input_key,
+            commands::perf::perf_subscribe,
+            commands::perf::perf_unsubscribe,
+            commands::perf::perf_processes,
+            commands::perf::perf_kill,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
