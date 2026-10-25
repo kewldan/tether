@@ -79,5 +79,10 @@
     "cancel": "Cancel",
     "retry": "Try again",
     "close": "Close"
+  },
+  "needsDevice": {
+    "title": "No device selected",
+    "unavailable": "{{name}} is not available",
+    "body": "Connect a device and authorize USB debugging, or pick another one in the device switcher."
   }
 }
