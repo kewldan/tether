@@ -1,4 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { cn } from "cn";
 import { Minus, Moon, Search, Square, Sun, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -98,12 +99,14 @@ function WindowControls() {
           type="button"
           aria-label={label}
           onClick={() => void run()}
-          className={
-            "text-secondary-foreground focus-visible:bg-accent flex h-10 w-[46px] items-center justify-center outline-none" +
-            (danger
+          // `cn`, not string `+`: concatenation fused the last class with
+          // the hover classes into one invalid class.
+          className={cn(
+            "text-secondary-foreground focus-visible:bg-accent flex h-10 w-[46px] items-center justify-center outline-none",
+            danger
               ? "hover:bg-destructive hover:text-destructive-foreground"
-              : "hover:bg-accent hover:text-foreground")
-          }
+              : "hover:bg-accent hover:text-foreground",
+          )}
         >
           <Icon
             className={Icon === Square ? "size-3.5" : "size-4"}
