@@ -4,7 +4,10 @@ import { useTranslation } from "react-i18next";
 import { deviceTone, StatusDot } from "@/components/status/StatusDot";
 import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
-import { useSelectedDevice } from "@/features/devices/store";
+import {
+  useSelectedDevice,
+  useSelectedSnapshot,
+} from "@/features/devices/store";
 import { useDeviceSnapshot } from "@/features/overview/useDeviceSnapshot";
 import { useActiveForwards } from "@/features/ports/queries";
 
@@ -22,33 +25,53 @@ export function StatusBar() {
     ...forwards.reverse.map((r) => `${r.local} ← ${stripTcp(r.remote)}`),
   ];
 
-  const items: ReactNode[] = device
-    ? [
-        <span key="name" className="flex items-center gap-1.5">
-          <StatusDot tone={deviceTone(device.state)} />
-          {deviceName(device, info)}
-        </span>,
-        <span key="serial" className="font-mono">
-          {device.serial}
-        </span>,
-        t(`transport.${device.transport}`),
-        battery?.level != null && (
-          <span key="battery" className="tabular-nums">
-            {battery.level}%{battery.status === "charging" ? " ⚡" : ""}
-          </span>
-        ),
-        info?.androidVersion &&
-          (info.sdk
-            ? t("androidSdk", { version: info.androidVersion, sdk: info.sdk })
-            : t("android", { version: info.androidVersion })),
-      ].filter(Boolean)
-    : [
-        <span key="none" className="flex items-center gap-1.5">
-          <StatusDot tone="neutral" />
-          {t("sidebar.noDevice")}
-        </span>,
-        "adb server :5037",
-      ];
+  const selection = useSelectedSnapshot();
+
+  const items: ReactNode[] =
+    selection.gone && selection.device
+      ? [
+          <span key="name" className="flex items-center gap-1.5">
+            <StatusDot tone="error" />
+            {deviceName(selection.device)} · {t("sidebar.disconnected")}
+          </span>,
+          <span key="serial" className="font-mono">
+            {selection.device.serial}
+          </span>,
+          selection.since &&
+            t("statusBar.lastSeen", {
+              time: new Date(selection.since).toLocaleTimeString(),
+            }),
+        ].filter(Boolean)
+      : device
+        ? [
+            <span key="name" className="flex items-center gap-1.5">
+              <StatusDot tone={deviceTone(device.state)} />
+              {deviceName(device, info)}
+            </span>,
+            <span key="serial" className="font-mono">
+              {device.serial}
+            </span>,
+            t(`transport.${device.transport}`),
+            battery?.level != null && (
+              <span key="battery" className="tabular-nums">
+                {battery.level}%{battery.status === "charging" ? " ⚡" : ""}
+              </span>
+            ),
+            info?.androidVersion &&
+              (info.sdk
+                ? t("androidSdk", {
+                    version: info.androidVersion,
+                    sdk: info.sdk,
+                  })
+                : t("android", { version: info.androidVersion })),
+          ].filter(Boolean)
+        : [
+            <span key="none" className="flex items-center gap-1.5">
+              <StatusDot tone="neutral" />
+              {t("sidebar.noDevice")}
+            </span>,
+            "adb server :5037",
+          ];
 
   return (
     <footer className="bg-sidebar text-caption text-muted-foreground flex h-6 flex-none items-center gap-3.5 overflow-hidden border-t px-3 whitespace-nowrap">

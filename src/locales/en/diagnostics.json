@@ -1,0 +1,228 @@
+{
+  "title": "Can't see your device?",
+  "checkedAgo_one": "Checked {{count}} s ago",
+  "checkedAgo_other": "Checked {{count}} s ago",
+  "runAgain": "Run again",
+  "passed_one": "{{count}} passed",
+  "passed_other": "{{count}} passed",
+  "warnings_one": "{{count}} warning",
+  "warnings_other": "{{count}} warnings",
+  "problems_one": "{{count}} problem",
+  "problems_other": "{{count}} problems",
+  "showOutput": "Show adb output",
+  "skipped": "Skipped",
+  "retrying": "Asked the phone again — check its screen",
+  "reportCopied": "Diagnostic report copied",
+  "stillStuck": "Still stuck? <a>Copy a diagnostic report</a> to paste into an issue.",
+  "status": {
+    "pass": "Passed",
+    "warn": "Warning",
+    "fail": "Problem",
+    "skip": "Skipped"
+  },
+  "time": {
+    "seconds_one": "{{count}} s ago",
+    "seconds_other": "{{count}} s ago",
+    "minutes_one": "{{count}} min ago",
+    "minutes_other": "{{count}} min ago",
+    "hours_one": "{{count}} h ago",
+    "hours_other": "{{count}} h ago",
+    "days_one": "{{count}} day ago",
+    "days_other": "{{count}} days ago"
+  },
+  "headline": {
+    "ok_one": "Everything looks fine — {{count}} device connected",
+    "ok_other": "Everything looks fine — {{count}} devices connected",
+    "okEmpty": "No problems found — plug in a phone and it will show up",
+    "allGood": "Tether re-checks whenever a device appears or disappears.",
+    "fixFirst": "Fix the red item first — the others usually resolve on their own.",
+    "server_running": { "down": "The adb server isn't running" },
+    "server_conflict": {
+      "restarts": "Another adb keeps restarting the server",
+      "mismatch": "Two different adb versions are fighting for the server"
+    },
+    "usb_visible": { "none": "The computer doesn't see a phone on USB" },
+    "usb_debugging": {
+      "off": "The phone is connected, but USB debugging is off",
+      "some_off": "One phone on USB isn't visible to adb"
+    },
+    "usb_mode": { "charging": "The phone may be in “Charging only” mode" },
+    "authorization": {
+      "pending": "The phone is waiting for you to allow this computer"
+    },
+    "offline": { "some": "A device is offline" },
+    "permissions": { "denied": "Linux blocks access to the phone" },
+    "drivers": { "udev_missing": "Android udev rules are missing" },
+    "mdns": { "off": "Wi-Fi discovery is unavailable" }
+  },
+  "checks": {
+    "server_running": {
+      "tether": {
+        "title": "adb server is running",
+        "desc": "Version {{version}} on <m>{{address}}</m>, started by Tether {{uptime}}."
+      },
+      "other": {
+        "title": "adb server is running",
+        "desc": "Version {{version}} on <m>{{address}}</m>, started by another tool {{uptime}}. Tether shares it."
+      },
+      "down": {
+        "title": "adb server isn't running",
+        "desc": "Nothing answers on port {{port}}. Tether retries every few seconds; restart it if this persists."
+      }
+    },
+    "server_conflict": {
+      "restarts": {
+        "title": "Another adb is fighting for the server",
+        "desc": "The server restarted {{count}} times in the last minute. Devices may flicker between online and offline. Server binary: <m>{{serverBinary}}</m>."
+      },
+      "mismatch": {
+        "title": "Another adb is fighting for the server",
+        "desc": "The running server speaks version {{serverVersion}}, Tether's adb ({{ours}}) speaks {{clientVersion}}. Each kills the other's server. Use one adb everywhere."
+      },
+      "foreign": {
+        "title": "Server shared with another adb",
+        "desc": "It was started by <m>{{serverBinary}}</m>. Same version, so they get along."
+      },
+      "unknown": {
+        "title": "Server conflicts",
+        "desc": "Can't tell while the server is down."
+      },
+      "none": {
+        "title": "No other adb is interfering",
+        "desc": "The server and Tether use the same adb version."
+      }
+    },
+    "usb_visible": {
+      "found": {
+        "title": "The computer sees a USB device",
+        "desc": "{{vendor}} {{product}} <m>{{id}}</m> on {{location}}."
+      },
+      "adb_only": {
+        "title": "The computer sees a USB device",
+        "desc": "adb lists a phone on USB."
+      },
+      "none": {
+        "title": "No phone on USB",
+        "desc": "The computer doesn't see an Android phone. Check that it's plugged in and unlocked, then try another cable or port."
+      },
+      "unsupported": {
+        "title": "USB devices",
+        "desc": "Tether can't list USB devices on this OS yet."
+      }
+    },
+    "usb_data": {
+      "ok": {
+        "title": "The cable carries data",
+        "desc": "The phone enumerates over USB, so it isn't a charge-only cable."
+      },
+      "unknown": {
+        "title": "Data cable",
+        "desc": "Charge-only cables are common: if nothing shows up, try another one."
+      }
+    },
+    "usb_debugging": {
+      "off": {
+        "title": "USB debugging is off on the phone",
+        "desc": "The phone doesn't expose an adb interface. Open <b>Settings › System › Developer options</b> and turn on <b>USB debugging</b>. No Developer options? Tap <b>Build number</b> 7 times first."
+      },
+      "some_off": {
+        "title": "{{product}} isn't visible to adb",
+        "desc": "Another phone works, but this one has USB debugging off."
+      },
+      "on": {
+        "title": "USB debugging is on",
+        "desc": "adb sees every phone that's plugged in."
+      }
+    },
+    "usb_mode": {
+      "charging": {
+        "title": "USB mode may be “Charging only”",
+        "desc": "Some phones hide debugging in this mode. Pull down notifications, tap <b>USB charging this device</b> and pick <b>File transfer</b>."
+      }
+    },
+    "authorization": {
+      "pending": {
+        "title": "Approve this computer on the phone",
+        "desc": "{{devices}} waits for “Allow USB debugging?”. Unlock it, check <b>Always allow</b> and tap <b>Allow</b>."
+      },
+      "ok": {
+        "title": "Every device trusts this computer",
+        "desc": "No RSA prompts are waiting."
+      }
+    },
+    "offline": {
+      "some": {
+        "title": "A device is offline",
+        "desc": "{{devices}} stopped answering. Replug it or turn Wireless debugging off and on."
+      }
+    },
+    "permissions": {
+      "denied": {
+        "title": "No permission to open the phone",
+        "desc": "{{devices}}: Linux needs a udev rule so your user may access the phone."
+      },
+      "ok": {
+        "title": "No permission problems",
+        "desc": "No device is blocked by permissions."
+      },
+      "ok_macos": {
+        "title": "No permission problems",
+        "desc": "macOS doesn't need USB drivers or udev rules."
+      }
+    },
+    "drivers": {
+      "not_needed": {
+        "title": "Windows USB driver · Linux udev rules",
+        "desc": "Not needed on this computer."
+      },
+      "udev_ok": {
+        "title": "Android udev rules are installed",
+        "desc": "Your user can open Android phones without root."
+      },
+      "udev_missing": {
+        "title": "Android udev rules are missing",
+        "desc": "Without them phones show up as “no permissions”. Install <m>android-udev-rules</m> or add a rule."
+      },
+      "windows_ok": {
+        "title": "USB driver works",
+        "desc": "adb talks to a phone over USB."
+      },
+      "windows_unknown": {
+        "title": "Windows USB driver",
+        "desc": "If Device Manager shows the phone without “ADB Interface”, install the Google USB driver or your phone maker's driver."
+      }
+    },
+    "mdns": {
+      "ok": {
+        "title": "Wi-Fi discovery works",
+        "desc": "adb finds phones with Wireless debugging on the network (<m>{{version}}</m>)."
+      },
+      "off": {
+        "title": "Wi-Fi discovery is unavailable",
+        "desc": "This adb has mDNS disabled; pair by IP and port instead."
+      },
+      "unknown": {
+        "title": "Wi-Fi discovery",
+        "desc": "Can't tell while the server is down."
+      }
+    }
+  },
+  "actions": {
+    "restart": "Restart server",
+    "howto": "Show me how",
+    "retryAuth": "Ask again",
+    "udev": "Set up udev rules…",
+    "driver": "Get the driver"
+  },
+  "restart": {
+    "title": "Restart the adb server?",
+    "text": "Tether kills the running server and starts it with its own adb. Android Studio and other tools reconnect by themselves; running transfers are interrupted.",
+    "confirm": "Restart",
+    "done": "adb server restarted",
+    "failed": "Couldn't restart the server"
+  },
+  "howto": {
+    "title": "Turn on USB debugging",
+    "text": "Four steps, once per phone."
+  }
+}

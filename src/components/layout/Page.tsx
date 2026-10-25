@@ -1,6 +1,8 @@
 import { cn } from "cn";
 import { ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useContext } from "react";
+
+import { PageStatusContext } from "@/components/layout/pageStatus";
 
 /**
  * Standard page frame: 52 px header with breadcrumb and actions, then the
@@ -25,6 +27,7 @@ export function Page({
   className?: string;
   children: ReactNode;
 }) {
+  const status = useContext(PageStatusContext);
   return (
     <div className="flex h-full min-w-0 flex-col">
       <header className="flex h-[52px] flex-none items-center gap-3 border-b px-5">
@@ -56,10 +59,15 @@ export function Page({
           {toolbar}
         </div>
       )}
+      {status?.banner}
       <div
+        aria-disabled={status?.dimmed || undefined}
         className={cn(
           "min-h-0 flex-1",
           body === "scroll" ? "overflow-auto px-5 py-6" : "flex flex-col",
+          status?.dimmed &&
+            // Still scrollable and readable, but controls are inert.
+            "opacity-50 saturate-[.2] transition-[opacity,filter] duration-300 select-none [&_a,&_button,&_input,&_textarea,&_[role=button]]:pointer-events-none",
           className,
         )}
       >

@@ -1,0 +1,133 @@
+{
+  "title": "Settings",
+  "search": "Search settings",
+  "sections": "Settings sections",
+  "nothing": "No setting matches “{{query}}”.",
+  "reveal": "Reveal",
+  "change": "Change…",
+  "general": {
+    "title": "General",
+    "language": {
+      "title": "Language",
+      "desc": "Interface language. Device text is never translated.",
+      "system": "System"
+    },
+    "theme": {
+      "title": "Theme",
+      "desc": "System follows the OS appearance.",
+      "descMac": "System follows macOS appearance.",
+      "dark": "Dark",
+      "light": "Light",
+      "system": "System"
+    },
+    "density": {
+      "title": "Density",
+      "desc": "Compact makes table rows 28 px and controls 26 px.",
+      "comfortable": "Comfortable",
+      "compact": "Compact"
+    },
+    "motion": {
+      "title": "Reduce motion",
+      "desc": "Replaces springs with quick fades. Follows the system setting by default.",
+      "system": "System",
+      "on": "On",
+      "off": "Off"
+    }
+  },
+  "adb": {
+    "title": "adb",
+    "which": {
+      "title": "Which adb to use",
+      "desc": "Tether's own copy avoids version fights with Android Studio.",
+      "bundled": "Tether's copy",
+      "system": "System",
+      "custom": "Custom…"
+    },
+    "path": {
+      "title": "Path",
+      "none": "No adb found."
+    },
+    "pickTitle": "Choose the adb executable",
+    "pickFailed": "That file is not a working adb",
+    "switched": "Using adb {{version}}",
+    "notDownloaded": "Tether's copy isn't downloaded yet — use Download above.",
+    "restarted": "adb server restarted (version {{version}})",
+    "restartFailed": "Couldn't restart the server",
+    "upMin_one": "up {{count}} min",
+    "upMin_other": "up {{count}} min",
+    "upHours_one": "up {{count}} h",
+    "upHours_other": "up {{count}} h",
+    "server": {
+      "title": "Server",
+      "running": "Running",
+      "version": "version {{version}}",
+      "down": "Not running",
+      "port": "port",
+      "restart": "Restart server",
+      "confirmTitle": "Restart the adb server?",
+      "confirmText": "Every tool on this server (Android Studio, scrcpy) loses its devices for a moment and reconnects. Running transfers are interrupted. The new server starts with the adb selected above."
+    },
+    "reconnect": {
+      "title": "Auto-reconnect Wi-Fi devices",
+      "desc": "Try known addresses every 10 s after a drop."
+    },
+    "update": {
+      "bundled": "Tether's platform-tools {{version}}. Download the latest from Google any time.",
+      "notBundled": "Get Tether's own copy of platform-tools from Google (~10 MB).",
+      "update": "Update",
+      "download": "Download platform-tools",
+      "downloading": "Downloading platform-tools… {{pct}}%",
+      "extracting": "Extracting platform-tools…",
+      "done": "platform-tools {{version}} installed",
+      "failed": "Download failed",
+      "consentTitle": "Download platform-tools",
+      "consentText": "The official archive comes straight from dl.google.com into Tether's folder. Accept Google's license to continue.",
+      "accept": "I accept the",
+      "license": "Android SDK Platform-Tools license terms"
+    }
+  },
+  "files": {
+    "title": "Files",
+    "reset": "Reset",
+    "captures": {
+      "title": "Screenshots and recordings",
+      "desc": "Where captures from the device are saved.",
+      "default": "Pictures/Tether"
+    },
+    "downloads": {
+      "title": "Downloads",
+      "desc": "Default folder for files pulled from the device.",
+      "default": "Downloads"
+    }
+  },
+  "shortcuts": {
+    "title": "Shortcuts",
+    "palette": "Command palette",
+    "sidebar": "Collapse sidebar",
+    "switch": "Switch device 1–9",
+    "devices": "All devices",
+    "wifi": "Connect over Wi-Fi"
+  },
+  "about": {
+    "title": "About",
+    "version": {
+      "title": "Tether",
+      "desc": "Desktop home for adb · {{os}}"
+    },
+    "licenses": {
+      "title": "Third-party software",
+      "desc": "platform-tools are downloaded from Google under the Android SDK license; screen mirroring uses scrcpy (Apache 2.0).",
+      "sdk": "SDK license"
+    },
+    "diagnostics": {
+      "title": "Troubleshooting",
+      "desc": "Checks the adb server, USB and permissions, and builds a report for issues.",
+      "open": "Open diagnostics"
+    },
+    "onboarding": {
+      "title": "Welcome screens",
+      "desc": "Walk through finding adb and preparing a phone again.",
+      "run": "Show again"
+    }
+  }
+}

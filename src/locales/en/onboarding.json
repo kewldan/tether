@@ -1,0 +1,164 @@
+{
+  "steps": {
+    "welcome": "Welcome",
+    "findAdb": "Find adb",
+    "phone": "Prepare phone"
+  },
+  "copyPath": "Copy path",
+  "choosePathTitle": "Choose the adb executable",
+  "choosePathFailed": "That file is not a working adb",
+  "welcome": {
+    "title": "Your Android devices, without the terminal.",
+    "subtitle": "Tether is a desktop home for adb. Everything you type every day, one click or keystroke away.",
+    "mirror": {
+      "title": "Mirror and control",
+      "text": "See the screen, type, record — powered by scrcpy."
+    },
+    "logcat": {
+      "title": "Logcat that keeps up",
+      "text": "Filter by app, follow PID restarts, fold crashes."
+    },
+    "many": {
+      "title": "Apps and files on many devices",
+      "text": "Drop an APK on three phones at once. Drag files both ways."
+    },
+    "footer": "Works on macOS, Windows and Linux · Uses the official Android platform-tools"
+  },
+  "search": {
+    "title": "Looking for adb",
+    "subtitle": "We check the usual places. Nothing is installed or changed.",
+    "starting": "Starting the search",
+    "found": "adb found",
+    "foundVersion": "Android platform-tools",
+    "useOther": "Use a different adb…",
+    "continue": "Continue",
+    "status": {
+      "found": "Found",
+      "missing": "Not found",
+      "not_set": "Not set",
+      "checking": "Checking…",
+      "queued": "Queued"
+    },
+    "kind": {
+      "settings": "Your chosen adb",
+      "path": "PATH",
+      "android_home": "ANDROID_HOME",
+      "studio_sdk": "Android Studio SDK",
+      "homebrew": "Homebrew",
+      "winget": "winget",
+      "scoop": "Scoop",
+      "system": "System packages",
+      "bundled": "Tether's copy"
+    },
+    "notSet": {
+      "path": "$PATH is empty",
+      "android_home": "$ANDROID_HOME is not set"
+    }
+  },
+  "missing": {
+    "title": "adb isn't on this computer yet",
+    "subtitle": "Tether needs Google's platform-tools to talk to your devices. Pick how you'd like to get them.",
+    "recommended": "Recommended",
+    "download": {
+      "title": "Download automatically",
+      "before": "About 10 MB from",
+      "after": ". Kept inside Tether, updated from Settings, never touches your PATH.",
+      "button": "Download platform-tools"
+    },
+    "package": "Package",
+    "version": "Version",
+    "latest": "latest",
+    "installsTo": "Installs to",
+    "accept": "I accept the",
+    "license": "Android SDK Platform-Tools license terms",
+    "manual": {
+      "title": "I'll install it myself",
+      "text": "Use your package manager, then come back and check again.",
+      "os": "Operating system",
+      "copy": "Copy command"
+    },
+    "checkAgain": "Check again",
+    "choosePath": "Choose path…",
+    "whereWeLooked_one": "Where we looked ({{count}} place)",
+    "whereWeLooked_other": "Where we looked ({{count}} places)"
+  },
+  "download": {
+    "title": "Getting platform-tools",
+    "subtitle": "You can keep this window open; it takes a few seconds.",
+    "starting": "Connecting…",
+    "downloading": "Downloading…",
+    "extracting": "Extracting…",
+    "steps": {
+      "download": "Download from dl.google.com",
+      "extract": "Extract archive",
+      "server": "Start adb server"
+    },
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again",
+    "ready": "adb is ready",
+    "readyText": "Version {{version}} installed in Tether's folder. The server is running on port {{port}}.",
+    "next": "Next: prepare your phone",
+    "open": "Open Tether"
+  },
+  "phone": {
+    "title": "Prepare your phone",
+    "subtitle": "Four steps, once per device. Menu names differ a little between brands.",
+    "brand": "Phone brand",
+    "brands": {
+      "pixel": "Pixel",
+      "samsung": "Samsung",
+      "xiaomi": "Xiaomi",
+      "other": "Other"
+    },
+    "step1": {
+      "title": "Turn on developer mode",
+      "pixel": "Settings › About phone › tap <b>Build number</b> 7 times and enter your PIN.",
+      "samsung": "Settings › About phone › Software information › tap <b>Build number</b> 7 times.",
+      "xiaomi": "Settings › About phone › tap <b>MIUI / OS version</b> 7 times.",
+      "other": "Settings › About phone › tap <b>Build number</b> 7 times. It may sit under Software information."
+    },
+    "step2": {
+      "title": "Enable USB debugging",
+      "pixel": "Settings › System › Developer options › <b>USB debugging</b>.",
+      "samsung": "Settings › Developer options › <b>USB debugging</b>.",
+      "xiaomi": "Settings › Additional settings › Developer options › <b>USB debugging</b> (and <b>Install via USB</b>).",
+      "other": "Settings › System › Developer options › <b>USB debugging</b>."
+    },
+    "step3": {
+      "title": "Plug in a data cable",
+      "text": "Charge-only cables are common. If nothing happens, try another cable or port."
+    },
+    "step4": {
+      "title": "Allow this computer",
+      "text": "Unlock the phone, check <b>Always allow</b>, tap <b>Allow</b>.",
+      "fingerprint": "Fingerprint should end in <m>{{tail}}</m>."
+    },
+    "waiting": "Waiting for a device…",
+    "unauthorized": "Phone found — tap Allow on its screen",
+    "connected": "{{name}} is connected",
+    "open": "Open Tether",
+    "wifi": "Connect over Wi-Fi instead",
+    "cantSee": "Can't see my device",
+    "skip": "Skip for now",
+    "art": {
+      "about": "About phone",
+      "model": "Model",
+      "android": "Android version",
+      "build": "Build number",
+      "miui": "OS version",
+      "developer": "You are now a developer!",
+      "dev": "Developer options",
+      "awake": "Stay awake",
+      "usbDebugging": "USB debugging",
+      "wireless": "Wireless debugging",
+      "usbConfig": "Default USB config",
+      "fileTransfer": "File transfer",
+      "allow": "Allow USB debugging?",
+      "rsa": "The computer's RSA key fingerprint is:",
+      "always": "Always allow from this computer",
+      "cancel": "Cancel",
+      "allowBtn": "Allow"
+    }
+  }
+}

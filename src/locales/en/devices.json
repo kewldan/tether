@@ -1,0 +1,184 @@
+{
+  "learnMore": "Learn more",
+  "page": {
+    "title": "All devices",
+    "filter": "Filter by name or serial",
+    "view": "View",
+    "grid": "Grid view",
+    "list": "List view",
+    "connect": "Connect device",
+    "select": "Select",
+    "nothing": "Nothing matches “{{query}}”."
+  },
+  "list": {
+    "name": "Name",
+    "serial": "Serial",
+    "state": "State",
+    "remembered": "offline"
+  },
+  "card": {
+    "select": "Select {{name}}",
+    "android": "Android",
+    "transport": "Transport",
+    "battery": "Battery",
+    "charging": "charging",
+    "root": "Root",
+    "screen": "Screen",
+    "shell": "Shell",
+    "files": "Files",
+    "more": "More actions",
+    "reboot": "Reboot",
+    "rebooting": "Rebooting to {{mode}}…",
+    "rename": "Rename…",
+    "disconnect": "Disconnect",
+    "forget": "Forget device",
+    "forgetShort": "Forget",
+    "forgotten": "Device forgotten",
+    "undo": "Undo",
+    "failed": "That didn't work",
+    "confirm": {
+      "title": "Confirm debugging on the phone",
+      "text": "Unlock it and tap Allow in “Allow USB debugging?”. No prompt? Replug the cable."
+    },
+    "retry": "Retry",
+    "revoke": "Revoke keys & retry",
+    "unknown": "Unknown device",
+    "noPermissions": "Linux can't open the USB device. Add a udev rule for the phone's vendor and replug.",
+    "udev": "Set up udev rules…",
+    "rebootSystem": "Reboot to system",
+    "reconnect": "Reconnect",
+    "diagnose": "Diagnose",
+    "lastSeen": "last seen {{ago}}",
+    "justNow": "just now",
+    "minAgo_one": "{{count}} min ago",
+    "minAgo_other": "{{count}} min ago",
+    "hoursAgo_one": "{{count}} h ago",
+    "hoursAgo_other": "{{count}} h ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago"
+  },
+  "reboot": {
+    "system": "System",
+    "recovery": "Recovery",
+    "bootloader": "Bootloader",
+    "sideload": "Sideload"
+  },
+  "multi": {
+    "selected_one": "{{count}} device selected",
+    "selected_other": "{{count}} devices selected",
+    "parallel": "Actions run on each in parallel",
+    "selectAll": "Select all",
+    "screenshot": "Screenshot all",
+    "saved_one": "Saved {{count}} screenshot",
+    "saved_other": "Saved {{count}} screenshots",
+    "savedSome": "Saved {{ok}} of {{total}} screenshots",
+    "run": "Run command…",
+    "clear": "Clear",
+    "runTitle_one": "Run on {{count}} device",
+    "runTitle_other": "Run on {{count}} devices",
+    "runText": "A shell command, run on each device at the same time.",
+    "command": "Command",
+    "runButton": "Run",
+    "noOutput": "(no output)"
+  },
+  "rename": {
+    "title": "Rename device",
+    "text": "The name is only stored in Tether on this computer.",
+    "label": "Device name",
+    "save": "Save",
+    "reset": "Use the model name"
+  },
+  "udev": {
+    "title": "Set up udev rules",
+    "text": "Without a udev rule Linux only lets root open the phone. Install the packaged rules, or add one rule by hand.",
+    "package": "Packaged rules (recommended)",
+    "rule": "Or a single rule",
+    "replug": "Then unplug the phone and plug it back in. Your user may need to be in the plugdev group.",
+    "done": "Done"
+  },
+  "revoke": {
+    "title": "Reset trusted computers",
+    "text": "If the phone never shows the prompt, make it forget old keys:",
+    "step1": "On the phone open <b>Developer options</b>.",
+    "step2": "Tap <b>Revoke USB debugging authorizations</b>.",
+    "step3": "Replug the cable and tap Retry; the prompt should appear."
+  },
+  "empty": {
+    "title": "Connect a device over USB or Wi-Fi",
+    "text": "Plug in a phone with USB debugging on, pair one wirelessly, or start an emulator. It will appear here automatically.",
+    "serverDown": "The adb server isn't reachable right now. Tether keeps retrying.",
+    "wifi": "Connect over Wi-Fi",
+    "cantSee": "Can't see your device?",
+    "emulators": "Emulators",
+    "fromAvd": "from Android Studio AVD",
+    "api": "API {{api}}",
+    "launch": "Launch",
+    "starting": "Starting…",
+    "booting": "Booting",
+    "launching": "Starting {{name}}…"
+  },
+  "disconnected": {
+    "title": "{{name}} disconnected",
+    "since": "waiting for it to come back. Everything below is from {{time}} and stays readable.",
+    "waiting": "waiting for it to come back.",
+    "retrying": "Retrying · {{elapsed}}",
+    "reconnect": "Reconnect now",
+    "cantReconnect": "Can't reconnect?",
+    "failed": "Couldn't reconnect"
+  },
+  "wifi": {
+    "title": "Connect over Wi-Fi",
+    "description": "Pair and connect an Android device over the local network.",
+    "method": "Method",
+    "tabs": {
+      "qr": "QR code",
+      "code": "Pairing code",
+      "ip": "IP",
+      "legacy": "Legacy"
+    },
+    "open": "Open",
+    "connectedTo": "Connected to",
+    "newCode": "New code",
+    "pairing": "Pairing with {{address}}…",
+    "paired": "Paired — waiting for the phone to offer a connection…",
+    "connecting": "Connecting to {{address}}…",
+    "qr": {
+      "requirements": "Android 11 or newer · same Wi-Fi network",
+      "step1": "Open Settings › Developer options",
+      "step2": "Tap Wireless debugging and turn it on",
+      "step3": "Tap Pair device with QR code and scan",
+      "waiting": "Waiting for a phone to scan…",
+      "expired": "The code expired."
+    },
+    "code": {
+      "intro": "On the phone: Wireless debugging › Pair device with pairing code. Phones broadcasting a code show up here.",
+      "found": "Found on this network",
+      "scanning": "Scanning with mDNS…",
+      "mdnsOff": "mDNS discovery is off in this adb; type the address instead.",
+      "manual": "Pairing address (IP and port)",
+      "code": "6-digit code",
+      "codeFor": "6-digit code shown on {{name}}",
+      "digit": "Digit {{n}}",
+      "pair": "Pair and connect"
+    },
+    "ip": {
+      "address": "Address",
+      "hint": "IP and port from Wireless debugging. Default port for legacy tcpip is 5555.",
+      "connect": "Connect",
+      "recent": "Recent",
+      "today": "today",
+      "days_one": "{{count}} d",
+      "days_other": "{{count}} d",
+      "weeks_one": "{{count}} wk",
+      "weeks_other": "{{count}} wk"
+    },
+    "legacy": {
+      "intro": "For Android 10 and older. Start with the phone plugged in by USB, then unplug once it's on Wi-Fi.",
+      "plugged": "Plugged-in device",
+      "none": "Plug in a phone with USB debugging on.",
+      "port": "Port",
+      "switch": "Switch to Wi-Fi",
+      "warning": "Port {{port}} stays open to anyone on this network until the phone reboots."
+    }
+  }
+}

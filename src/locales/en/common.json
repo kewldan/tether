@@ -40,7 +40,16 @@
     "tasks_one": "{{count}} task",
     "tasks_other": "{{count}} tasks",
     "adbRunning": "running",
-    "adbDown": "not running"
+    "adbDown": "not running",
+    "disconnected": "Disconnected",
+    "findDevice": "Find device",
+    "stateHint": {
+      "unauthorized": "Unauthorized — confirm on phone",
+      "authorizing": "Authorizing — confirm on phone",
+      "offline": "Offline",
+      "no_permissions": "No permissions — set up udev",
+      "connecting": "Connecting…"
+    }
   },
   "state": {
     "device": "Online",
@@ -84,5 +93,8 @@
     "title": "No device selected",
     "unavailable": "{{name}} is not available",
     "body": "Connect a device and authorize USB debugging, or pick another one in the device switcher."
+  },
+  "statusBar": {
+    "lastSeen": "last seen {{time}}"
   }
 }

@@ -1,4 +1,12 @@
-import { ChevronsUpDown, Plus, Smartphone, Stethoscope } from "lucide-react";
+import {
+  Check,
+  ChevronsUpDown,
+  Plus,
+  Search,
+  Smartphone,
+  Stethoscope,
+} from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { useNavigation } from "@/app/navigation";
@@ -12,35 +20,57 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { deviceName } from "@/features/devices/naming";
+import { Kbd } from "@/components/ui/kbd";
+import { useKnownDevices } from "@/features/devices/known";
+import { deviceName, useDeviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
-import { useDevices, useSelectedDevice } from "@/features/devices/store";
+import { useConnectSheet } from "@/features/devices/sheetStore";
+import { useDevices, useSelectedSnapshot } from "@/features/devices/store";
+import { modKey } from "@/lib/platform";
 import type { Device } from "@/lib/tauri";
 
 export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
   const { t } = useTranslation();
-  const device = useSelectedDevice();
+  const { device, gone } = useSelectedSnapshot();
   const devices = useDevices((s) => s.devices);
+  const selected = useDevices((s) => s.selectedSerial);
   const select = useDevices((s) => s.select);
   const navigate = useNavigation((s) => s.navigate);
+  // Re-render on rename.
+  useKnownDevices((s) => s.aliases);
+  const [query, setQuery] = useState("");
   const { data: info } = useDeviceInfo(
-    device?.state.kind === "device" ? device.serial : null,
+    device?.state.kind === "device" && !gone ? device.serial : null,
   );
+  const name = useDeviceName(device, info);
 
-  const subtitle = device
-    ? [
-        t(`transport.${device.transport}`),
-        info?.androidVersion && t("android", { version: info.androidVersion }),
-      ]
-        .filter(Boolean)
-        .join(" · ")
-    : t("sidebar.connectToStart");
+  const subtitle = gone
+    ? t("sidebar.disconnected")
+    : device
+      ? [
+          t(`transport.${device.transport}`),
+          info?.androidVersion &&
+            t("android", { version: info.androidVersion }),
+        ]
+          .filter(Boolean)
+          .join(" · ")
+      : t("sidebar.connectToStart");
+
+  const q = query.trim().toLowerCase();
+  const shown = devices
+    .map((d, index) => ({ d, index }))
+    .filter(
+      ({ d }) =>
+        !q ||
+        deviceName(d).toLowerCase().includes(q) ||
+        d.serial.toLowerCase().includes(q),
+    );
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={(open) => !open && setQuery("")}>
       <DropdownMenuTrigger
         aria-label={t("sidebar.switchDevice")}
-        className="bg-card hover:bg-accent focus-visible:outline-ring flex w-full items-center gap-2.5 rounded-md border px-2 py-1.5 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2"
+        className="bg-card hover:bg-accent focus-visible:outline-ring aria-expanded:border-ring aria-expanded:ring-brand/15 flex w-full items-center gap-2.5 rounded-md border px-2 py-1.5 text-left outline-none focus-visible:outline-2 focus-visible:outline-offset-2 aria-expanded:ring-[3px]"
       >
         <span
           className={
@@ -59,10 +89,18 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
           <>
             <span className="min-w-0 flex-1">
               <span className="block truncate font-semibold">
-                {device ? deviceName(device, info) : t("sidebar.noDevice")}
+                {name ?? t("sidebar.noDevice")}
               </span>
-              <span className="text-caption text-muted-foreground flex items-center gap-1.5">
-                {device && <StatusDot tone={deviceTone(device.state)} />}
+              <span
+                className={
+                  gone
+                    ? "text-caption text-error flex items-center gap-1.5"
+                    : "text-caption text-muted-foreground flex items-center gap-1.5"
+                }
+              >
+                {device && (
+                  <StatusDot tone={gone ? "error" : deviceTone(device.state)} />
+                )}
                 <span className="truncate">{subtitle}</span>
               </span>
             </span>
@@ -73,14 +111,29 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
           </>
         )}
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="start">
-        {devices.length > 0 && (
+      <DropdownMenuContent className="w-80" align="start">
+        {devices.length > 3 && (
+          <div className="border-input bg-background text-muted-foreground mb-1 flex h-7 items-center gap-2 rounded-[7px] border px-2.5">
+            <Search className="size-3.5" aria-hidden />
+            <input
+              aria-label={t("sidebar.findDevice")}
+              placeholder={t("sidebar.findDevice")}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.stopPropagation()}
+              className="text-foreground placeholder:text-muted-foreground min-w-0 flex-1 bg-transparent outline-none"
+            />
+          </div>
+        )}
+        {shown.length > 0 && (
           <DropdownMenuGroup>
             <DropdownMenuLabel>{t("nav.devices")}</DropdownMenuLabel>
-            {devices.map((d) => (
+            {shown.map(({ d, index }) => (
               <DeviceItem
                 key={d.serial}
                 device={d}
+                index={index}
+                selected={d.serial === selected}
                 onSelect={() => {
                   select(d.serial);
                   if (useNavigation.getState().section === "devices") {
@@ -91,16 +144,15 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
             ))}
           </DropdownMenuGroup>
         )}
-        {devices.length > 0 && <DropdownMenuSeparator />}
+        {shown.length > 0 && <DropdownMenuSeparator />}
+        <DropdownMenuItem onClick={() => useConnectSheet.getState().show()}>
+          <Plus />
+          {t("sidebar.connectDevice")}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("devices")}>
           <Smartphone />
           {t("sidebar.allDevices")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          onClick={() => navigate("devices", { connect: "wifi" })}
-        >
-          <Plus />
-          {t("sidebar.connectDevice")}
+          <Kbd className="ml-auto">{modKey}D</Kbd>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("diagnostics")}>
           <Stethoscope />
@@ -113,24 +165,47 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
 
 function DeviceItem({
   device,
+  index,
+  selected,
   onSelect,
 }: {
   device: Device;
+  index: number;
+  selected: boolean;
   onSelect: () => void;
 }) {
   const { t } = useTranslation();
+  const ready = device.state.kind === "device";
   return (
     <DropdownMenuItem onClick={onSelect} className="gap-2.5">
-      <StatusDot tone={deviceTone(device.state)} />
+      <Smartphone className="text-secondary-foreground" aria-hidden />
       <span className="min-w-0 flex-1">
-        <span className="block truncate">{deviceName(device)}</span>
-        <span className="text-caption text-muted-foreground block truncate font-mono">
-          {device.serial}
-        </span>
+        <span className="block truncate font-medium">{deviceName(device)}</span>
+        {ready ? (
+          <span className="text-caption text-muted-foreground block truncate font-mono">
+            {device.serial}
+            {device.transport !== "emulator" &&
+              ` · ${t(`transport.${device.transport}`)}`}
+          </span>
+        ) : (
+          <span className="text-caption text-warning block truncate">
+            {t(`sidebar.stateHint.${device.state.kind}`, {
+              defaultValue: t(`state.${device.state.kind}`),
+            })}
+          </span>
+        )}
       </span>
-      <span className="text-caption text-muted-foreground">
-        {t(`transport.${device.transport}`)}
-      </span>
+      {selected ? (
+        <Check className="text-brand" aria-hidden />
+      ) : (
+        <StatusDot tone={deviceTone(device.state)} />
+      )}
+      {index < 9 && (
+        <Kbd>
+          {modKey}
+          {index + 1}
+        </Kbd>
+      )}
     </DropdownMenuItem>
   );
 }

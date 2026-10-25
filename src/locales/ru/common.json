@@ -42,7 +42,16 @@
     "tasks_many": "{{count}} задач",
     "tasks_other": "{{count}} задачи",
     "adbRunning": "работает",
-    "adbDown": "не запущен"
+    "adbDown": "не запущен",
+    "disconnected": "Отключено",
+    "findDevice": "Найти устройство",
+    "stateHint": {
+      "unauthorized": "Нет доступа — подтвердите на телефоне",
+      "authorizing": "Ждёт подтверждения на телефоне",
+      "offline": "Не в сети",
+      "no_permissions": "Нет прав — настройте udev",
+      "connecting": "Подключение…"
+    }
   },
   "state": {
     "device": "В сети",
@@ -86,5 +95,8 @@
     "title": "Устройство не выбрано",
     "unavailable": "{{name}} недоступно",
     "body": "Подключите устройство и разрешите отладку по USB или выберите другое в переключателе устройств."
+  },
+  "statusBar": {
+    "lastSeen": "был в сети в {{time}}"
   }
 }
