@@ -281,6 +281,9 @@ mod tests {
         assert!(parse_system_profiler("not json").is_empty());
     }
 
+    // Sysfs interface dirs are named like `1-4:1.0`; Windows forbids `:` in
+    // file names, and sysfs only exists on Linux anyway.
+    #[cfg(unix)]
     #[test]
     fn reads_linux_sysfs() {
         let root = tempfile::tempdir().unwrap();
