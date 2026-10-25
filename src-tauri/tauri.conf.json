@@ -1,22 +1,29 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "adb-gui",
+  "productName": "Tether",
   "version": "0.1.0",
-  "identifier": "dev.kewldan.adbgui",
+  "identifier": "dev.kewldan.tether",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
+    "beforeBuildCommand": "bun run build",
     "frontendDist": "../dist"
   },
   "app": {
     "windows": [
       {
-        "title": "adb-gui",
-        "width": 1200,
-        "height": 800,
+        "label": "main",
+        "title": "Tether",
+        "width": 1440,
+        "height": 900,
         "minWidth": 960,
-        "minHeight": 600
+        "minHeight": 600,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true,
+        "trafficLightPosition": {
+          "x": 14,
+          "y": 20
+        }
       }
     ],
     "security": {

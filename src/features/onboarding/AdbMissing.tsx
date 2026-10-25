@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Check, Copy, RefreshCw, TerminalSquare } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { PlatformToolsDownload } from "@/features/onboarding/PlatformToolsDownload";

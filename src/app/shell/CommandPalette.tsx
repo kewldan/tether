@@ -1,0 +1,100 @@
+import { Monitor, Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
+
+import { useNavigation } from "@/app/navigation";
+import { SECTION_IDS, SECTIONS } from "@/app/sections";
+import { deviceTone, StatusDot } from "@/components/status/StatusDot";
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { deviceName } from "@/features/devices/naming";
+import { useDevices } from "@/features/devices/store";
+import { useSettings } from "@/lib/settings";
+
+/** ⌘K / Ctrl+K palette: navigation, devices and preferences. */
+export function CommandPalette({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { t } = useTranslation();
+  const navigate = useNavigation((s) => s.navigate);
+  const devices = useDevices((s) => s.devices);
+  const select = useDevices((s) => s.select);
+  const setTheme = useSettings((s) => s.setTheme);
+
+  const run = (action: () => void) => () => {
+    action();
+    onOpenChange(false);
+  };
+
+  return (
+    <CommandDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("titlebar.openPalette")}
+      className="sm:max-w-[640px]"
+    >
+      <Command>
+        <CommandInput placeholder={t("palette.placeholder")} />
+        <CommandList>
+          <CommandEmpty>{t("palette.empty")}</CommandEmpty>
+          <CommandGroup heading={t("palette.navigation")}>
+            {SECTION_IDS.map((id) => {
+              const Icon = SECTIONS[id].icon;
+              return (
+                <CommandItem
+                  key={id}
+                  value={`nav ${id} ${t(`nav.${id}`)}`}
+                  onSelect={run(() => navigate(id))}
+                >
+                  <Icon />
+                  {t(`nav.${id}`)}
+                </CommandItem>
+              );
+            })}
+          </CommandGroup>
+          {devices.length > 0 && (
+            <CommandGroup heading={t("palette.devices")}>
+              {devices.map((d) => (
+                <CommandItem
+                  key={d.serial}
+                  value={`device ${d.serial} ${deviceName(d)}`}
+                  onSelect={run(() => select(d.serial))}
+                >
+                  <StatusDot tone={deviceTone(d.state)} />
+                  {deviceName(d)}
+                  <span className="text-caption text-muted-foreground ml-auto font-mono">
+                    {d.serial}
+                  </span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          )}
+          <CommandGroup heading={t("palette.preferences")}>
+            <CommandItem onSelect={run(() => setTheme("dark"))}>
+              <Moon />
+              {t("palette.themeDark")}
+            </CommandItem>
+            <CommandItem onSelect={run(() => setTheme("light"))}>
+              <Sun />
+              {t("palette.themeLight")}
+            </CommandItem>
+            <CommandItem onSelect={run(() => setTheme("system"))}>
+              <Monitor />
+              {t("palette.themeSystem")}
+            </CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </CommandDialog>
+  );
+}

@@ -36,7 +36,7 @@ impl DeviceInfo {
 }
 
 pub async fn device_info(server: &AdbServer, serial: &str) -> AppResult<DeviceInfo> {
-    let output = server.shell(serial, "getprop").await?;
+    let output = server.exec_text(serial, "getprop").await?;
     Ok(DeviceInfo::from_props(&parse_getprop(&output)))
 }
 

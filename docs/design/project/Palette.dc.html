@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command palette</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--c1:#5AA9F5;--c2:#F0A042;--c3:#2EC4B6;--c4:#E879A8;--c5:#D9C74A;--phone:#0A0B0D;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--c1:#1F78D1;--c2:#D9780F;--c3:#0F9488;--c4:#C2477E;--c5:#A68F0C;--phone:#2A2D35;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.win{height:900px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.tb{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding-left:14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lights{display:flex;gap:8px;width:60px}.lights span{width:12px;height:12px;border-radius:50%;background:#FF5F57}.lights span+span{background:#FEBC2E}.lights span+span+span{background:#28C840}
+.wctl{display:flex}.wctl span{width:46px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--fg2)}
+.brandmk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;width:150px}
+.logo{width:20px;height:20px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.cmdk{flex:0 1 440px;margin:0 auto;height:28px;display:flex;align-items:center;gap:8px;padding:0 6px 0 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--fg3);font:12px Inter,sans-serif;cursor:pointer;text-align:left}
+.tbr{display:flex;align-items:center;gap:2px;padding-right:8px;min-width:150px;justify-content:flex-end}
+.bd{flex:1;display:flex;min-height:0}
+.sb{width:240px;flex:none;border-right:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;padding:10px 8px 8px}
+.dev{width:100%;display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.devic{width:30px;height:30px;border-radius:7px;background:var(--active);display:flex;align-items:center;justify-content:center;color:var(--fg2);flex:none}
+.nav{display:flex;flex-direction:column;gap:1px;margin-top:10px}
+.ni{display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:6px;color:var(--fg2);text-decoration:none;font-weight:500;position:relative}
+.ni:hover{background:var(--hover);color:var(--fg)}
+.ni.on{background:var(--active);color:var(--fg)}
+.ni.on::before{content:"";position:absolute;left:-8px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--brand)}
+.ni .i{width:18px;height:18px;stroke-width:1.6}
+.sl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);padding:14px 8px 4px}
+.sbf{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.tsk{display:block;width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:500 12px Inter,sans-serif;cursor:pointer;text-align:left}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);position:relative}
+.hdr{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--border)}
+.crumb{display:flex;align-items:center;gap:6px;color:var(--fg3);font-size:13px;min-width:0;white-space:nowrap}
+.crumb b{color:var(--fg);font-weight:600;font-size:15px}
+.acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+.st{height:24px;flex:none;display:flex;align-items:center;gap:14px;padding:0 12px;border-top:1px solid var(--border);background:var(--bg2);color:var(--fg3);font-size:11px;white-space:nowrap;overflow:hidden}
+.st .sep{width:1px;height:12px;background:var(--border2)}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible,.ni:focus-visible,.dev:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}.btn-g:hover{background:var(--hover);color:var(--fg)}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px;gap:5px}
+.ib{width:30px;padding:0}.btn-sm.ib{width:26px}
+.kbd{font:500 11px/16px Inter,sans-serif;min-width:18px;height:18px;padding:0 5px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--fg3);display:inline-flex;align-items:center;justify-content:center}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-warn{background:var(--warn-soft);color:var(--warn)}.b-err{background:var(--err-soft);color:var(--err)}.b-info{background:var(--info-soft);color:var(--info)}.b-br{background:var(--brand-soft);color:var(--brand)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--fg3)}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-err{background:var(--err)}
+.card{border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.bar{height:4px;border-radius:2px;background:var(--active);overflow:hidden;display:block}.bar i{display:block;height:100%;background:var(--primary);border-radius:2px}
+.mc{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mc .t{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600}
+.mc .t .i{color:var(--fg3)}
+.big{font-size:26px;line-height:30px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:12px;margin:0}
+.kv dt{color:var(--fg3)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:64px;min-width:0;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:500 12px Inter,sans-serif;cursor:pointer;padding:0 8px}
+.qa:hover{background:var(--hover)}
+.qa .i{width:18px;height:18px;color:var(--fg2)}
+.rl{display:flex;align-items:center;gap:10px;height:36px;padding:0 14px;border-top:1px solid var(--border);font-size:12px}
+.inp{height:30px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--border2);border-radius:7px;background:var(--bg);color:var(--fg3);font:13px Inter,sans-serif;min-width:0}
+.inp input{all:unset;flex:1;min-width:0;color:var(--fg);font:inherit}
+.pop{background:var(--elev);border:1px solid var(--border2);border-radius:10px;box-shadow:var(--shadow)}
+.mi{display:flex;align-items:center;gap:10px;min-height:30px;padding:4px 8px;border-radius:6px;color:var(--fg);font-size:13px}
+.mi.hl{background:var(--active)}.mi .kbd{margin-left:auto}
+.sep1{height:1px;background:var(--border);margin:4px 0}
+.seg{display:inline-flex;padding:2px;border-radius:8px;background:var(--active);gap:2px;flex:none}
+.seg button{height:24px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--fg2);font:500 12px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.seg .on{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{position:sticky;top:0;z-index:1;height:32px;text-align:left;font-weight:500;font-size:12px;color:var(--fg3);background:var(--bg);border-bottom:1px solid var(--border);padding:0 12px;white-space:nowrap}
+.tbl td{height:32px;padding:0 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl tr.sel td{background:var(--brand-soft)}
+.tbl tr.hov td{background:var(--hover)}
+.sw{width:28px;height:16px;border-radius:8px;border:0;padding:0;background:var(--border2);position:relative;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.sw.on{background:var(--primary)}.sw.on::after{left:14px}
+.cb{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);flex:none;display:inline-flex;align-items:center;justify-content:center;padding:0;color:#fff;cursor:pointer}
+.cb.on{background:var(--primary);border-color:var(--primary)}
+.cb .i{width:12px;height:12px;stroke-width:3}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--border);padding:0 20px;flex:none}
+.tabs a{height:38px;display:flex;align-items:center;gap:6px;color:var(--fg2);text-decoration:none;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--fg);border-color:var(--brand)}
+.scrim{position:absolute;inset:0;background:rgba(5,6,8,.55);z-index:30}
+.light .scrim{background:rgba(23,25,30,.28)}
+.sk{background:var(--active);border-radius:4px}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3)}
+pre{margin:0}
+.main{position:static}
+
+</style>
+</helmet>
+<div class="{{t}}">
+<div class="tb">
+<sc-if value="{{mac}}" hint-placeholder-val="{{ true }}"><div class="lights" aria-hidden="true"><span></span><span></span><span></span></div></sc-if>
+<div class="brandmk"><span class="logo"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px;stroke-width:2.2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>Tether</div>
+<button class="cmdk" aria-label="Open command palette"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Search actions, devices, apps, files…<span style="margin-left: auto; display: flex; gap: 3px"><span class="kbd">{{mod}}</span><span class="kbd">K</span></span></button>
+<div class="tbr"><button class="btn btn-g btn-sm ib" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+<sc-if value="{{win}}" hint-placeholder-val="{{ false }}"><div class="wctl" aria-hidden="true"><span><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span><span><svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></span><span><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></sc-if></div>
+</div>
+<div class="bd">
+<aside class="sb">
+<button class="dev" aria-label="Switch device"><span class="devic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 600">Pixel 8 Pro</span><span class="row dim" style="font-size: 11px; gap: 6px"><span class="dot d-ok"></span>USB · Android 15</span></span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
+<nav class="nav" aria-label="Device sections">
+<a class="ni on" href="#" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></svg>Screen</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Files</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>Apps</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1"/></svg>Logcat<span class="bdg b-err num" style="margin-left: auto; height: 18px">1</span></a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>Shell</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Performance</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Device settings</a>
+<div class="sl">Tools</div>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>Ports<span class="dim num" style="margin-left: auto; font-size: 12px">2</span></a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Intents</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6M12 20v-9M6 13H2M22 13h-4M9 7.13v-1a3 3 0 1 1 6 0v1"/></svg>Bugreport</a>
+</nav>
+<div class="sbf">
+<button class="tsk" aria-label="2 tasks running"><span class="row" style="gap: 8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--brand); width: 14px; height: 14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span style="flex: 1">2 transfers</span><span class="num dim">64%</span></span><span class="bar" style="margin-top: 7px"><i style="width: 64%"></i></span></button>
+<div class="row" style="height: 30px; padding: 0 8px; font-size: 12px; color: var(--fg3)"><span class="dot d-ok"></span><span>adb <span class="mono num">35.0.2</span> · running</span><button class="btn btn-g btn-sm ib" aria-label="App settings" style="margin-left: auto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
+</div>
+</aside>
+
+<main class="main">
+<div class="hdr">
+<div class="crumb"><span>Pixel 8 Pro</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m9 18 6-6-6-6"/></svg><b>Overview</b></div>
+<div class="acts"><button class="btn btn-sm btn-g"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy device info</button><div style="display: inline-flex"><button class="btn btn-sm" style="border-radius: 6px 0 0 6px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>Reboot</button><button class="btn btn-sm ib" style="border-radius: 0 6px 6px 0; border-left: 0" aria-label="Reboot options"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m6 9 6 6 6-6"/></svg></button></div></div>
+</div>
+
+<div style="flex: 1; overflow: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div class="card" style="padding: 18px; display: flex; gap: 22px; align-items: center; flex-wrap: wrap">
+<div style="width: 70px; height: 132px; border-radius: 16px; background: var(--phone); padding: 4px; flex: none; box-shadow: 0 0 0 1px var(--border2)" aria-hidden="true"><div style="height: 100%; border-radius: 12px; background: linear-gradient(160deg, #3A3F8F, #6D5AE6 60%, #C4BBFC); position: relative"><span style="position: absolute; top: 5px; left: 50%; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #000"></span></div></div>
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+<div class="row" style="gap: 10px"><h1 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 600; letter-spacing: -.01em">Pixel 8 Pro</h1><button class="btn btn-g btn-sm ib" aria-label="Rename device"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button><span class="bdg b-ok"><span class="dot d-ok"></span>device</span></div>
+<div class="mut">Google · husky · Tensor G3</div>
+<div class="row" style="flex-wrap: wrap; gap: 6px"><button class="bdg mono" style="border: 0; cursor: pointer" aria-label="Copy serial">38121FDJH00A4B <svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:11px;height:11px"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button><span class="bdg">Android 15 · SDK 35</span><span class="bdg">Patch 2026-10-05</span><span class="bdg"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:12px;height:12px"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>USB 3.2</span><span class="bdg">Not rooted</span></div>
+<details style="font-size: 12px"><summary class="dim" style="cursor: pointer">Build fingerprint</summary><div class="mono mut" style="margin-top: 4px; font-size: 11px">google/husky/husky:15/AP4A.261005.002/12493156:user/release-keys</div></details>
+</div>
+<div style="display: grid; grid-template-columns: repeat(6, 84px); gap: 8px">
+<button class="qa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>Screenshot</button>
+<button class="qa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill="currentColor"/></svg>Record</button>
+<button class="qa" style="border-color: var(--brand); background: var(--brand-soft)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--brand)"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></svg>Mirror</button>
+<button class="qa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>Install APK</button>
+<button class="qa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>Shell</button>
+<button class="qa"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>Reboot ▾</button>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+<div class="card mc">
+<div class="t">Battery<span class="bdg b-ok">Charging · USB</span></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">82%</span><span class="dim num">+0.8%/min · full in 23 min</span></div>
+<svg viewBox="0 0 220 40" style="width: 100%; height: 40px" role="img" aria-label="Battery level rising over the last hour"><path d="M0 34 L20 33 L40 31 L60 30 L80 27 L100 25 L120 22 L140 19 L160 16 L180 13 L200 10 L220 8 L220 40 L0 40Z" fill="var(--c4)" opacity=".14"/><path d="M0 34 L20 33 L40 31 L60 30 L80 27 L100 25 L120 22 L140 19 L160 16 L180 13 L200 10 L220 8" fill="none" stroke="var(--c4)" stroke-width="1.75"/></svg>
+<dl class="kv"><dt>Temperature</dt><dd>31.4 °C</dd><dt>Health</dt><dd>Good · 96%</dd><dt>Voltage</dt><dd>4.21 V</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">Storage<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12H2M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11zM6 16h.01M10 16h.01"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">168.4</span><span class="dim num">of 256 GB used</span></div>
+<div style="display: flex; height: 8px; border-radius: 4px; overflow: hidden; background: var(--active); gap: 2px"><span style="width: 34%; background: var(--c1)"></span><span style="width: 18%; background: var(--c2)"></span><span style="width: 9%; background: var(--c3)"></span><span style="width: 5%; background: var(--c4)"></span></div>
+<dl class="kv"><dt class="row" style="gap: 6px"><span class="dot" style="background: var(--c1)"></span>Apps</dt><dd>87.1 GB</dd><dt class="row" style="gap: 6px"><span class="dot" style="background: var(--c2)"></span>Photos &amp; video</dt><dd>46.0 GB</dd><dt class="row" style="gap: 6px"><span class="dot" style="background: var(--c3)"></span>System</dt><dd>23.0 GB</dd><dt class="row" style="gap: 6px"><span class="dot" style="background: var(--c4)"></span>Other</dt><dd>12.3 GB</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">Memory<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19v-3M10 19v-3M14 19v-3M18 19v-3M8 11V9M16 11V9M12 11V9M2 15h20M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">7.4</span><span class="dim num">of 12 GB · 62%</span></div>
+<svg viewBox="0 0 220 40" style="width: 100%; height: 40px" role="img" aria-label="Memory usage, steady"><path d="M0 18 L20 17 L40 19 L60 16 L80 17 L100 14 L120 15 L140 16 L160 13 L180 15 L200 14 L220 15 L220 40 L0 40Z" fill="var(--c2)" opacity=".14"/><path d="M0 18 L20 17 L40 19 L60 16 L80 17 L100 14 L120 15 L140 16 L160 13 L180 15 L200 14 L220 15" fill="none" stroke="var(--c2)" stroke-width="1.75"/></svg>
+<dl class="kv"><dt>Available</dt><dd>4.6 GB</dd><dt>Swap (zRAM)</dt><dd>1.2 / 6 GB</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">CPU<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">23%</span><span class="dim num">9 cores · 2.91 GHz max</span></div>
+<div style="display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 3px; height: 40px; align-items: end" role="img" aria-label="Per-core load">
+<span style="height: 30%; background: var(--c1); border-radius: 2px"></span><span style="height: 18%; background: var(--c1); border-radius: 2px"></span><span style="height: 52%; background: var(--c1); border-radius: 2px"></span><span style="height: 12%; background: var(--c1); border-radius: 2px"></span><span style="height: 40%; background: var(--c1); border-radius: 2px"></span><span style="height: 22%; background: var(--c1); border-radius: 2px"></span><span style="height: 10%; background: var(--c1); border-radius: 2px"></span><span style="height: 64%; background: var(--c1); border-radius: 2px"></span><span style="height: 8%; background: var(--c1); border-radius: 2px"></span>
+</div>
+<dl class="kv"><dt>Chip</dt><dd>Tensor G3 · arm64-v8a</dd><dt>Thermal</dt><dd>Normal · 38 °C</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">Display<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">120 Hz</span><span class="dim num">LTPO</span></div>
+<dl class="kv"><dt>Resolution</dt><dd class="mono">1344 × 2992</dd><dt>Density</dt><dd class="mono">480 dpi</dd><dt>Font scale</dt><dd>1.0</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">Network<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01M2 8.82a15 15 0 0 1 20 0M5 12.86a10 10 0 0 1 14 0M8.5 16.43a5 5 0 0 1 7 0"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big" style="font-size: 20px">HomeNet-5G</span></div>
+<dl class="kv"><dt>IP</dt><dd class="mono">192.168.1.33</dd><dt>Signal</dt><dd>−52 dBm · 5 GHz</dd><dt>Mobile</dt><dd>LTE · Beeline</dd></dl>
+</div>
+<div class="card mc">
+<div class="t">Uptime<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+<div class="row" style="align-items: baseline; gap: 8px"><span class="big">3d 4h</span></div>
+<dl class="kv"><dt>Since</dt><dd>Oct 22, 18:12</dd><dt>Deep sleep</dt><dd>61%</dd></dl>
+</div>
+<div class="card" style="grid-row: span 1; overflow: hidden; display: flex; flex-direction: column">
+<div class="row" style="padding: 12px 14px; justify-content: space-between"><span style="font-weight: 600">Recent</span><a href="#" style="font-size: 12px">History</a></div>
+<div class="rl"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ok)"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg><span class="mono" style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">shop-2.14.0-debug.apk</span><span class="dim">2 min</span></div>
+<div class="rl"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--c1)"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></svg><span style="flex: 1">Screenshot_22-38-12.png</span><span class="dim">5 min</span></div>
+<div class="rl"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg><span class="mono" style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">pm clear com.example.shop</span><span class="dim">12 min</span></div>
+</div>
+</div>
+</div>
+<div class="scrim" style="background: rgba(5,6,8,.45)"></div>
+<div class="pop" role="dialog" aria-modal="true" aria-label="Command palette" style="position: absolute; left: 50%; top: 72px; width: 640px; margin-left: -320px; z-index: 60; border-radius: 14px; overflow: hidden">
+<div class="row" style="height: 52px; padding: 0 16px; gap: 12px; border-bottom: 1px solid var(--border)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; color: var(--fg3)"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><span style="font-size: 16px; flex: 1">clear<span style="display: inline-block; width: 1.5px; height: 18px; background: var(--brand); vertical-align: -3px; margin-left: 1px"></span></span><span class="bdg">Pixel 8 Pro</span><span class="kbd">Esc</span></div>
+<div style="padding: 6px; max-height: 470px; overflow: auto">
+<div class="lbl" style="padding: 8px 10px 4px">Actions</div>
+<div class="mi hl" style="height: 40px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--err)"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg><span><b style="font-weight: 600">Clear</b> data · <span class="mono">com.example.shop</span></span><span class="dim" style="font-size: 12px; margin-left: auto">asks to confirm</span><span class="kbd" style="margin-left: 8px">↵</span></div>
+<div class="mi" style="height: 40px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1"/></svg><span><b style="font-weight: 600">Clear</b> logcat</span><span class="kbd">{{mod}}L</span></div>
+<div class="mi" style="height: 40px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg><span><b style="font-weight: 600">Clear</b> cache · <span class="mono">com.example.shop</span></span></div>
+<div class="mi" style="height: 40px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg><span><b style="font-weight: 600">Clear</b> finished transfers</span></div>
+<div class="lbl" style="padding: 10px 10px 4px">Apps</div>
+<div class="mi" style="height: 40px"><span style="width: 18px; height: 18px; border-radius: 5px; background: #2AABEE; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">T</span><span>Telegram — <b style="font-weight: 600">Clear</b> data…</span><span class="mono dim" style="font-size: 11px; margin-left: auto">org.telegram.messenger</span></div>
+<div class="lbl" style="padding: 10px 10px 4px">Recent commands</div>
+<div class="mi mono" style="height: 36px; font-size: 12px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>pm <b style="font-weight: 600">clear</b> com.example.shop.staging<span class="dim" style="margin-left: auto; font-family: Inter">12 min ago</span></div>
+<div class="lbl" style="padding: 10px 10px 4px">Devices</div>
+<div class="mi" style="height: 36px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg>Galaxy S23<span class="dot d-ok" style="margin-left: 6px"></span><span class="kbd" style="margin-left: auto">{{mod}}2</span></div>
+</div>
+<div class="row" style="height: 36px; padding: 0 14px; gap: 16px; border-top: 1px solid var(--border); font-size: 11px; color: var(--fg3)"><span class="row" style="gap: 4px"><span class="kbd">↑</span><span class="kbd">↓</span>navigate</span><span class="row" style="gap: 4px"><span class="kbd">↵</span>run</span><span class="row" style="gap: 4px"><span class="kbd">Tab</span>choose device</span><span class="row" style="gap: 4px; margin-left: auto"><span class="kbd">&gt;</span>shell command</span></div>
+</div>
+</main>
+</div>
+<div class="st"><span class="row" style="gap: 6px"><span class="dot d-ok"></span>Pixel 8 Pro</span><span class="sep"></span><span class="mono">38121FDJH00A4B</span><span class="sep"></span><span>USB</span><span class="sep"></span><span class="num">82% ⚡</span><span class="sep"></span><span>Android 15 (SDK 35)</span><span style="margin-left: auto" class="mono">tcp:8081 → 8081 · tcp:9222 ← 9222</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"os":{"editor":"enum","options":["macos","windows"],"default":"macos"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const os = this.props.os ?? 'macos';
+    return { t: 'app win ' + (this.props.theme ?? 'dark'), mac: os === 'macos', win: os !== 'macos', mod: os === 'macos' ? '⌘' : 'Ctrl' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tether — Motion</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--err:#F2555A;--info:#4AA3F0;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--err:#C9262C;--info:#1D6FC4;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;transition:transform 120ms linear(0, .049, .158, .286, .412, .527, .625, .707, .773, .826, .867, .899, .924, .943, .958, .968, .977, .983, .987, .991, .993, .995, .996, .997, 1),background 120ms}
+.btn:hover{background:var(--hover)}
+.btn:active{transform:scale(.97)}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px}
+.card{border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.pop{background:var(--elev);border:1px solid var(--border2);border-radius:10px;box-shadow:var(--shadow)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3)}
+.h2{margin:0;font-size:20px;line-height:28px;font-weight:600}
+.h3{margin:0;font-size:13px;font-weight:600}
+.row{display:flex;align-items:center;gap:8px}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.stage{position:relative;height:200px;border-radius:10px;background:var(--bg2);border:1px solid var(--border);overflow:hidden}
+.tok{width:100%;border-collapse:collapse}
+.tok th{text-align:left;font-size:12px;font-weight:500;color:var(--fg3);padding:0 12px;height:32px;border-bottom:1px solid var(--border)}
+.tok td{padding:6px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+pre{margin:0;white-space:pre;overflow:auto}
+@media (prefers-reduced-motion: reduce){.app *{transition-duration:1ms !important}}
+</style>
+</helmet>
+<div class="{{t}}" style="min-height: 2200px; padding: 56px 40px 80px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 48px">
+
+<header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; padding-bottom: 28px; border-bottom: 1px solid var(--border)">
+<div>
+<div class="lbl">Design system · Motion</div>
+<h1 style="margin: 6px 0 6px; font-size: 32px; line-height: 38px; font-weight: 700; letter-spacing: -.02em">Springs, not durations</h1>
+<div class="mut" style="max-width: 720px">Modeled on iOS / SwiftUI: every movement is a damped spring defined by <b>response</b> (how fast) and <b>damping fraction</b> (how much it settles vs. overshoots). Springs are interruptible — a menu closed mid-open reverses from its current position and velocity, never jumps. Press any demo; press again mid-flight.</div>
+</div>
+<button class="btn btn-p" onClick="{{playAll}}">Play all</button>
+</header>
+
+<section style="display: flex; flex-direction: column; gap: 16px">
+<div><div class="lbl">01 · Spring tokens</div><h2 class="h2">Three springs cover the whole app</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<sc-for list="{{springs}}" as="s" hint-placeholder-count="3">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">{{s.name}}</span><span class="mono dim" style="font-size: 11px">{{s.swift}}</span></div>
+<div class="mut" style="font-size: 12px; min-height: 40px">{{s.use}}</div>
+<svg viewBox="0 0 240 90" style="width: 100%; height: 90px" role="img" aria-label="{{s.aria}}">
+<line x1="0" y1="14" x2="240" y2="14" stroke="var(--border2)" stroke-dasharray="3 3"/>
+<line x1="0" y1="78" x2="240" y2="78" stroke="var(--border2)"/>
+<path d="{{s.path}}" fill="none" stroke="var(--brand)" stroke-width="2"/>
+</svg>
+<div style="position: relative; height: 28px; border-radius: 14px; background: var(--bg2); border: 1px solid var(--border)">
+<div style="{{s.ball}}"></div>
+</div>
+<div class="mono dim" style="font-size: 11px; line-height: 17px">stiffness {{s.k}} · damping {{s.c}} · mass 1<br>settles ≈ {{s.settle}} ms · perceived ≈ {{s.perceived}} ms</div>
+</div>
+</sc-for>
+</div>
+<div class="mut" style="font-size: 12px">Chrome (menus, sheets, sidebar, tabs) never visibly overshoots. Bounce is reserved for moments of physical cause: a toast arriving, a dropped file landing, a success check. Distances stay short (≤ 8 px travel for popovers) so even a 350 ms spring feels instant.</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px">
+<div><div class="lbl">02 · Patterns</div><h2 class="h2">Live demos — click to toggle</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Dropdown · snappy</span><button class="btn btn-sm" onClick="{{tMenu}}">Toggle</button></div>
+<div class="stage">
+<div class="btn btn-sm" style="position: absolute; left: 20px; top: 20px">Reboot ▾</div>
+<div class="pop" style="{{menuStyle}}">
+<div style="height: 28px; padding: 0 8px; border-radius: 6px; background: var(--active); display: flex; align-items: center">Reboot to system</div>
+<div style="height: 28px; padding: 0 8px; display: flex; align-items: center">Recovery</div>
+<div style="height: 28px; padding: 0 8px; display: flex; align-items: center">Bootloader</div>
+</div>
+</div>
+<div class="dim" style="font-size: 12px">opacity 0→1, scale .96→1, y −4→0, transform-origin = trigger corner (Radix <span class="mono">--radix-dropdown-menu-content-transform-origin</span>). Close: same spring, faster feel because it starts with velocity.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Dialog · smooth</span><button class="btn btn-sm" onClick="{{tDialog}}">Toggle</button></div>
+<div class="stage">
+<div style="{{scrimStyle}}"></div>
+<div class="pop" style="{{dialogStyle}}">
+<div style="font-weight: 600; margin-bottom: 6px">Clear app data?</div>
+<div class="mut" style="font-size: 12px; line-height: 16px">com.example.shop will lose all data.</div>
+<div class="row" style="justify-content: flex-end; margin-top: 12px"><span class="btn btn-sm">Cancel</span><span class="btn btn-sm" style="background: #D13B41; color: #fff; border-color: transparent">Clear</span></div>
+</div>
+</div>
+<div class="dim" style="font-size: 12px">Scrim fades (opacity only, 160 ms). Panel scale .97→1 + fade, centered origin. No y-travel — dialogs appear in place, like iOS alerts.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Sheet · smooth</span><button class="btn btn-sm" onClick="{{tSheet}}">Toggle</button></div>
+<div class="stage">
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 8px"><div style="height: 10px; width: 60%; background: var(--active); border-radius: 4px"></div><div style="height: 10px; width: 40%; background: var(--active); border-radius: 4px"></div></div>
+<div class="pop" style="{{sheetStyle}}">
+<div style="font-weight: 600">Connect over Wi-Fi</div>
+<div class="mut" style="font-size: 12px; margin-top: 6px">QR · Pairing code · IP</div>
+</div>
+</div>
+<div class="dim" style="font-size: 12px">translateX(100%)→0 from the edge it lives on. Drag-to-dismiss follows the pointer 1:1 and releases into the same spring with the gesture's velocity.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Toast · bouncy</span><button class="btn btn-sm" onClick="{{tToast}}">Toggle</button></div>
+<div class="stage">
+<div class="pop row" style="{{toastStyle}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ok)"><path d="M20 6 9 17l-5-5"/></svg><span style="flex: 1; font-size: 12px">Installed on 3 devices</span><span class="btn btn-sm">Undo</span></div>
+</div>
+<div class="dim" style="font-size: 12px">y +16→0, scale .96→1 with a light overshoot (≈2%). Leaving: smooth, opacity + y +8. Stack: older toasts scale .95 and move up 8 px.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Sidebar collapse · smooth</span><button class="btn btn-sm" onClick="{{tSide}}">Toggle</button></div>
+<div class="stage" style="display: flex">
+<div style="{{sideStyle}}">
+<div style="height: 26px; border-radius: 6px; background: var(--active); display: flex; align-items: center; gap: 8px; padding: 0 8px; white-space: nowrap; overflow: hidden"><span style="width: 14px; height: 14px; border-radius: 4px; background: var(--brand); flex: none"></span><span style="{{sideLabel}}">Overview</span></div>
+<div style="height: 26px; display: flex; align-items: center; gap: 8px; padding: 0 8px; white-space: nowrap; overflow: hidden"><span style="width: 14px; height: 14px; border-radius: 4px; background: var(--border2); flex: none"></span><span style="{{sideLabel}}">Logcat</span></div>
+<div style="height: 26px; display: flex; align-items: center; gap: 8px; padding: 0 8px; white-space: nowrap; overflow: hidden"><span style="width: 14px; height: 14px; border-radius: 4px; background: var(--border2); flex: none"></span><span style="{{sideLabel}}">Files</span></div>
+</div>
+<div style="flex: 1"></div>
+</div>
+<div class="dim" style="font-size: 12px">Width 240→56 on the spring; labels fade out in the first 40% (opacity, 100 ms) so text never squeezes. Content area reflows with the same spring — no layout jump.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Tab / segment indicator · snappy</span><button class="btn btn-sm" onClick="{{tTab}}">Next</button></div>
+<div class="stage" style="display: flex; align-items: center; justify-content: center">
+<div style="position: relative; display: flex; padding: 2px; border-radius: 8px; background: var(--active)">
+<div style="{{tabStyle}}"></div>
+<span style="position: relative; width: 72px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500">V D</span>
+<span style="position: relative; width: 72px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500">I W</span>
+<span style="position: relative; width: 72px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500">E F</span>
+</div>
+</div>
+<div class="dim" style="font-size: 12px">Shared-layout thumb (Motion <span class="mono">layoutId</span>) slides between items; labels never move. Same for underline tabs and the sidebar active marker.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Drop zone · snappy → bouncy</span><button class="btn btn-sm" onClick="{{tDrop}}">Drag over</button></div>
+<div class="stage" style="display: flex; align-items: center; justify-content: center; padding: 20px">
+<div style="{{dropStyle}}">Drop to install</div>
+</div>
+<div class="dim" style="font-size: 12px">Drag-enter: scale 1→1.015, border + fill fade in (snappy). Drop: file chip lands with bouncy, then the row inserts into the queue with height spring.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Status change · smooth</span><button class="btn btn-sm" onClick="{{tStatus}}">Toggle</button></div>
+<div class="stage" style="display: flex; align-items: center; justify-content: center">
+<div class="row" style="gap: 10px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--card)">
+<span style="position: relative; width: 10px; height: 10px"><span style="{{dotStyle}}"></span><span style="{{ringStyle}}"></span></span>
+<span style="font-weight: 500">Pixel 8 Pro</span><span class="dim" style="font-size: 12px">{{statusText}}</span>
+</div>
+</div>
+<div class="dim" style="font-size: 12px">Dot color crossfades; on connect a single ring expands 1→2.4 and fades (once — never loops). Label swaps with a 4 px vertical crossfade.</div>
+</div>
+
+<div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="row" style="justify-content: space-between"><span class="h3">Press · snappy</span><span class="dim" style="font-size: 12px">hold a button</span></div>
+<div class="stage" style="display: flex; align-items: center; justify-content: center; gap: 10px">
+<button class="btn btn-p">Install APK</button><button class="btn">Screenshot</button>
+</div>
+<div class="dim" style="font-size: 12px">Pointer-down scale .97 (cards .985), release springs back — the only motion on most clicks. Keyboard activation skips scale.</div>
+</div>
+
+</div>
+</section>
+
+<section style="display: flex; flex-direction: column; gap: 16px">
+<div><div class="lbl">03 · Spec</div><h2 class="h2">Element → spring → what moves</h2></div>
+<div class="card" style="overflow: hidden">
+<table class="tok">
+<thead><tr><th>Element</th><th>Spring</th><th>Properties</th><th>Reduced motion</th></tr></thead>
+<tbody>
+<tr><td>Button / row press</td><td class="mono">snappy</td><td class="mut">scale .97 (buttons) / .985 (cards)</td><td class="mut">none</td></tr>
+<tr><td>Dropdown, context menu, select, combobox</td><td class="mono">snappy</td><td class="mut">opacity, scale .96→1, y ∓4 from trigger side</td><td class="mut">opacity 120 ms</td></tr>
+<tr><td>Tooltip</td><td class="mono">snappy</td><td class="mut">opacity, y 2; 400 ms delay, 0 ms once one is open</td><td class="mut">opacity</td></tr>
+<tr><td>Dialog, confirm, command palette</td><td class="mono">smooth</td><td class="mut">panel opacity + scale .97→1; scrim opacity; palette results height springs</td><td class="mut">opacity</td></tr>
+<tr><td>Sheet / drawer</td><td class="mono">smooth</td><td class="mut">translate from edge; drag follows pointer, release carries velocity</td><td class="mut">opacity</td></tr>
+<tr><td>Sidebar collapse, panel resize, split views</td><td class="mono">smooth</td><td class="mut">width / flex-basis; labels fade early</td><td class="mut">instant</td></tr>
+<tr><td>Tabs, segmented, nav marker</td><td class="mono">snappy</td><td class="mut">shared-layout indicator x + width</td><td class="mut">instant</td></tr>
+<tr><td>Toast, success check, drop landing</td><td class="mono">bouncy</td><td class="mut">y +16, scale .96 → 1 (≤ 2% overshoot)</td><td class="mut">opacity</td></tr>
+<tr><td>List insert / remove (apps, transfers, devices)</td><td class="mono">smooth</td><td class="mut">height 0→auto + opacity; siblings reflow via layout animation</td><td class="mut">instant</td></tr>
+<tr><td>Progress bars</td><td class="mono">smooth</td><td class="mut">scaleX follows value — spring smooths jumpy adb progress</td><td class="mut">step</td></tr>
+<tr><td>Device status dot</td><td class="mono">smooth</td><td class="mut">color crossfade; one-shot ring on connect</td><td class="mut">color only</td></tr>
+<tr><td>Logcat stream, terminal output, charts</td><td class="mono">—</td><td class="mut">never animated. New rows appear instantly; "N new lines" pill uses snappy</td><td class="mut">—</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<section style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div class="h3">Motion for React (motion.dev)</div>
+<pre class="mono mut" style="font-size: 12px; line-height: 19px">// src/lib/motion.ts
+export const spring = {
+  snappy: { type: "spring", stiffness: 632, damping: 50.3, mass: 1 },
+  smooth: { type: "spring", stiffness: 322, damping: 33.0, mass: 1 },
+  bouncy: { type: "spring", stiffness: 224, damping: 23.3, mass: 1 },
+} as const;
+
+// SwiftUI equivalents
+// snappy  .spring(response: 0.25, dampingFraction: 1.00)
+// smooth  .spring(response: 0.35, dampingFraction: 0.92)
+// bouncy  .spring(response: 0.42, dampingFraction: 0.78)
+
+&lt;motion.div
+  initial=&#123;&#123; opacity: 0, scale: 0.96, y: -4 &#125;&#125;
+  animate=&#123;&#123; opacity: 1, scale: 1, y: 0 &#125;&#125;
+  exit=&#123;&#123; opacity: 0, scale: 0.98 &#125;&#125;
+  transition={spring.snappy} /&gt;
+
+// wrap app in &lt;MotionConfig reducedMotion="user"&gt;</pre>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px">
+<div class="h3">CSS fallback (Radix data-state, no JS)</div>
+<pre class="mono mut" style="font-size: 12px; line-height: 19px">:root {
+  --spring-snappy: linear(0, .049, .158, .286, .412, .527,
+    .625, .707, .773, .826, .867, .899, .924, .943, .958,
+    .968, .977, .983, .987, .991, .993, .995, .996, .997, 1);
+  --spring-snappy-dur: 340ms;
+  --spring-smooth: linear(0, .03, .101, .194, .295, .396,
+    .491, .578, .654, .72, .776, .822, .861, .892, .917,
+    .937, .953, .965, .975, .982, .987, .991, .994, .997, 1);
+  --spring-smooth-dur: 350ms;
+  --spring-bouncy: linear(0, .046, .154, .29, .431, .564,
+    .68, .776, .852, .911, .953, .982, 1.001, 1.012, 1.018,
+    1.02, 1.019, 1.017, 1.015, 1.012, 1.009, 1.007, 1.005,
+    1.003, 1);
+  --spring-bouncy-dur: 530ms;
+}
+[data-state="open"] { transition:
+  transform var(--spring-snappy-dur) var(--spring-snappy),
+  opacity 120ms ease-out; }</pre>
+<div class="dim" style="font-size: 12px">CSS linear() can't retarget velocity — use it only for enter/exit. Anything interruptible or gesture-driven (sheets, sidebar, tabs, drag) goes through Motion.</div>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1440,"height":2200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { all: false, menu: true, dialog: true, sheet: true, toast: true, side: false, tab: 0, drop: false, status: true };
+  }
+  renderVals() {
+    const s = this.state;
+    const curves = {
+      snappy: { ms: 340, pts: [0, .049, .158, .286, .412, .527, .625, .707, .773, .826, .867, .899, .924, .943, .958, .968, .977, .983, .987, .991, .993, .995, .996, .997, 1] },
+      smooth: { ms: 350, pts: [0, .03, .101, .194, .295, .396, .491, .578, .654, .72, .776, .822, .861, .892, .917, .937, .953, .965, .975, .982, .987, .991, .994, .997, 1] },
+      bouncy: { ms: 530, pts: [0, .046, .154, .29, .431, .564, .68, .776, .852, .911, .953, .982, 1.001, 1.012, 1.018, 1.02, 1.019, 1.017, 1.015, 1.012, 1.009, 1.007, 1.005, 1.003, 1] }
+    };
+    const tr = (k, props) => props.map((p) => p + ' ' + curves[k].ms + 'ms linear(' + curves[k].pts.join(', ') + ')').join(', ');
+    const path = (k) => {
+      const p = curves[k].pts; const maxMs = 530;
+      return p.map((v, i) => (i ? 'L' : 'M') + (i / (p.length - 1) * 240 * curves[k].ms / maxMs).toFixed(1) + ' ' + (78 - v * 64).toFixed(1)).join(' ') + ' L240 14';
+    };
+    const ball = (k) => 'position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); transform: translateX(' + (s.all ? '290px' : '0') + '); transition: ' + tr(k, ['transform']);
+    const springs = [
+      { name: 'snappy', swift: 'response .25 · damping 1.0', use: 'Direct feedback: press, menus, tooltips, tab indicators. Critically damped — fast, zero overshoot.', k: 632, c: '50.3', settle: 340, perceived: 180, path: path('snappy'), ball: ball('snappy'), aria: 'Snappy spring curve, no overshoot' },
+      { name: 'smooth', swift: 'response .35 · damping .92', use: 'Things that travel: sheets, dialogs, sidebar, list reflow, progress. A hair of give, no visible bounce.', k: 322, c: '33.0', settle: 350, perceived: 240, path: path('smooth'), ball: ball('smooth'), aria: 'Smooth spring curve, minimal overshoot' },
+      { name: 'bouncy', swift: 'response .42 · damping .78', use: 'Arrivals with a cause: toasts, drop landing, success check. ~2% overshoot, used sparingly.', k: 224, c: '23.3', settle: 530, perceived: 300, path: path('bouncy'), ball: ball('bouncy'), aria: 'Bouncy spring curve, 2 percent overshoot' }
+    ];
+    const toggle = (key) => () => this.setState({ [key]: !this.state[key] });
+    return {
+      t: 'app ' + (this.props.theme ?? 'dark'),
+      springs,
+      playAll: () => this.setState({ all: !s.all, menu: !s.all, dialog: !s.all, sheet: !s.all, toast: !s.all, side: !s.all, drop: !s.all, status: !s.all, tab: (s.tab + 1) % 3 }),
+      tMenu: toggle('menu'), tDialog: toggle('dialog'), tSheet: toggle('sheet'), tToast: toggle('toast'), tSide: toggle('side'), tDrop: toggle('drop'), tStatus: toggle('status'),
+      tTab: () => this.setState({ tab: (s.tab + 1) % 3 }),
+      menuStyle: 'position: absolute; left: 20px; top: 52px; width: 180px; padding: 4px; transform-origin: top left; opacity: ' + (s.menu ? 1 : 0) + '; transform: translateY(' + (s.menu ? 0 : -4) + 'px) scale(' + (s.menu ? 1 : .96) + '); transition: ' + tr('snappy', ['transform']) + ', opacity 120ms ease-out',
+      scrimStyle: 'position: absolute; inset: 0; background: rgba(5,6,8,.55); opacity: ' + (s.dialog ? 1 : 0) + '; transition: opacity 160ms ease-out',
+      dialogStyle: 'position: absolute; left: 50%; top: 50%; width: 240px; margin: -56px 0 0 -120px; padding: 14px; border-radius: 12px; opacity: ' + (s.dialog ? 1 : 0) + '; transform: scale(' + (s.dialog ? 1 : .97) + '); transition: ' + tr('smooth', ['transform']) + ', opacity 140ms ease-out',
+      sheetStyle: 'position: absolute; top: 0; right: 0; bottom: 0; width: 60%; padding: 16px; border-radius: 12px 0 0 12px; transform: translateX(' + (s.sheet ? '0' : '105%') + '); transition: ' + tr('smooth', ['transform']),
+      toastStyle: 'position: absolute; left: 16px; right: 16px; bottom: 16px; padding: 10px 12px; opacity: ' + (s.toast ? 1 : 0) + '; transform: translateY(' + (s.toast ? 0 : 16) + 'px) scale(' + (s.toast ? 1 : .96) + '); transition: ' + tr(s.toast ? 'bouncy' : 'smooth', ['transform']) + ', opacity 140ms ease-out',
+      sideStyle: 'width: ' + (s.side ? 48 : 180) + 'px; flex: none; border-right: 1px solid var(--border); background: var(--bg); padding: 8px; display: flex; flex-direction: column; gap: 2px; transition: ' + tr('smooth', ['width']),
+      sideLabel: 'opacity: ' + (s.side ? 0 : 1) + '; transition: opacity 100ms ease-out',
+      tabStyle: 'position: absolute; top: 2px; left: 2px; width: 72px; height: 26px; border-radius: 6px; background: var(--card); box-shadow: 0 1px 2px rgba(0,0,0,.3); transform: translateX(' + (s.tab * 72) + 'px); transition: ' + tr('snappy', ['transform']),
+      dropStyle: 'width: 100%; height: 100%; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; border: 1.5px dashed ' + (s.drop ? 'var(--brand)' : 'var(--border2)') + '; background: ' + (s.drop ? 'var(--brand-soft)' : 'transparent') + '; color: ' + (s.drop ? 'var(--brand)' : 'var(--fg3)') + '; transform: scale(' + (s.drop ? 1.015 : 1) + '); transition: ' + tr('snappy', ['transform']) + ', background 120ms, border-color 120ms, color 120ms',
+      dotStyle: 'position: absolute; inset: 0; border-radius: 50%; background: ' + (s.status ? 'var(--ok)' : 'var(--err)') + '; transition: background 200ms ease-out',
+      ringStyle: 'position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--ok); opacity: ' + (s.status ? 0 : .8) + '; transform: scale(' + (s.status ? 2.4 : 1) + '); transition: ' + (s.status ? tr('smooth', ['transform']) + ', opacity 450ms ease-out' : 'none'),
+      statusText: s.status ? 'device · USB' : 'offline'
+    };
+  }
+}
+</script>
+</body>
+</html>

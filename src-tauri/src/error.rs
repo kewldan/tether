@@ -19,6 +19,10 @@ pub enum AppError {
     Extract(String),
     #[error("platform-tools are not published for {0}")]
     UnsupportedPlatform(String),
+    #[error("{0}")]
+    Device(String),
+    #[error("invalid input: {0}")]
+    InvalidInput(String),
     #[error("operation was cancelled")]
     Cancelled,
     #[error(transparent)]
@@ -36,6 +40,8 @@ impl AppError {
             Self::Download(_) => "download",
             Self::Extract(_) => "extract",
             Self::UnsupportedPlatform(_) => "unsupported_platform",
+            Self::Device(_) => "device",
+            Self::InvalidInput(_) => "invalid_input",
             Self::Cancelled => "cancelled",
             Self::Io(_) => "io",
         }

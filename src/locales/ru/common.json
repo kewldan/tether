@@ -1,0 +1,85 @@
+{
+  "appName": "Tether",
+  "comingSoon": "Этот раздел скоро появится.",
+  "nav": {
+    "overview": "Обзор",
+    "screen": "Экран",
+    "files": "Файлы",
+    "apps": "Приложения",
+    "logcat": "Logcat",
+    "shell": "Терминал",
+    "performance": "Производительность",
+    "device-settings": "Настройки устройства",
+    "ports": "Порты",
+    "intents": "Интенты",
+    "bugreport": "Bugreport",
+    "devices": "Устройства",
+    "diagnostics": "Не видно устройство?",
+    "gallery": "Снимки",
+    "settings": "Настройки",
+    "tools": "Инструменты"
+  },
+  "titlebar": {
+    "search": "Действия, устройства, приложения, файлы…",
+    "openPalette": "Открыть командную палитру",
+    "theme": "Переключить тему",
+    "minimize": "Свернуть",
+    "maximize": "Развернуть",
+    "close": "Закрыть"
+  },
+  "sidebar": {
+    "switchDevice": "Сменить устройство",
+    "noDevice": "Нет устройства",
+    "connectToStart": "Подключите, чтобы начать",
+    "allDevices": "Все устройства",
+    "connectDevice": "Подключить устройство…",
+    "cantSee": "Не видно устройство?",
+    "collapse": "Свернуть боковую панель",
+    "expand": "Развернуть боковую панель",
+    "appSettings": "Настройки приложения",
+    "tasks_one": "{{count}} задача",
+    "tasks_few": "{{count}} задачи",
+    "tasks_many": "{{count}} задач",
+    "tasks_other": "{{count}} задачи",
+    "adbRunning": "работает",
+    "adbDown": "не запущен"
+  },
+  "state": {
+    "device": "В сети",
+    "unauthorized": "Не авторизовано",
+    "authorizing": "Авторизация",
+    "offline": "Не в сети",
+    "connecting": "Подключение…",
+    "no_permissions": "Нет прав",
+    "recovery": "Recovery",
+    "rescue": "Rescue",
+    "sideload": "Sideload",
+    "bootloader": "Bootloader",
+    "host": "Host",
+    "unknown": "Неизвестно"
+  },
+  "transport": {
+    "usb": "USB",
+    "wifi": "Wi-Fi",
+    "emulator": "Эмулятор"
+  },
+  "android": "Android {{version}}",
+  "androidSdk": "Android {{version}} (SDK {{sdk}})",
+  "palette": {
+    "placeholder": "Введите команду или запрос…",
+    "empty": "Ничего не найдено.",
+    "navigation": "Перейти",
+    "devices": "Устройства",
+    "preferences": "Настройки",
+    "themeDark": "Тёмная тема",
+    "themeLight": "Светлая тема",
+    "themeSystem": "Как в системе"
+  },
+  "actions": {
+    "copy": "Копировать",
+    "copied": "Скопировано",
+    "cancel": "Отмена",
+    "retry": "Повторить",
+    "close": "Закрыть"
+  }
+}

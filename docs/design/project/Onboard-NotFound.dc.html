@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding — adb not found</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.win{height:900px;display:flex;flex-direction:column;overflow:hidden}
+.tb{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding-left:14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lights{display:flex;gap:8px;width:60px}.lights span{width:12px;height:12px;border-radius:50%;background:#FF5F57}.lights span+span{background:#FEBC2E}.lights span+span+span{background:#28C840}
+.wctl{display:flex;margin-left:auto}.wctl span{width:46px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--fg2)}
+.brandmk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.logo{width:20px;height:20px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}.btn-g:hover{background:var(--hover);color:var(--fg)}
+.btn-lg{height:36px;padding:0 16px;font-size:14px;border-radius:8px}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px}
+.card{border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-br{background:var(--brand-soft);color:var(--brand)}
+.cb{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);flex:none;display:inline-flex;align-items:center;justify-content:center;padding:0;color:#fff;cursor:pointer}
+.cb.on{background:var(--primary);border-color:var(--primary)}
+.cb .i{width:12px;height:12px;stroke-width:3}
+.ptabs{display:flex;gap:2px;padding:2px;border-radius:8px;background:var(--active)}
+.ptabs button{flex:1;height:26px;border:0;border-radius:6px;background:transparent;color:var(--fg2);font:500 12px Inter,sans-serif;cursor:pointer}
+.ptabs .on{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.steps{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg3)}
+.steps b{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border2);font-weight:600;font-size:11px}
+.steps .on{color:var(--fg)}.steps .on b{background:var(--primary);border-color:var(--primary);color:#fff}
+.steps .done b{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.steps hr{width:28px;border:0;border-top:1px solid var(--border2);margin:0}
+</style>
+</helmet>
+<div class="{{t}}">
+<div class="tb">
+<sc-if value="{{mac}}" hint-placeholder-val="{{ true }}"><div class="lights" aria-hidden="true"><span></span><span></span><span></span></div></sc-if>
+<div class="brandmk"><span class="logo"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px;stroke-width:2.2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>Tether</div>
+<sc-if value="{{win}}" hint-placeholder-val="{{ false }}"><div class="wctl" aria-hidden="true"><span><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span><span><svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></span><span><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></sc-if>
+</div>
+
+<div style="flex: 1; overflow: auto; display: flex; justify-content: center; padding: 56px 32px">
+<div style="width: 100%; max-width: 980px; display: flex; flex-direction: column; gap: 28px">
+<div class="steps"><span class="row done" style="gap: 8px"><b>✓</b>Welcome</span><hr><span class="row on" style="gap: 8px"><b>2</b>Find adb</span><hr><span class="row" style="gap: 8px"><b>3</b>Prepare phone</span></div>
+<div style="display: flex; gap: 16px; align-items: flex-start">
+<span style="width: 40px; height: 40px; border-radius: 10px; background: var(--warn-soft); color: var(--warn); display: flex; align-items: center; justify-content: center; flex: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg></span>
+<div>
+<h1 style="margin: 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -.01em">adb isn't on this computer yet</h1>
+<p class="mut" style="margin: 4px 0 0; font-size: 14px">Tether needs Google's platform-tools to talk to your devices. Pick how you'd like to get them.</p>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: stretch">
+<div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand)">
+<div class="row" style="justify-content: space-between"><span style="width: 36px; height: 36px; border-radius: 9px; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></span><span class="bdg b-br">Recommended</span></div>
+<div>
+<div style="font-size: 16px; font-weight: 600">Download automatically</div>
+<div class="mut" style="margin-top: 4px">About 10 MB from <span class="mono" style="color: var(--fg)">dl.google.com</span>. Kept inside Tether, updated from Settings, never touches your PATH.</div>
+</div>
+<dl style="margin: 0; display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 6px 12px; font-size: 12px">
+<dt class="dim">Package</dt><dd style="margin: 0" class="mono">platform-tools-latest-darwin.zip</dd>
+<dt class="dim">Version</dt><dd style="margin: 0" class="mono num">35.0.2</dd>
+<dt class="dim">Installs to</dt><dd style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis" class="mono">~/Library/Application Support/Tether/platform-tools</dd>
+</dl>
+<label class="row" style="gap: 10px; align-items: flex-start; margin-top: auto; cursor: pointer"><button class="cb on" role="checkbox" aria-checked="true" aria-label="Accept terms" style="margin-top: 2px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></button><span>I accept the <a href="#">Android SDK Platform-Tools license terms</a></span></label>
+<button class="btn btn-p btn-lg" style="width: 100%">Download platform-tools</button>
+</div>
+
+<div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+<span style="width: 36px; height: 36px; border-radius: 9px; background: var(--active); color: var(--fg2); display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width: 20px; height: 20px"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg></span>
+<div>
+<div style="font-size: 16px; font-weight: 600">I'll install it myself</div>
+<div class="mut" style="margin-top: 4px">Use your package manager, then come back and check again.</div>
+</div>
+<div class="ptabs" role="tablist" aria-label="Operating system"><button class="on" role="tab" aria-selected="true">macOS</button><button role="tab" aria-selected="false">Windows</button><button role="tab" aria-selected="false">Ubuntu</button><button role="tab" aria-selected="false">Fedora</button><button role="tab" aria-selected="false">Arch</button></div>
+<div class="row mono" style="padding: 10px 6px 10px 12px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--border); font-size: 13px"><span class="dim">$</span><span style="flex: 1">brew install --cask android-platform-tools</span><button class="btn btn-sm" aria-label="Copy command"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy</button></div>
+<div class="dim" style="font-size: 12px">Windows: <span class="mono">winget install Google.PlatformTools</span> · Ubuntu: <span class="mono">sudo apt install adb</span></div>
+<div class="row" style="margin-top: auto; gap: 8px"><button class="btn btn-lg" style="flex: 1"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/></svg>Check again</button><button class="btn btn-lg btn-g">Choose path…</button></div>
+</div>
+</div>
+
+<details class="card" style="padding: 12px 16px">
+<summary style="cursor: pointer; color: var(--fg2); font-weight: 500">Where we looked (5 places)</summary>
+<div class="mono dim" style="font-size: 12px; line-height: 20px; margin-top: 10px">PATH · not found<br>$ANDROID_HOME · not set<br>~/Library/Android/sdk/platform-tools · missing<br>/opt/homebrew/bin/adb · missing<br>/usr/local/bin/adb · missing</div>
+</details>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"os":{"editor":"enum","options":["macos","windows"],"default":"macos"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const os = this.props.os ?? 'macos';
+    return { t: 'app win ' + (this.props.theme ?? 'dark'), mac: os === 'macos', win: os !== 'macos' };
+  }
+}
+</script>
+</body>
+</html>

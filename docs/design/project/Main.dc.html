@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tether — Foundations</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--lv:#8B91A0;--ld:#4AA3F0;--li:#3DD68C;--lw:#F5B740;--le:#F2555A;--lf:#FF6BB0;--c1:#5AA9F5;--c2:#F0A042;--c3:#2EC4B6;--c4:#E879A8;--c5:#D9C74A;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--lv:#6B717D;--ld:#1D6FC4;--li:#12844F;--lw:#A35E00;--le:#C9262C;--lf:#B4166B;--c1:#1F78D1;--c2:#D9780F;--c3:#0F9488;--c4:#C2477E;--c5:#A68F0C;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.card{border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.sec{display:flex;flex-direction:column;gap:16px}
+.h2{margin:0;font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.01em}
+.h3{margin:0;font-size:13px;font-weight:600}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3)}
+.sw{height:56px;border-radius:8px;border:1px solid rgba(127,127,127,.18)}
+.tok{width:100%;border-collapse:collapse}
+.tok th{text-align:left;font-size:12px;font-weight:500;color:var(--fg3);padding:0 12px;height:32px;border-bottom:1px solid var(--border)}
+.tok td{padding:0 12px;height:32px;border-bottom:1px solid var(--border);white-space:nowrap}
+.chip{display:inline-flex;align-items:center;gap:8px}
+.chip i{width:14px;height:14px;border-radius:4px;border:1px solid rgba(127,127,127,.3);display:inline-block}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;white-space:nowrap}
+pre{margin:0;white-space:pre;overflow:auto}
+</style>
+</helmet>
+<div class="{{t}}" style="min-height: 2900px; padding: 56px 40px 80px">
+<div style="max-width: 1360px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px">
+
+<header style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; padding-bottom: 32px; border-bottom: 1px solid var(--border)">
+<div style="display: flex; align-items: center; gap: 16px">
+<div style="width: 56px; height: 56px; border-radius: 14px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff">
+<svg class="i" viewBox="0 0 24 24" style="width: 32px; height: 32px; stroke-width: 2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/><circle cx="12" cy="12.5" r=".6"/></svg>
+</div>
+<div>
+<div class="lbl">Design system · v0.1</div>
+<h1 style="margin: 4px 0 0; font-size: 36px; line-height: 40px; font-weight: 700; letter-spacing: -.02em">Tether</h1>
+<div class="mut" style="font-size: 14px; margin-top: 6px">A quiet, dense desktop GUI for Android Debug Bridge. Working name for adb-gui.</div>
+</div>
+</div>
+<div class="mut" style="font-size: 12px; max-width: 420px">Tokens are shadcn-compatible CSS variables (Tailwind v4 <span class="mono">@theme inline</span>). Dark is the primary theme; light is tuned separately, not inverted. Switch this board's theme in Tweaks.</div>
+</header>
+
+<section class="sec">
+<div><div class="lbl">01 · Accent</div><h2 class="h2">Three candidates, one pick</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 14px; border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand)">
+<div style="display: flex; justify-content: space-between; align-items: center"><span class="h3">A · Iris</span><span class="bdg" style="background: var(--brand-soft); color: var(--brand)">Chosen</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px"><div class="sw" style="background:#C4BBFC"></div><div class="sw" style="background:#A193FA"></div><div class="sw" style="background:#6D5AE6"></div><div class="sw" style="background:#4A38B8"></div></div>
+<div class="mono dim">#A193FA · #6D5AE6 · #5B47D6</div>
+<div class="mut">Cool violet sits outside every status hue (green, amber, red, blue), so an action never reads as a state. Calm on dark at length; strong enough for one primary per view.</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div class="h3">B · Signal amber</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px"><div class="sw" style="background:#FFD48A"></div><div class="sw" style="background:#FFB547"></div><div class="sw" style="background:#E8901A"></div><div class="sw" style="background:#A85F00"></div></div>
+<div class="mono dim">#FFB547 · #E8901A</div>
+<div class="mut">Warm and distinctive, but collides with Warn and the W log level — fatal for a logcat-first tool.</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+<div class="h3">C · Glacier cyan</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px"><div class="sw" style="background:#9BE7F2"></div><div class="sw" style="background:#4CC9DE"></div><div class="sw" style="background:#1597AE"></div><div class="sw" style="background:#0B6475"></div></div>
+<div class="mono dim">#4CC9DE · #1597AE</div>
+<div class="mut">Fresh and technical, but too close to Info / Debug blue and to the chart teal; status would blur into brand.</div>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">02 · Neutrals</div><h2 class="h2">12-step gray, slightly cool</h2></div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+<div class="dim" style="font-size: 12px">Dark</div>
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px">
+<div><div class="sw" style="background:#0D0E11"></div><div class="mono dim" style="font-size:10px;margin-top:4px">1 0D0E11</div></div>
+<div><div class="sw" style="background:#121317"></div><div class="mono dim" style="font-size:10px;margin-top:4px">2 121317</div></div>
+<div><div class="sw" style="background:#17191E"></div><div class="mono dim" style="font-size:10px;margin-top:4px">3 17191E</div></div>
+<div><div class="sw" style="background:#1C1E24"></div><div class="mono dim" style="font-size:10px;margin-top:4px">4 1C1E24</div></div>
+<div><div class="sw" style="background:#22252C"></div><div class="mono dim" style="font-size:10px;margin-top:4px">5 22252C</div></div>
+<div><div class="sw" style="background:#2A2D35"></div><div class="mono dim" style="font-size:10px;margin-top:4px">6 2A2D35</div></div>
+<div><div class="sw" style="background:#353943"></div><div class="mono dim" style="font-size:10px;margin-top:4px">7 353943</div></div>
+<div><div class="sw" style="background:#454A56"></div><div class="mono dim" style="font-size:10px;margin-top:4px">8 454A56</div></div>
+<div><div class="sw" style="background:#5E6472"></div><div class="mono dim" style="font-size:10px;margin-top:4px">9 5E6472</div></div>
+<div><div class="sw" style="background:#8B91A0"></div><div class="mono dim" style="font-size:10px;margin-top:4px">10 8B91A0</div></div>
+<div><div class="sw" style="background:#A3A9B6"></div><div class="mono dim" style="font-size:10px;margin-top:4px">11 A3A9B6</div></div>
+<div><div class="sw" style="background:#ECEEF2"></div><div class="mono dim" style="font-size:10px;margin-top:4px">12 ECEEF2</div></div>
+</div>
+<div class="dim" style="font-size: 12px">Light</div>
+<div style="display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 6px">
+<div><div class="sw" style="background:#FCFCFD"></div><div class="mono dim" style="font-size:10px;margin-top:4px">1 FCFCFD</div></div>
+<div><div class="sw" style="background:#F7F8FA"></div><div class="mono dim" style="font-size:10px;margin-top:4px">2 F7F8FA</div></div>
+<div><div class="sw" style="background:#EFF0F3"></div><div class="mono dim" style="font-size:10px;margin-top:4px">3 EFF0F3</div></div>
+<div><div class="sw" style="background:#E7E9ED"></div><div class="mono dim" style="font-size:10px;margin-top:4px">4 E7E9ED</div></div>
+<div><div class="sw" style="background:#DFE1E6"></div><div class="mono dim" style="font-size:10px;margin-top:4px">5 DFE1E6</div></div>
+<div><div class="sw" style="background:#D4D7DD"></div><div class="mono dim" style="font-size:10px;margin-top:4px">6 D4D7DD</div></div>
+<div><div class="sw" style="background:#C3C7CF"></div><div class="mono dim" style="font-size:10px;margin-top:4px">7 C3C7CF</div></div>
+<div><div class="sw" style="background:#A9AEB8"></div><div class="mono dim" style="font-size:10px;margin-top:4px">8 A9AEB8</div></div>
+<div><div class="sw" style="background:#868C98"></div><div class="mono dim" style="font-size:10px;margin-top:4px">9 868C98</div></div>
+<div><div class="sw" style="background:#6B717D"></div><div class="mono dim" style="font-size:10px;margin-top:4px">10 6B717D</div></div>
+<div><div class="sw" style="background:#4F5562"></div><div class="mono dim" style="font-size:10px;margin-top:4px">11 4F5562</div></div>
+<div><div class="sw" style="background:#17191E"></div><div class="mono dim" style="font-size:10px;margin-top:4px">12 17191E</div></div>
+</div>
+<div class="mut" style="font-size: 12px">Steps 1–2 app &amp; sidebar ground · 3–5 hover/active surfaces · 6–7 borders · 8–9 disabled / decorative only · 10 tertiary text (≥4.5:1) · 11 secondary text · 12 primary text.</div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">03 · Semantic tokens</div><h2 class="h2">Token → light / dark</h2></div>
+<div class="card" style="overflow: hidden">
+<div style="overflow-x: auto">
+<table class="tok">
+<thead><tr><th>Token</th><th>Light</th><th>Dark</th><th>Use</th></tr></thead>
+<tbody>
+<tr><td class="mono">--background</td><td><span class="chip mono"><i style="background:#FFFFFF"></i>#FFFFFF</span></td><td><span class="chip mono"><i style="background:#0D0E11"></i>#0D0E11</span></td><td class="mut">Main content ground</td></tr>
+<tr><td class="mono">--foreground</td><td><span class="chip mono"><i style="background:#17191E"></i>#17191E</span></td><td><span class="chip mono"><i style="background:#ECEEF2"></i>#ECEEF2</span></td><td class="mut">Primary text</td></tr>
+<tr><td class="mono">--sidebar</td><td><span class="chip mono"><i style="background:#F7F8FA"></i>#F7F8FA</span></td><td><span class="chip mono"><i style="background:#121317"></i>#121317</span></td><td class="mut">Sidebar, titlebar, status bar</td></tr>
+<tr><td class="mono">--card</td><td><span class="chip mono"><i style="background:#FFFFFF"></i>#FFFFFF</span></td><td><span class="chip mono"><i style="background:#15171B"></i>#15171B</span></td><td class="mut">Cards, panels</td></tr>
+<tr><td class="mono">--popover</td><td><span class="chip mono"><i style="background:#FFFFFF"></i>#FFFFFF</span></td><td><span class="chip mono"><i style="background:#1B1D22"></i>#1B1D22</span></td><td class="mut">Menus, dialogs, palette, toasts</td></tr>
+<tr><td class="mono">--muted</td><td><span class="chip mono"><i style="background:#F7F8FA"></i>#F7F8FA</span></td><td><span class="chip mono"><i style="background:#121317"></i>#121317</span></td><td class="mut">Wells, code blocks, inputs on cards</td></tr>
+<tr><td class="mono">--muted-foreground</td><td><span class="chip mono"><i style="background:#6B717D"></i>#6B717D</span></td><td><span class="chip mono"><i style="background:#8B91A0"></i>#8B91A0</span></td><td class="mut">Tertiary text, placeholders, captions</td></tr>
+<tr><td class="mono">--secondary-foreground</td><td><span class="chip mono"><i style="background:#4F5562"></i>#4F5562</span></td><td><span class="chip mono"><i style="background:#A3A9B6"></i>#A3A9B6</span></td><td class="mut">Secondary text, nav items</td></tr>
+<tr><td class="mono">--accent</td><td><span class="chip mono"><i style="background:#F1F2F5"></i>#F1F2F5</span></td><td><span class="chip mono"><i style="background:#1F2228"></i>#1F2228</span></td><td class="mut">shadcn hover surface (not the brand)</td></tr>
+<tr><td class="mono">--selected</td><td><span class="chip mono"><i style="background:#E8EAEE"></i>#E8EAEE</span></td><td><span class="chip mono"><i style="background:#262A31"></i>#262A31</span></td><td class="mut">Active nav item, selected row</td></tr>
+<tr><td class="mono">--border</td><td><span class="chip mono"><i style="background:#E4E6EB"></i>#E4E6EB</span></td><td><span class="chip mono"><i style="background:#24272E"></i>#24272E</span></td><td class="mut">Panel dividers, table rules</td></tr>
+<tr><td class="mono">--input</td><td><span class="chip mono"><i style="background:#D4D7DD"></i>#D4D7DD</span></td><td><span class="chip mono"><i style="background:#30343C"></i>#30343C</span></td><td class="mut">Control borders</td></tr>
+<tr><td class="mono">--primary</td><td><span class="chip mono"><i style="background:#5B47D6"></i>#5B47D6</span></td><td><span class="chip mono"><i style="background:#6D5AE6"></i>#6D5AE6</span></td><td class="mut">Primary button fill (white text ≥5:1)</td></tr>
+<tr><td class="mono">--brand</td><td><span class="chip mono"><i style="background:#5B47D6"></i>#5B47D6</span></td><td><span class="chip mono"><i style="background:#A193FA"></i>#A193FA</span></td><td class="mut">Accent text, links, selection markers</td></tr>
+<tr><td class="mono">--ring</td><td><span class="chip mono"><i style="background:#5B47D6"></i>#5B47D6</span></td><td><span class="chip mono"><i style="background:#8B7CF6"></i>#8B7CF6</span></td><td class="mut">2px focus ring, 2px offset</td></tr>
+<tr><td class="mono">--destructive</td><td><span class="chip mono"><i style="background:#C9262C"></i>#C9262C</span></td><td><span class="chip mono"><i style="background:#D13B41"></i>#D13B41</span></td><td class="mut">Destructive button fill</td></tr>
+<tr><td class="mono">--success</td><td><span class="chip mono"><i style="background:#12844F"></i>#12844F</span></td><td><span class="chip mono"><i style="background:#3DD68C"></i>#3DD68C</span></td><td class="mut">Online, done, granted</td></tr>
+<tr><td class="mono">--warning</td><td><span class="chip mono"><i style="background:#A35E00"></i>#A35E00</span></td><td><span class="chip mono"><i style="background:#F5B740"></i>#F5B740</span></td><td class="mut">Unauthorized, needs attention</td></tr>
+<tr><td class="mono">--error</td><td><span class="chip mono"><i style="background:#C9262C"></i>#C9262C</span></td><td><span class="chip mono"><i style="background:#F2555A"></i>#F2555A</span></td><td class="mut">Offline, failed, crash</td></tr>
+<tr><td class="mono">--info</td><td><span class="chip mono"><i style="background:#1D6FC4"></i>#1D6FC4</span></td><td><span class="chip mono"><i style="background:#4AA3F0"></i>#4AA3F0</span></td><td class="mut">Neutral notices, in-progress</td></tr>
+<tr><td class="mono">--radius</td><td class="mono">8px</td><td class="mono">8px</td><td class="mut">sm 6 · md 8 · lg 10 · xl 12</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">04 · Status, logs, charts</div><h2 class="h2">Color that carries meaning</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div class="h3">Status</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<span class="bdg" style="background: var(--ok-soft); color: var(--ok)"><span style="width:6px;height:6px;border-radius:50%;background:var(--ok)"></span>device</span>
+<span class="bdg" style="background: var(--warn-soft); color: var(--warn)"><span style="width:6px;height:6px;border-radius:50%;background:var(--warn)"></span>unauthorized</span>
+<span class="bdg" style="background: var(--err-soft); color: var(--err)"><span style="width:6px;height:6px;border-radius:50%;background:var(--err)"></span>offline</span>
+<span class="bdg" style="background: var(--info-soft); color: var(--info)"><span style="width:6px;height:6px;border-radius:50%;background:var(--info)"></span>installing</span>
+</div>
+<div class="mut" style="font-size: 12px">Status is always dot + word, never color alone. Soft fill = 12% of the hue. Status colors never appear on buttons except destructive.</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<div class="h3" style="margin-bottom: 6px">Log levels</div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--active); color: var(--lv); font-weight: 600">V</span><span class="mut">Verbose · gray, never bold</span></div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--info-soft); color: var(--ld); font-weight: 600">D</span><span class="mut">Debug · blue</span></div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--ok-soft); color: var(--li); font-weight: 600">I</span><span class="mut">Info · green</span></div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--warn-soft); color: var(--lw); font-weight: 600">W</span><span class="mut">Warn · amber, message tinted</span></div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--err-soft); color: var(--le); font-weight: 600">E</span><span class="mut">Error · red, message tinted</span></div>
+<div class="mono" style="display: flex; gap: 10px"><span style="width: 18px; text-align: center; border-radius: 4px; background: var(--lf); color: #fff; font-weight: 600">F</span><span class="mut">Fatal/Assert · magenta, solid</span></div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div class="h3">Charts (CVD-safe)</div>
+<svg viewBox="0 0 300 90" style="width: 100%; height: 90px" role="img" aria-label="Sample chart with five series">
+<path d="M0 60 L30 52 L60 58 L90 40 L120 44 L150 30 L180 36 L210 22 L240 30 L270 26 L300 18" fill="none" stroke="var(--c1)" stroke-width="2"/>
+<path d="M0 72 L30 70 L60 66 L90 67 L120 62 L150 63 L180 58 L210 59 L240 55 L270 56 L300 52" fill="none" stroke="var(--c2)" stroke-width="2" stroke-dasharray="6 3"/>
+<path d="M0 80 L30 76 L60 82 L90 70 L120 78 L150 74 L180 80 L210 68 L240 76 L270 72 L300 78" fill="none" stroke="var(--c3)" stroke-width="2" stroke-dasharray="2 3"/>
+</svg>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px">
+<div><div class="sw" style="height: 28px; background: var(--c1)"></div><div style="font-size: 11px" class="mut">CPU</div></div>
+<div><div class="sw" style="height: 28px; background: var(--c2)"></div><div style="font-size: 11px" class="mut">Memory</div></div>
+<div><div class="sw" style="height: 28px; background: var(--c3)"></div><div style="font-size: 11px" class="mut">Network</div></div>
+<div><div class="sw" style="height: 28px; background: var(--c4)"></div><div style="font-size: 11px" class="mut">Battery</div></div>
+<div><div class="sw" style="height: 28px; background: var(--c5)"></div><div style="font-size: 11px" class="mut">FPS</div></div>
+</div>
+<div class="mut" style="font-size: 12px">Blue / orange / teal / pink / olive differ in lightness too; series 2+ also get dash patterns.</div>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">05 · Typography</div><h2 class="h2">Inter for UI · JetBrains Mono for machine text</h2></div>
+<div class="card" style="padding: 8px 20px">
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">metric · 28/32 600</span><span class="num" style="font-size: 28px; line-height: 32px; font-weight: 600; letter-spacing: -.02em">82% · 7.4 GB · 120 Hz</span><span class="dim" style="font-size: 12px">tabular-nums</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">title · 20/28 600</span><span style="font-size: 20px; line-height: 28px; font-weight: 600">Connect a device</span><span class="dim" style="font-size: 12px">dialogs, empty states</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">section · 15/20 600</span><span style="font-size: 15px; line-height: 20px; font-weight: 600">Logcat</span><span class="dim" style="font-size: 12px">page header</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">subtitle · 13/20 600</span><span style="font-size: 13px; font-weight: 600">Battery</span><span class="dim" style="font-size: 12px">card titles</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">body · 13/20 400</span><span style="font-size: 13px">Approve the RSA key fingerprint on your phone to allow debugging.</span><span class="dim" style="font-size: 12px">default</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">small · 12/16 400</span><span style="font-size: 12px; line-height: 16px" class="mut">Last updated 2 min ago · 14.2 MB</span><span class="dim" style="font-size: 12px">meta, table cells</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border)"><span class="mono dim">caption · 11/16 600 caps</span><span class="lbl">Tools</span><span class="dim" style="font-size: 12px">nav groups only</span></div>
+<div style="display: grid; grid-template-columns: 200px minmax(0, 1fr) 180px; align-items: baseline; gap: 16px; padding: 14px 0"><span class="mono dim">mono · 12/18 400</span><span class="mono">10-25 22:41:07.312  4821  4821 E AndroidRuntime: FATAL EXCEPTION: main</span><span class="dim" style="font-size: 12px">logs, serials, paths</span></div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">06 · Space, shape, depth, motion</div><h2 class="h2">4 px grid, thin lines, shadows only on floating layers</h2></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px">
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 8px">
+<div class="h3" style="margin-bottom: 4px">Spacing</div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 4px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">1 · 4px</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 8px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">2 · 8px</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 12px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">3 · 12px</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 16px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">4 · 16px</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 20px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">5 · 20px · page gutter</span></div>
+<div style="display: flex; align-items: center; gap: 10px"><span style="width: 32px; height: 12px; background: var(--brand); border-radius: 2px"></span><span class="mono dim">8 · 32px</span></div>
+<div class="mut" style="font-size: 12px; margin-top: 6px">Row 32 (compact 28) · control 30 / sm 26 · titlebar 40 · header 52 · status bar 24 · sidebar 240 / 56.</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div class="h3">Radius</div>
+<div style="display: flex; gap: 10px; align-items: flex-end">
+<div style="width: 44px; height: 44px; border: 1px solid var(--border2); border-radius: 4px"></div>
+<div style="width: 44px; height: 44px; border: 1px solid var(--border2); border-radius: 6px"></div>
+<div style="width: 44px; height: 44px; border: 1px solid var(--border2); border-radius: 8px"></div>
+<div style="width: 44px; height: 44px; border: 1px solid var(--border2); border-radius: 12px"></div>
+</div>
+<div class="mono dim" style="font-size: 11px">4 badge · 6 sm ctl · 8 ctl · 12 card/dialog</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+<div class="h3">Shadows (3)</div>
+<div style="display: flex; flex-direction: column; gap: 10px">
+<div style="height: 30px; border-radius: 8px; background: var(--elev); box-shadow: 0 1px 2px rgba(0,0,0,.25); display: flex; align-items: center; padding: 0 10px" class="mono dim">sm · seg thumb</div>
+<div style="height: 30px; border-radius: 8px; background: var(--elev); box-shadow: 0 6px 16px rgba(0,0,0,.35), 0 0 0 1px var(--border2); display: flex; align-items: center; padding: 0 10px" class="mono dim">md · menu, tooltip</div>
+<div style="height: 30px; border-radius: 8px; background: var(--elev); box-shadow: var(--shadow); display: flex; align-items: center; padding: 0 10px" class="mono dim">lg · dialog, palette</div>
+</div>
+</div>
+<div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 6px">
+<div class="h3" style="margin-bottom: 4px">Layers &amp; motion</div>
+<div class="mono mut" style="font-size: 11px; line-height: 18px">z 0 content · 10 sticky · 20 sidebar overlay<br>z 30 sheet · 40 dialog · 50 popover<br>z 60 palette · 70 toast · 80 tooltip</div>
+<div class="mono mut" style="font-size: 11px; line-height: 18px; margin-top: 8px">iOS-style springs (see Motion board)<br>snappy  resp .25 · damp 1.0 · menus, press<br>smooth  resp .35 · damp .92 · sheets, dialogs<br>bouncy  resp .42 · damp .78 · toasts, drops<br>fades only: 120–160ms ease-out</div>
+<div class="dim" style="font-size: 11px">prefers-reduced-motion → opacity only</div>
+</div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">07 · Decisions</div><h2 class="h2">Rules of the house</h2></div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px">
+<div class="card" style="padding: 20px"><div class="h3" style="margin-bottom: 8px">One accent, one job</div><div class="mut">Iris marks the single next action on a view (primary button), the current location (nav marker, selected tab) and links. Never decoration, never status. If two primaries compete, one becomes secondary.</div></div>
+<div class="card" style="padding: 20px"><div class="h3" style="margin-bottom: 8px">Density by default</div><div class="mut">4 px grid, 32 px rows, 13 px body. Compact mode drops rows to 28 and controls to 26 without changing type size. Panels split by 1 px borders; elevation only for things that float.</div></div>
+<div class="card" style="padding: 20px"><div class="h3" style="margin-bottom: 8px">Status is earned</div><div class="mut">Green/amber/red/blue appear only for real state: device status, task result, log level. Always dot + label or icon + text. Destructive red is the only status hue allowed on a button.</div></div>
+</div>
+</section>
+
+<section class="sec">
+<div><div class="lbl">08 · tokens.css</div><h2 class="h2">shadcn variables + Tailwind v4 @theme</h2></div>
+<div class="card" style="padding: 20px; background: var(--bg2)">
+<pre class="mono mut" style="font-size: 12px; line-height: 19px">@import "tailwindcss";
+@custom-variant dark (&amp;:where(.dark, .dark *));
+
+:root {
+  --radius: 0.5rem;
+  --background: #FFFFFF;  --foreground: #17191E;
+  --card: #FFFFFF;        --card-foreground: #17191E;
+  --popover: #FFFFFF;     --popover-foreground: #17191E;
+  --primary: #5B47D6;     --primary-foreground: #FFFFFF;
+  --secondary: #F1F2F5;   --secondary-foreground: #4F5562;
+  --muted: #F7F8FA;       --muted-foreground: #6B717D;
+  --accent: #F1F2F5;      --accent-foreground: #17191E;
+  --destructive: #C9262C; --destructive-foreground: #FFFFFF;
+  --border: #E4E6EB;  --input: #D4D7DD;  --ring: #5B47D6;
+  --sidebar: #F7F8FA;  --selected: #E8EAEE;  --brand: #5B47D6;
+  --success: #12844F;  --warning: #A35E00;  --error: #C9262C;  --info: #1D6FC4;
+  --log-v: #6B717D; --log-d: #1D6FC4; --log-i: #12844F; --log-w: #A35E00; --log-e: #C9262C; --log-f: #B4166B;
+  --chart-1: #1F78D1; --chart-2: #D9780F; --chart-3: #0F9488; --chart-4: #C2477E; --chart-5: #A68F0C;
+}
+.dark {
+  --background: #0D0E11;  --foreground: #ECEEF2;
+  --card: #15171B;        --card-foreground: #ECEEF2;
+  --popover: #1B1D22;     --popover-foreground: #ECEEF2;
+  --primary: #6D5AE6;     --primary-foreground: #FFFFFF;
+  --secondary: #1F2228;   --secondary-foreground: #A3A9B6;
+  --muted: #121317;       --muted-foreground: #8B91A0;
+  --accent: #1F2228;      --accent-foreground: #ECEEF2;
+  --destructive: #D13B41; --destructive-foreground: #FFFFFF;
+  --border: #24272E;  --input: #30343C;  --ring: #8B7CF6;
+  --sidebar: #121317;  --selected: #262A31;  --brand: #A193FA;
+  --success: #3DD68C;  --warning: #F5B740;  --error: #F2555A;  --info: #4AA3F0;
+  --log-v: #8B91A0; --log-d: #4AA3F0; --log-i: #3DD68C; --log-w: #F5B740; --log-e: #F2555A; --log-f: #FF6BB0;
+  --chart-1: #5AA9F5; --chart-2: #F0A042; --chart-3: #2EC4B6; --chart-4: #E879A8; --chart-5: #D9C74A;
+}
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --color-background: var(--background);  --color-foreground: var(--foreground);
+  --color-card: var(--card);  --color-popover: var(--popover);
+  --color-primary: var(--primary);  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);  --color-destructive: var(--destructive);
+  --color-border: var(--border);  --color-input: var(--input);  --color-ring: var(--ring);
+  --color-sidebar: var(--sidebar);  --color-selected: var(--selected);  --color-brand: var(--brand);
+  --color-success: var(--success);  --color-warning: var(--warning);
+  --color-error: var(--error);  --color-info: var(--info);
+  --color-log-v: var(--log-v); --color-log-d: var(--log-d); --color-log-i: var(--log-i);
+  --color-log-w: var(--log-w); --color-log-e: var(--log-e); --color-log-f: var(--log-f);
+  --color-chart-1: var(--chart-1); --color-chart-2: var(--chart-2); --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4); --color-chart-5: var(--chart-5);
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 10px; --radius-xl: 12px;
+  --spacing: 4px;
+  /* springs: SwiftUI response/dampingFraction → CSS linear(); JS uses Motion stiffness/damping */
+  --ease-spring-snappy: linear(0, .049, .158, .286, .412, .527, .625, .707, .773, .826, .867, .899, .924, .943, .958, .968, .977, .983, .987, .991, .993, .995, .996, .997, 1);
+  --ease-spring-smooth: linear(0, .03, .101, .194, .295, .396, .491, .578, .654, .72, .776, .822, .861, .892, .917, .937, .953, .965, .975, .982, .987, .991, .994, .997, 1);
+  --ease-spring-bouncy: linear(0, .046, .154, .29, .431, .564, .68, .776, .852, .911, .953, .982, 1.001, 1.012, 1.018, 1.02, 1.019, 1.017, 1.015, 1.012, 1.009, 1.007, 1.005, 1.003, 1);
+  --duration-spring-snappy: 340ms; --duration-spring-smooth: 350ms; --duration-spring-bouncy: 530ms;
+  --ease-fade: cubic-bezier(.2, .8, .2, 1);  --duration-fade: 140ms;
+}</pre>
+</div>
+</section>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1440,"height":2900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { t: 'app ' + (this.props.theme ?? 'dark') };
+  }
+}
+</script>
+</body>
+</html>

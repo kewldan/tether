@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Connect over Wi-Fi</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--info:#4AA3F0;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--info:#1D6FC4;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px;gap:5px}
+.ib{width:30px;padding:0}.btn-sm.ib{width:26px}
+.inp{height:30px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--border2);border-radius:7px;background:var(--bg);color:var(--fg3);font:13px Inter,sans-serif;min-width:0}
+.inp input{all:unset;flex:1;min-width:0;color:var(--fg);font:inherit}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-br{background:var(--brand-soft);color:var(--brand)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--fg3)}
+.d-ok{background:var(--ok)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.sheet{background:var(--elev);border:1px solid var(--border2);border-radius:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;height:780px;overflow:hidden}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 10px}
+.tabs{display:flex;gap:16px;padding:0 18px;border-bottom:1px solid var(--border)}
+.tabs a{height:34px;display:flex;align-items:center;font-weight:500;color:var(--fg2);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-1px;font-size:12px;white-space:nowrap}
+.tabs a.on{color:var(--fg);border-color:var(--brand)}
+.sbody{flex:1;padding:18px;display:flex;flex-direction:column;gap:14px;overflow:auto}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3)}
+.li{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;border:1px solid var(--border)}
+.code{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.code span{height:44px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);display:flex;align-items:center;justify-content:center;font:600 20px "JetBrains Mono",monospace}
+</style>
+</helmet>
+<div class="{{t}}" style="height: 900px; padding: 40px; display: flex; flex-direction: column; gap: 20px; background: var(--bg2)">
+<div class="row" style="justify-content: space-between"><div><div class="lbl">Sheet · right · 440 px · one panel per tab state</div><div style="font-size: 18px; font-weight: 600; margin-top: 4px">Connect over Wi-Fi</div></div><span class="dim" style="font-size: 12px">Opens from sidebar switcher › Connect device, or <span class="mono">⌘⇧W</span></span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; flex: 1; min-height: 0">
+
+<div class="sheet">
+<div class="sh"><span style="font-weight: 600; font-size: 15px">Connect over Wi-Fi</span><button class="btn btn-g btn-sm ib" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<nav class="tabs" aria-label="Method"><a class="on" href="#">QR code</a><a href="#">Pairing code</a><a href="#">IP</a><a href="#">Legacy</a></nav>
+<div class="sbody">
+<div style="align-self: center; padding: 14px; border-radius: 14px; background: #fff; position: relative">
+<svg viewBox="0 0 25 25" style="width: 196px; height: 196px; display: block" shape-rendering="crispEdges" role="img" aria-label="Pairing QR code">
+<sc-for list="{{qr}}" as="c" hint-placeholder-count="200"><rect x="{{c.x}}" y="{{c.y}}" width="1" height="1" fill="#111"></rect></sc-for>
+</svg>
+<span style="position: absolute; left: 50%; top: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 9px; background: #6D5AE6; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;stroke-width:2.2"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>
+</div>
+<div class="dim" style="text-align: center; font-size: 12px">Android 11 or newer · same Wi-Fi network</div>
+<ol style="margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px" class="mut">
+<li>Open <b style="color: var(--fg)">Settings › Developer options</b></li>
+<li>Tap <b style="color: var(--fg)">Wireless debugging</b> and turn it on</li>
+<li>Tap <b style="color: var(--fg)">Pair device with QR code</b> and scan</li>
+</ol>
+<div class="row" style="margin-top: auto; padding: 10px 12px; border-radius: 8px; background: var(--bg2); gap: 10px"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 4px var(--brand-soft)"></span><span style="flex: 1">Waiting for a phone to scan…</span><span class="dim num mono" style="font-size: 11px">4:52</span></div>
+</div>
+</div>
+
+<div class="sheet">
+<div class="sh"><span style="font-weight: 600; font-size: 15px">Connect over Wi-Fi</span><button class="btn btn-g btn-sm ib" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<nav class="tabs" aria-label="Method"><a href="#">QR code</a><a class="on" href="#">Pairing code</a><a href="#">IP</a><a href="#">Legacy</a></nav>
+<div class="sbody">
+<div class="mut">On the phone: <b style="color: var(--fg)">Wireless debugging › Pair device with pairing code</b>. Phones broadcasting a code show up here.</div>
+<div class="lbl">Found on this network</div>
+<div class="li" style="border-color: var(--brand); background: var(--brand-soft)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg><div style="flex: 1; min-width: 0"><div style="font-weight: 500">Galaxy S23</div><div class="mono dim" style="font-size: 11px">192.168.1.42:41823</div></div><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--brand)"><path d="M20 6 9 17l-5-5"/></svg></div>
+<div class="li"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M12 18h.01"/></svg><div style="flex: 1; min-width: 0"><div style="font-weight: 500">Pixel Tablet</div><div class="mono dim" style="font-size: 11px">192.168.1.61:38211</div></div></div>
+<div class="row dim" style="font-size: 12px; gap: 6px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>Scanning with mDNS…</div>
+<div class="lbl" style="margin-top: 6px">6-digit code shown on Galaxy S23</div>
+<div class="code" role="group" aria-label="Pairing code"><span>4</span><span>8</span><span>2</span><span style="border-color: var(--ring); box-shadow: 0 0 0 3px var(--brand-soft)">0</span><span></span><span></span></div>
+<button class="btn btn-p" style="margin-top: auto; height: 36px" disabled>Pair and connect</button>
+</div>
+</div>
+
+<div class="sheet">
+<div class="sh"><span style="font-weight: 600; font-size: 15px">Connect over Wi-Fi</span><button class="btn btn-g btn-sm ib" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<nav class="tabs" aria-label="Method"><a href="#">QR code</a><a href="#">Pairing code</a><a class="on" href="#">IP</a><a href="#">Legacy</a></nav>
+<div class="sbody">
+<label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; font-weight: 500">Address</span><span class="inp" style="border-color: var(--ring); box-shadow: 0 0 0 3px var(--brand-soft)"><input class="mono" value="192.168.1.42:37115" aria-label="IP and port"></span><span class="dim" style="font-size: 12px">IP and port from Wireless debugging. Default port for legacy tcpip is 5555.</span></label>
+<button class="btn btn-p" style="height: 34px">Connect</button>
+<div class="lbl" style="margin-top: 6px">Recent</div>
+<div style="display: flex; flex-direction: column; gap: 2px">
+<div class="row" style="height: 34px; padding: 0 8px; border-radius: 6px; background: var(--active)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span class="mono" style="flex: 1">192.168.1.42:37115</span><span class="dim" style="font-size: 12px">Galaxy S23 · today</span></div>
+<div class="row" style="height: 34px; padding: 0 8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span class="mono" style="flex: 1">192.168.1.57:5555</span><span class="dim" style="font-size: 12px">Pixel 6a · 2 d</span></div>
+<div class="row" style="height: 34px; padding: 0 8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span class="mono" style="flex: 1">10.0.0.23:5555</span><span class="dim" style="font-size: 12px">Fire TV · 3 wk</span></div>
+</div>
+<div class="row" style="margin-top: auto; padding: 10px 12px; border-radius: 8px; background: var(--ok-soft); gap: 10px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ok)"><path d="M20 6 9 17l-5-5"/></svg><span style="flex: 1">Connected to <b>Galaxy S23</b></span><button class="btn btn-sm">Open</button></div>
+</div>
+</div>
+
+<div class="sheet">
+<div class="sh"><span style="font-weight: 600; font-size: 15px">Connect over Wi-Fi</span><button class="btn btn-g btn-sm ib" aria-label="Close"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<nav class="tabs" aria-label="Method"><a href="#">QR code</a><a href="#">Pairing code</a><a href="#">IP</a><a class="on" href="#">Legacy</a></nav>
+<div class="sbody">
+<div class="mut">For Android 10 and older. Start with the phone plugged in by USB, then unplug once it's on Wi-Fi.</div>
+<div class="lbl">Plugged-in device</div>
+<div class="li" style="border-color: var(--brand); background: var(--brand-soft)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg><div style="flex: 1; min-width: 0"><div style="font-weight: 500">Pixel 8 Pro</div><div class="dim" style="font-size: 11px">USB · Wi-Fi <span class="mono">192.168.1.33</span></div></div><span class="bdg b-ok"><span class="dot d-ok"></span>device</span></div>
+<label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 12px; font-weight: 500">Port</span><span class="inp"><input class="mono num" value="5555" aria-label="Port"></span></label>
+<button class="btn btn-p" style="height: 34px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h.01M2 8.82a15 15 0 0 1 20 0M5 12.86a10 10 0 0 1 14 0M8.5 16.43a5 5 0 0 1 7 0"/></svg>Switch to Wi-Fi</button>
+<div class="mono dim" style="font-size: 11px; line-height: 17px; padding: 8px 10px; border-radius: 7px; background: var(--bg2); border: 1px solid var(--border)">adb -s 38121FDJH00A4B tcpip 5555<br>adb connect 192.168.1.33:5555</div>
+<div class="row" style="margin-top: auto; padding: 10px 12px; border-radius: 8px; background: var(--warn-soft); gap: 10px; align-items: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--warn); margin-top: 2px"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg><span style="font-size: 12px; line-height: 18px">Port 5555 stays open to anyone on this network until the phone reboots.</span></div>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const n = 25, cells = [];
+    const finder = (x, y) => {
+      const f = (ox, oy) => { const dx = x - ox, dy = y - oy; if (dx < 0 || dy < 0 || dx > 6 || dy > 6) return null; return (dx === 0 || dy === 0 || dx === 6 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4)); };
+      const r = f(0, 0) ?? f(18, 0) ?? f(0, 18);
+      return r;
+    };
+    let seed = 1337;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+      const f = finder(x, y);
+      const sep = (x <= 7 && y <= 7) || (x >= 17 && y <= 7) || (x <= 7 && y >= 17);
+      const center = x >= 10 && x <= 14 && y >= 10 && y <= 14;
+      let on;
+      if (f !== null) on = f; else if (sep || center) on = false; else on = rnd() < 0.48;
+      if (on) cells.push({ x, y });
+    }
+    return { t: 'app ' + (this.props.theme ?? 'dark'), qr: cells };
+  }
+}
+</script>
+</body>
+</html>

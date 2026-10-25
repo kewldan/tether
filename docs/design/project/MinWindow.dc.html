@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Logcat at minimum size</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--c1:#5AA9F5;--c2:#F0A042;--c3:#2EC4B6;--c4:#E879A8;--c5:#D9C74A;--phone:#0A0B0D;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--c1:#1F78D1;--c2:#D9780F;--c3:#0F9488;--c4:#C2477E;--c5:#A68F0C;--phone:#2A2D35;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.win{height:900px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.tb{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding-left:14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lights{display:flex;gap:8px;width:60px}.lights span{width:12px;height:12px;border-radius:50%;background:#FF5F57}.lights span+span{background:#FEBC2E}.lights span+span+span{background:#28C840}
+.wctl{display:flex}.wctl span{width:46px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--fg2)}
+.brandmk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;width:150px}
+.logo{width:20px;height:20px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.cmdk{flex:0 1 440px;margin:0 auto;height:28px;display:flex;align-items:center;gap:8px;padding:0 6px 0 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--fg3);font:12px Inter,sans-serif;cursor:pointer;text-align:left}
+.tbr{display:flex;align-items:center;gap:2px;padding-right:8px;min-width:150px;justify-content:flex-end}
+.bd{flex:1;display:flex;min-height:0}
+.sb{width:240px;flex:none;border-right:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;padding:10px 8px 8px}
+.dev{width:100%;display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.devic{width:30px;height:30px;border-radius:7px;background:var(--active);display:flex;align-items:center;justify-content:center;color:var(--fg2);flex:none}
+.nav{display:flex;flex-direction:column;gap:1px;margin-top:10px}
+.ni{display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:6px;color:var(--fg2);text-decoration:none;font-weight:500;position:relative}
+.ni:hover{background:var(--hover);color:var(--fg)}
+.ni.on{background:var(--active);color:var(--fg)}
+.ni.on::before{content:"";position:absolute;left:-8px;top:7px;bottom:7px;width:2px;border-radius:2px;background:var(--brand)}
+.ni .i{width:18px;height:18px;stroke-width:1.6}
+.sl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);padding:14px 8px 4px}
+.sbf{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.tsk{display:block;width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:500 12px Inter,sans-serif;cursor:pointer;text-align:left}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);position:relative}
+.hdr{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--border)}
+.crumb{display:flex;align-items:center;gap:6px;color:var(--fg3);font-size:13px;min-width:0;white-space:nowrap}
+.crumb b{color:var(--fg);font-weight:600;font-size:15px}
+.acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+.st{height:24px;flex:none;display:flex;align-items:center;gap:14px;padding:0 12px;border-top:1px solid var(--border);background:var(--bg2);color:var(--fg3);font-size:11px;white-space:nowrap;overflow:hidden}
+.st .sep{width:1px;height:12px;background:var(--border2)}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible,.ni:focus-visible,.dev:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}.btn-g:hover{background:var(--hover);color:var(--fg)}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px;gap:5px}
+.ib{width:30px;padding:0}.btn-sm.ib{width:26px}
+.kbd{font:500 11px/16px Inter,sans-serif;min-width:18px;height:18px;padding:0 5px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--fg3);display:inline-flex;align-items:center;justify-content:center}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-warn{background:var(--warn-soft);color:var(--warn)}.b-err{background:var(--err-soft);color:var(--err)}.b-info{background:var(--info-soft);color:var(--info)}.b-br{background:var(--brand-soft);color:var(--brand)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--fg3)}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-err{background:var(--err)}
+.card{border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.bar{height:4px;border-radius:2px;background:var(--active);overflow:hidden;display:block}.bar i{display:block;height:100%;background:var(--primary);border-radius:2px}
+.mc{padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mc .t{display:flex;align-items:center;justify-content:space-between;gap:8px;font-weight:600}
+.mc .t .i{color:var(--fg3)}
+.big{font-size:26px;line-height:30px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;font-size:12px;margin:0}
+.kv dt{color:var(--fg3)}.kv dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qa{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:64px;min-width:0;border-radius:9px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:500 12px Inter,sans-serif;cursor:pointer;padding:0 8px}
+.qa:hover{background:var(--hover)}
+.qa .i{width:18px;height:18px;color:var(--fg2)}
+.rl{display:flex;align-items:center;gap:10px;height:36px;padding:0 14px;border-top:1px solid var(--border);font-size:12px}
+.inp{height:30px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--border2);border-radius:7px;background:var(--bg);color:var(--fg3);font:13px Inter,sans-serif;min-width:0}
+.inp input{all:unset;flex:1;min-width:0;color:var(--fg);font:inherit}
+.pop{background:var(--elev);border:1px solid var(--border2);border-radius:10px;box-shadow:var(--shadow)}
+.mi{display:flex;align-items:center;gap:10px;min-height:30px;padding:4px 8px;border-radius:6px;color:var(--fg);font-size:13px}
+.mi.hl{background:var(--active)}.mi .kbd{margin-left:auto}
+.sep1{height:1px;background:var(--border);margin:4px 0}
+.seg{display:inline-flex;padding:2px;border-radius:8px;background:var(--active);gap:2px;flex:none}
+.seg button{height:24px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--fg2);font:500 12px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.seg .on{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{position:sticky;top:0;z-index:1;height:32px;text-align:left;font-weight:500;font-size:12px;color:var(--fg3);background:var(--bg);border-bottom:1px solid var(--border);padding:0 12px;white-space:nowrap}
+.tbl td{height:32px;padding:0 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+.tbl tr.sel td{background:var(--brand-soft)}
+.tbl tr.hov td{background:var(--hover)}
+.sw{width:28px;height:16px;border-radius:8px;border:0;padding:0;background:var(--border2);position:relative;flex:none;cursor:pointer}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.sw.on{background:var(--primary)}.sw.on::after{left:14px}
+.cb{width:16px;height:16px;border-radius:4px;border:1px solid var(--border2);background:var(--bg);flex:none;display:inline-flex;align-items:center;justify-content:center;padding:0;color:#fff;cursor:pointer}
+.cb.on{background:var(--primary);border-color:var(--primary)}
+.cb .i{width:12px;height:12px;stroke-width:3}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--border);padding:0 20px;flex:none}
+.tabs a{height:38px;display:flex;align-items:center;gap:6px;color:var(--fg2);text-decoration:none;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs a.on{color:var(--fg);border-color:var(--brand)}
+.scrim{position:absolute;inset:0;background:rgba(5,6,8,.55);z-index:30}
+.light .scrim{background:rgba(23,25,30,.28)}
+.sk{background:var(--active);border-radius:4px}
+.lbl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3)}
+pre{margin:0}
+.dark{--lv:#8B91A0;--ld:#4AA3F0;--li:#3DD68C;--lw:#F5B740;--le:#F2555A;--lf:#FF6BB0;--mark:rgba(245,183,64,.32)}
+.light{--lv:#6B717D;--ld:#1D6FC4;--li:#12844F;--lw:#A35E00;--le:#C9262C;--lf:#B4166B;--mark:rgba(245,183,64,.45)}
+.lc{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;line-height:22px}
+.lr{display:grid;grid-template-columns:96px 84px 22px 148px minmax(0,1fr);gap:10px;align-items:start;padding:0 16px;min-height:22px;cursor:pointer;border:0;background:transparent;color:var(--fg);font:inherit;text-align:left;width:100%}
+.lr:hover{background:var(--hover)}
+.lr .m{white-space:pre-wrap;word-break:break-word}
+.lr .tg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg2)}
+.lvb{display:inline-flex;justify-content:center;width:18px;border-radius:4px;font-weight:700;font-size:11px;line-height:18px;margin-top:2px}
+mark{background:var(--mark);color:inherit;border-radius:2px;padding:0 1px}
+.lvl{height:24px;min-width:28px;padding:0 6px;border:0;border-radius:6px;font:700 11px "JetBrains Mono",monospace;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.crash{margin:4px 12px;border:1px solid var(--err-soft);border-radius:8px;background:var(--err-soft);box-shadow:inset 3px 0 0 var(--err);overflow:hidden}
+.chip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 4px 0 8px;border-radius:6px;font:500 11px "JetBrains Mono",monospace;background:var(--active);color:var(--fg)}
+.chip button{border:0;background:transparent;color:var(--fg3);cursor:pointer;width:16px;height:16px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.rp dt{color:var(--fg3);font-size:11px}.rp dd{margin:0 0 8px;font-family:"JetBrains Mono",monospace;font-size:12px}
+.win{height:600px}
+.sb{width:56px;padding:10px 8px 8px;align-items:center}
+.dev{width:40px;padding:4px;justify-content:center;border-color:transparent;background:transparent}
+.dev>span:not(.devic),.dev>svg{display:none}
+.ni{font-size:0;width:40px;justify-content:center;padding:0;gap:0}
+.ni .bdg,.ni .dim{display:none}
+.ni.on::before{left:-8px}
+.sl{font-size:0;padding:6px 0;width:24px;border-top:1px solid var(--border);margin:6px auto 0}
+.tsk{width:40px;padding:8px 6px}.tsk>.row>span{display:none}
+.sbf>.row>span{display:none}.sbf>.row{padding:0;justify-content:center}.sbf>.row .btn{margin:0 !important}
+.rp{display:none !important}
+.cmdk{flex-basis:260px}
+.brandmk{width:auto}
+.tbr{min-width:0}
+.hdr .acts .btn:not(.btn-g){display:none}
+.lr,.lc{grid-template-columns:84px 22px 120px minmax(0,1fr) !important}
+.lr>span:nth-child(2),.lc>span:nth-child(2){display:none}
+</style>
+</helmet>
+<div class="{{t}}">
+<div class="tb">
+<sc-if value="{{mac}}" hint-placeholder-val="{{ true }}"><div class="lights" aria-hidden="true"><span></span><span></span><span></span></div></sc-if>
+<div class="brandmk"><span class="logo"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px;stroke-width:2.2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>Tether</div>
+<button class="cmdk" aria-label="Open command palette"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Search actions, devices, apps, files…<span style="margin-left: auto; display: flex; gap: 3px"><span class="kbd">{{mod}}</span><span class="kbd">K</span></span></button>
+<div class="tbr"><button class="btn btn-g btn-sm ib" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+<sc-if value="{{win}}" hint-placeholder-val="{{ false }}"><div class="wctl" aria-hidden="true"><span><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span><span><svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></span><span><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></sc-if></div>
+</div>
+<div class="bd">
+<aside class="sb">
+<button class="dev" aria-label="Switch device"><span class="devic"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 600">Pixel 8 Pro</span><span class="row dim" style="font-size: 11px; gap: 6px"><span class="dot d-ok"></span>USB · Android 15</span></span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
+<nav class="nav" aria-label="Device sections">
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></svg>Screen</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Files</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>Apps</a>
+<a class="ni on" href="#" aria-current="page"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1"/></svg>Logcat<span class="bdg b-err num" style="margin-left: auto; height: 18px">1</span></a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>Shell</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Performance</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7h-9M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>Device settings</a>
+<div class="sl">Tools</div>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg>Ports<span class="dim num" style="margin-left: auto; font-size: 12px">2</span></a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Intents</a>
+<a class="ni" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20c-3.3 0-6-2.7-6-6v-3a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v3c0 3.3-2.7 6-6 6M12 20v-9M6 13H2M22 13h-4M9 7.13v-1a3 3 0 1 1 6 0v1"/></svg>Bugreport</a>
+</nav>
+<div class="sbf">
+<button class="tsk" aria-label="2 tasks running"><span class="row" style="gap: 8px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--brand); width: 14px; height: 14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg><span style="flex: 1">2 transfers</span><span class="num dim">64%</span></span><span class="bar" style="margin-top: 7px"><i style="width: 64%"></i></span></button>
+<div class="row" style="height: 30px; padding: 0 8px; font-size: 12px; color: var(--fg3)"><span class="dot d-ok"></span><span>adb <span class="mono num">35.0.2</span> · running</span><button class="btn btn-g btn-sm ib" aria-label="App settings" style="margin-left: auto"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button></div>
+</div>
+</aside>
+
+<main class="main">
+<div class="hdr">
+<div class="crumb"><span>Pixel 8 Pro</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m9 18 6-6-6-6"/></svg><b>Logcat</b>
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}"><span class="bdg b-ok" style="margin-left: 6px"><span class="dot d-ok"></span>Streaming · 1,240 lines/s</span></sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><span class="bdg b-warn" style="margin-left: 6px"><span class="dot d-warn"></span>Paused · +1,284 new</span></sc-if>
+</div>
+<div class="acts">
+<button class="btn btn-sm">Filters: My app<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m6 9 6 6 6-6"/></svg></button>
+<button class="btn btn-sm">Buffer: main, crash<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m6 9 6 6 6-6"/></svg></button>
+<button class="btn btn-sm"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>Export</button>
+<button class="btn btn-sm btn-g"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/></svg>Clear<span class="kbd">{{mod}}L</span></button>
+</div>
+</div>
+<div class="row" style="padding: 8px 16px; gap: 8px; border-bottom: 1px solid var(--border); flex-wrap: wrap">
+<div class="inp" style="width: 300px; height: 28px; padding-right: 3px"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input value="cart" aria-label="Search logs" class="mono"><span class="dim num" style="font-size: 11px">6</span><button class="btn btn-g btn-sm" style="height: 22px; padding: 0 6px; font-size: 11px; {{hlStyle}}" onClick="{{toggleHl}}" aria-label="Highlight matches">Highlight</button><button class="btn btn-g btn-sm mono" style="height: 22px; padding: 0 6px; font-size: 11px" aria-label="Regular expression">.*</button><button class="btn btn-g btn-sm" style="height: 22px; padding: 0 6px; font-size: 11px" aria-label="Match case">Aa</button></div>
+<div class="row" role="group" aria-label="Log levels" style="gap: 2px; padding: 2px; border-radius: 8px; background: var(--active)">
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="6"><button class="lvl" style="{{l.style}}" onClick="{{l.toggle}}" aria-pressed="{{l.on}}" aria-label="{{l.label}}">{{l.k}}<span style="font-weight: 500; opacity: .7; font-size: 10px" class="num">{{l.n}}</span></button></sc-for>
+</div>
+<span class="chip" style="background: var(--brand-soft); color: var(--brand)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:12px;height:12px"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>com.example.shop · follow PID<button aria-label="Remove package filter"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:10px;height:10px"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+<span class="chip">+ OkHttp<button aria-label="Remove tag"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:10px;height:10px"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+<span class="chip" style="color: var(--fg3)">− chromium<button aria-label="Remove exclusion"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:10px;height:10px"><path d="M18 6 6 18M6 6l12 12"/></svg></button></span>
+<button class="btn btn-g btn-sm" style="font-size: 11px">+ Tag</button>
+<span style="margin-left: auto"></span>
+<button class="btn btn-g btn-sm ib" aria-label="Wrap lines" style="background: var(--active); color: var(--fg)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h15a3 3 0 1 1 0 6h-4M16 16l-2 2 2 2M3 18h7"/></svg></button>
+<button class="btn btn-sm" onClick="{{togglePause}}">
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>Pause</sc-if>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px"><path d="m6 3 14 9-14 9V3z"/></svg>Resume</sc-if>
+<span class="kbd">Space</span></button>
+</div>
+
+<div style="flex: 1; display: flex; min-height: 0">
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative">
+<div class="lc" style="display: grid; grid-template-columns: 96px 84px 22px 148px minmax(0, 1fr); gap: 10px; padding: 0 16px; height: 28px; align-items: center; border-bottom: 1px solid var(--border); color: var(--fg3); font-family: Inter, sans-serif; font-size: 11px; font-weight: 500"><span>Time</span><span>PID TID</span><span></span><span>Tag</span><span>Message</span></div>
+<div class="lc" style="flex: 1; overflow: auto; padding: 4px 0" role="log" aria-label="Log lines">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="20">
+<sc-if value="{{r.isLog}}" hint-placeholder-val="{{ true }}">
+<button class="lr" style="{{r.rowStyle}}" onClick="{{r.pick}}"><span class="dim num">{{r.t}}</span><span class="dim num" style="white-space: pre">{{r.p}}</span><span class="lvb" style="{{r.lvStyle}}">{{r.lv}}</span><span class="tg">{{r.tag}}</span><span class="m" style="{{r.msgStyle}}">{{r.a}}<sc-if value="{{r.has}}" hint-placeholder-val="{{ false }}"><mark>{{r.b}}</mark></sc-if>{{r.c}}</span></button>
+</sc-if>
+<sc-if value="{{r.isRestart}}" hint-placeholder-val="{{ false }}">
+<div class="row" style="padding: 6px 16px; gap: 10px; color: var(--brand); font-family: Inter, sans-serif; font-size: 12px"><span style="flex: 1; height: 1px; background: var(--brand-soft)"></span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:13px;height:13px"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>{{r.m}}<span style="flex: 1; height: 1px; background: var(--brand-soft)"></span></div>
+</sc-if>
+<sc-if value="{{r.isCrash}}" hint-placeholder-val="{{ false }}">
+<div class="crash">
+<div class="row" style="padding: 6px 10px 6px 14px; gap: 10px; font-family: Inter, sans-serif">
+<svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--err)"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></svg>
+<span style="font-weight: 600; color: var(--err)">Crash</span><span class="mono" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.ex}}</span><span class="dim mono num" style="font-size: 11px">{{r.t}} · PID 4821</span>
+<button class="btn btn-sm">Copy stack trace</button><button class="btn btn-sm">Only crashes</button>
+<button class="btn btn-g btn-sm ib" onClick="{{toggleCrash}}" aria-label="Toggle stack trace"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+</div>
+<sc-if value="{{crashOpen}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 2px 14px 8px 40px; border-top: 1px solid var(--err-soft)">
+<sc-for list="{{r.stackLines}}" as="sl" hint-placeholder-count="8"><div style="white-space: pre; line-height: 20px"><sc-if value="{{sl.ours}}" hint-placeholder-val="{{ false }}"><span style="color: var(--fg)">{{sl.l}}</span></sc-if><sc-if value="{{sl.other}}" hint-placeholder-val="{{ true }}"><span class="dim">{{sl.l}}</span></sc-if></div></sc-for>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</sc-for>
+</div>
+<sc-if value="{{paused}}" hint-placeholder-val="{{ false }}">
+<button class="btn btn-p btn-sm" style="position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); box-shadow: var(--shadow); height: 30px; border-radius: 15px; padding: 0 14px" onClick="{{togglePause}}"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>1,284 new lines · jump to end</button>
+</sc-if>
+</div>
+
+<aside class="rp" style="width: 320px; flex: none; border-left: 1px solid var(--border); padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; overflow: auto" aria-label="Selected line">
+<div class="row" style="justify-content: space-between"><span style="font-weight: 600">Line details</span><button class="btn btn-g btn-sm ib" aria-label="Close panel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+<div class="mono" style="padding: 10px; border-radius: 8px; background: var(--bg2); border: 1px solid var(--border); white-space: pre-wrap; word-break: break-word; line-height: 19px; {{curColor}}">{{cur.m}}</div>
+<dl style="margin: 0">
+<dt>Time</dt><dd class="num">2026-10-25 {{cur.t}}</dd>
+<dt>PID · TID</dt><dd class="num">{{cur.p}}</dd>
+<dt>Level · Tag</dt><dd>{{cur.lv}} · {{cur.tag}}</dd>
+<dt>Process</dt><dd>com.example.shop</dd>
+</dl>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<button class="btn btn-sm" style="justify-content: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>Filter by tag “{{cur.tag}}”</button>
+<button class="btn btn-sm" style="justify-content: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></svg>Exclude this tag</button>
+<button class="btn btn-sm" style="justify-content: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Show ±50 lines around</button>
+<button class="btn btn-sm" style="justify-content: flex-start"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Copy line<span class="kbd" style="margin-left: auto">{{mod}}C</span></button>
+</div>
+<div style="margin-top: auto" class="dim">
+<div class="lbl" style="margin-bottom: 6px">Saved filters</div>
+<div style="display: flex; flex-direction: column; gap: 2px; font-size: 12px">
+<div class="row" style="height: 28px; padding: 0 8px; border-radius: 6px; background: var(--active); color: var(--fg)">My app<span class="kbd" style="margin-left: auto">{{mod}}1</span></div>
+<div class="row" style="height: 28px; padding: 0 8px">Network (OkHttp)<span class="kbd" style="margin-left: auto">{{mod}}2</span></div>
+<div class="row" style="height: 28px; padding: 0 8px">Crashes &amp; ANRs<span class="kbd" style="margin-left: auto">{{mod}}3</span></div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+<div class="st"><span class="row" style="gap: 6px"><span class="dot d-ok"></span>Pixel 8 Pro</span><span class="sep"></span><span class="mono">38121FDJH00A4B</span><span class="sep"></span><span>USB</span><span class="sep"></span><span class="num">48,211 lines in buffer · showing {{shown}}</span><span class="sep"></span><span class="num">1 crash · 2 errors</span><span style="margin-left: auto" class="mono">tcp:8081 → 8081</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"os":{"editor":"enum","options":["macos","windows"],"default":"windows"},"$preview":{"width":960,"height":600}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const os = this.props.os ?? 'windows';
+    const s = Object.assign({ V: false, D: true, I: true, W: true, E: true, F: true, paused: false, sel: 10, crashOpen: true, hl: true }, this.state || {});
+    const q = 'cart';
+    const raw = [
+      { id: 1, t: '22:41:06.981', p: '1534  1601', lv: 'I', tag: 'ActivityManager', m: 'Start proc 4821:com.example.shop/u0a312 for top-activity {com.example.shop/.MainActivity}' },
+      { id: 2, t: '22:41:06.995', p: '4821  4821', lv: 'D', tag: 'ShopApp', m: 'onCreate() buildType=debug flavor=staging versionCode=2140' },
+      { id: 3, t: '22:41:07.002', p: '4821  4821', lv: 'V', tag: 'FeatureFlags', m: 'Loaded 42 flags from remote config (etag "a9f3")' },
+      { id: 4, t: '22:41:07.010', p: '4821  4840', lv: 'D', tag: 'OkHttp', m: '--> GET https://api.example.shop/v2/catalog?page=1' },
+      { id: 5, t: '22:41:07.044', p: '4821  4821', lv: 'I', tag: 'Choreographer', m: 'Skipped 31 frames!  The application may be doing too much work on its main thread.' },
+      { id: 6, t: '22:41:07.120', p: '4821  4840', lv: 'D', tag: 'OkHttp', m: '<-- 200 OK https://api.example.shop/v2/catalog?page=1 (110ms, 48.2kB body)' },
+      { id: 7, t: '22:41:07.131', p: '4821  4862', lv: 'D', tag: 'OkHttp', m: '--> GET https://api.example.shop/v2/cart' },
+      { id: 8, t: '22:41:07.150', p: '4821  4877', lv: 'V', tag: 'Glide', m: 'Memory cache hit for key 7f2a…c91 (240x240)' },
+      { id: 9, t: '22:41:07.204', p: '1534  1601', lv: 'I', tag: 'ActivityManager', m: 'Displayed com.example.shop/.MainActivity for user 0: +223ms' },
+      { id: 10, t: '22:41:07.290', p: '4821  4862', lv: 'W', tag: 'OkHttp', m: '<-- HTTP FAILED: java.net.SocketTimeoutException: timeout (GET /v2/cart after 10000ms)' },
+      { id: 11, t: '22:41:07.291', p: '4821  4821', lv: 'W', tag: 'CartRepository', m: 'Cart fetch failed, falling back to cached cart (age 3h 12m)' },
+      { id: 12, t: '22:41:07.298', p: '4821  4821', lv: 'D', tag: 'CartViewModel', m: 'state = Loading -> Error(Timeout)' },
+      { id: 13, kind: 'crash', t: '22:41:07.312', p: '4821  4821', lv: 'E', tag: 'AndroidRuntime', m: 'FATAL EXCEPTION: main', ex: 'java.lang.IllegalStateException: Cart must not be null', stack: ['Process: com.example.shop, PID: 4821', 'java.lang.IllegalStateException: Cart must not be null', '    at com.example.shop.cart.CartViewModel.requireCart(CartViewModel.kt:87)', '    at com.example.shop.cart.CartFragment.render(CartFragment.kt:142)', '    at com.example.shop.cart.CartFragment.onViewCreated$lambda$3(CartFragment.kt:61)', '    at androidx.lifecycle.Observer.onChanged(Observer.kt:20)', '    at android.os.Handler.handleCallback(Handler.java:959)', '    at android.os.Looper.loop(Looper.java:317)', '    at android.app.ActivityThread.main(ActivityThread.java:8705)', '    … 4 more'] },
+      { id: 14, t: '22:41:07.318', p: '1534  2190', lv: 'W', tag: 'ActivityTaskManager', m: 'Force finishing activity com.example.shop/.MainActivity' },
+      { id: 15, t: '22:41:07.331', p: '1534  1588', lv: 'I', tag: 'ActivityManager', m: 'Process com.example.shop (pid 4821) has died: fg TOP' },
+      { id: 16, kind: 'restart', m: 'com.example.shop restarted · following PID 4821 → 5106' },
+      { id: 17, t: '22:41:07.430', p: '5106  5106', lv: 'D', tag: 'ShopApp', m: 'onCreate() buildType=debug flavor=staging versionCode=2140' },
+      { id: 18, t: '22:41:07.455', p: '5106  5130', lv: 'D', tag: 'OkHttp', m: '--> GET https://api.example.shop/v2/cart' },
+      { id: 19, t: '22:41:07.601', p: '5106  5130', lv: 'D', tag: 'OkHttp', m: '<-- 200 OK https://api.example.shop/v2/cart (146ms, 2.1kB body)' },
+      { id: 20, t: '22:41:07.640', p: '5106  5106', lv: 'I', tag: 'CartViewModel', m: 'state = Loading -> Content(items=3, total=12 730 ₽)' },
+      { id: 21, t: '22:41:07.702', p: '5106  5177', lv: 'V', tag: 'Glide', m: 'Decoded 1080x1080 in 18ms' },
+      { id: 22, t: '22:41:07.811', p: '5106  5188', lv: 'E', tag: 'ImageDecoder', m: 'Failed to decode https://cdn.example.shop/img/sku-4410.webp: unsupported format' },
+      { id: 23, t: '22:41:07.910', p: '5106  5188', lv: 'F', tag: 'libc', m: 'Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x0 in tid 5188 (ImageDecoder)' },
+      { id: 24, t: '22:41:08.002', p: '5106  5106', lv: 'I', tag: 'ShopApp', m: 'Analytics: screen_view cart (items=3)' },
+      { id: 25, t: '22:41:08.140', p: '5106  5130', lv: 'D', tag: 'OkHttp', m: '--> POST https://api.example.shop/v2/cart/items (64-byte body)' },
+      { id: 26, t: '22:41:08.302', p: '5106  5130', lv: 'D', tag: 'OkHttp', m: '<-- 201 Created https://api.example.shop/v2/cart/items (162ms)' }
+    ];
+    const lvColor = { V: 'var(--lv)', D: 'var(--ld)', I: 'var(--li)', W: 'var(--lw)', E: 'var(--le)', F: 'var(--lf)' };
+    const counts = { V: 0, D: 0, I: 0, W: 0, E: 0, F: 0 };
+    raw.forEach((r) => { if (r.lv) counts[r.lv]++; });
+    const split = (m) => {
+      const k = s.hl ? m.toLowerCase().indexOf(q) : -1;
+      return k < 0 ? { a: m, b: '', c: '', has: false } : { a: m.slice(0, k), b: m.slice(k, k + q.length), c: m.slice(k + q.length), has: true };
+    };
+    const visible = raw.filter((r) => r.kind === 'restart' || s[r.lv]);
+    const rows = visible.map((r) => {
+      const sp = split(r.m || '');
+      const tint = r.lv === 'W' ? 'background: var(--warn-soft);' : (r.lv === 'E' ? 'background: var(--err-soft);' : (r.lv === 'F' ? 'background: var(--err-soft); box-shadow: inset 3px 0 0 var(--lf);' : ''));
+      const sel = r.id === s.sel;
+      const msgColor = r.lv === 'W' ? 'var(--lw)' : (r.lv === 'E' || r.lv === 'F' ? 'var(--le)' : (r.lv === 'V' ? 'var(--fg3)' : 'var(--fg)'));
+      return Object.assign({}, r, sp, {
+        isLog: !r.kind, isCrash: r.kind === 'crash', isRestart: r.kind === 'restart',
+        rowStyle: tint + (sel ? 'background: var(--brand-soft); box-shadow: inset 2px 0 0 var(--brand);' : ''),
+        lvStyle: r.lv === 'F' ? 'background: var(--lf); color: #fff' : 'color: ' + lvColor[r.lv] + '; background: var(--active)',
+        msgStyle: 'color: ' + msgColor,
+        pick: () => this.setState(Object.assign({}, s, { sel: r.id })),
+        stackLines: (r.stack || []).map((l, i) => { const ours = l.indexOf('com.example.shop') >= 0 && i > 1; return { l, ours, other: !ours }; }),
+      });
+    });
+    const levels = ['V', 'D', 'I', 'W', 'E', 'F'].map((k) => ({
+      k, n: counts[k], on: s[k],
+      style: s[k] ? (k === 'F' ? 'background: var(--lf); color: #fff' : 'background: var(--card); color: ' + lvColor[k] + '; box-shadow: 0 1px 2px rgba(0,0,0,.25)') : 'background: transparent; color: var(--fg3); text-decoration: line-through',
+      toggle: () => this.setState(Object.assign({}, s, { [k]: !s[k] })),
+      label: (s[k] ? 'Hide ' : 'Show ') + k + ' level'
+    }));
+    const cur = raw.find((r) => r.id === s.sel) || raw[9];
+    return { t: 'app win ' + (this.props.theme ?? 'dark'), mac: os === 'macos', win: os !== 'macos', mod: os === 'macos' ? '⌘' : 'Ctrl', rows, levels, cur, paused: s.paused, live: !s.paused, crashOpen: s.crashOpen, crashClosed: !s.crashOpen, togglePause: () => this.setState(Object.assign({}, s, { paused: !s.paused })), toggleCrash: () => this.setState(Object.assign({}, s, { crashOpen: !s.crashOpen })), toggleHl: () => this.setState(Object.assign({}, s, { hl: !s.hl })), hlStyle: s.hl ? 'background: var(--brand-soft); color: var(--brand)' : '', shown: visible.length, curColor: 'color: ' + (lvColor[cur.lv] || 'var(--fg)') };
+  }
+}
+</script>
+</body>
+</html>

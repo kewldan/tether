@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding — finding adb</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--lv:#8B91A0;--ld:#4AA3F0;--li:#3DD68C;--lw:#F5B740;--le:#F2555A;--lf:#FF6BB0;--c1:#5AA9F5;--c2:#F0A042;--c3:#2EC4B6;--c4:#E879A8;--c5:#D9C74A;--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--lv:#6B717D;--ld:#1D6FC4;--li:#12844F;--lw:#A35E00;--le:#C9262C;--lf:#B4166B;--c1:#1F78D1;--c2:#D9780F;--c3:#0F9488;--c4:#C2477E;--c5:#A68F0C;--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.win{height:900px;display:flex;flex-direction:column;overflow:hidden}
+.tb{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding-left:14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lights{display:flex;gap:8px;width:60px}.lights span{width:12px;height:12px;border-radius:50%;background:#FF5F57}.lights span+span{background:#FEBC2E}.lights span+span+span{background:#28C840}
+.wctl{display:flex;margin-left:auto}.wctl span{width:46px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--fg2)}
+.brandmk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.logo{width:20px;height:20px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}.btn-g:hover{background:var(--hover);color:var(--fg)}
+.btn-lg{height:36px;padding:0 16px;font-size:14px;border-radius:8px}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px}
+.card{border:1px solid var(--border);border-radius:12px;background:var(--card)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+.chk{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)}
+.steps{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--fg3)}
+.steps b{width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border2);font-weight:600;font-size:11px}
+.steps .on{color:var(--fg)}.steps .on b{background:var(--primary);border-color:var(--primary);color:#fff}
+.steps .done b{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.steps hr{width:28px;border:0;border-top:1px solid var(--border2);margin:0}
+</style>
+</helmet>
+<div class="{{t}}">
+<div class="tb">
+<sc-if value="{{mac}}" hint-placeholder-val="{{ true }}"><div class="lights" aria-hidden="true"><span></span><span></span><span></span></div></sc-if>
+<div class="brandmk"><span class="logo"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px;stroke-width:2.2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>Tether</div>
+<sc-if value="{{win}}" hint-placeholder-val="{{ false }}"><div class="wctl" aria-hidden="true"><span><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span><span><svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></span><span><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></sc-if>
+</div>
+
+<div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+<div style="flex: 1 1 520px; padding: 72px 72px 48px; display: flex; flex-direction: column; gap: 28px; border-right: 1px solid var(--border); background: var(--bg2)">
+<div class="steps"><span class="row done" style="gap: 8px"><b>✓</b>Welcome</span><hr><span class="row on" style="gap: 8px"><b>2</b>Find adb</span><hr><span class="row" style="gap: 8px"><b>3</b>Prepare phone</span></div>
+<div>
+<div style="width: 64px; height: 64px; border-radius: 16px; background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff; margin-bottom: 28px">
+<svg class="i" viewBox="0 0 24 24" style="width: 36px; height: 36px; stroke-width: 1.8" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/><circle cx="12" cy="12.5" r=".6"/></svg>
+</div>
+<h1 style="margin: 0; font-size: 34px; line-height: 40px; font-weight: 700; letter-spacing: -.025em; max-width: 460px">Your Android devices, without the terminal.</h1>
+<p class="mut" style="font-size: 15px; line-height: 24px; margin: 16px 0 0; max-width: 460px">Tether is a desktop home for adb. Everything you type every day, one click or keystroke away.</p>
+</div>
+<div style="display: flex; flex-direction: column; gap: 14px; max-width: 460px">
+<div class="row" style="gap: 12px; align-items: flex-start"><span style="width: 28px; height: 28px; border-radius: 7px; background: var(--active); display: flex; align-items: center; justify-content: center; color: var(--brand); flex: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></svg></span><div><div style="font-weight: 600">Mirror and control</div><div class="mut">See the screen, type, record — powered by scrcpy.</div></div></div>
+<div class="row" style="gap: 12px; align-items: flex-start"><span style="width: 28px; height: 28px; border-radius: 7px; background: var(--active); display: flex; align-items: center; justify-content: center; color: var(--brand); flex: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1"/></svg></span><div><div style="font-weight: 600">Logcat that keeps up</div><div class="mut">Filter by app, follow PID restarts, fold crashes.</div></div></div>
+<div class="row" style="gap: 12px; align-items: flex-start"><span style="width: 28px; height: 28px; border-radius: 7px; background: var(--active); display: flex; align-items: center; justify-content: center; color: var(--brand); flex: none"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg></span><div><div style="font-weight: 600">Apps and files on many devices</div><div class="mut">Drop an APK on three phones at once. Drag files both ways.</div></div></div>
+</div>
+<div class="dim" style="font-size: 12px; margin-top: auto">Works on macOS, Windows and Linux · Uses the official Android platform-tools</div>
+</div>
+
+<div style="flex: 1 1 560px; padding: 72px; display: flex; flex-direction: column; gap: 20px; justify-content: center; min-width: 0">
+<div>
+<h2 style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Looking for adb</h2>
+<p class="mut" style="margin: 4px 0 0">We check the usual places. Nothing is installed or changed.</p>
+</div>
+<div class="card" style="overflow: hidden">
+<div class="chk"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="M5 12h14"/></svg><div><div style="font-weight: 500">PATH</div><div class="mono dim" style="font-size: 11px">which adb</div></div><span class="dim" style="font-size: 12px">Not found</span></div>
+<div class="chk"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="M5 12h14"/></svg><div><div style="font-weight: 500">ANDROID_HOME</div><div class="mono dim" style="font-size: 11px">$ANDROID_HOME is not set</div></div><span class="dim" style="font-size: 12px">Not set</span></div>
+<div class="chk" style="background: var(--ok-soft)"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--ok)"><path d="M20 6 9 17l-5-5"/></svg><div style="min-width: 0"><div style="font-weight: 500">Android Studio SDK</div><div class="mono dim" style="font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">~/Library/Android/sdk/platform-tools/adb</div></div><span class="bdg b-ok">Found</span></div>
+<div class="chk"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--brand)"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg><div><div style="font-weight: 500">Homebrew</div><div class="mono dim" style="font-size: 11px">/opt/homebrew/bin/adb</div></div><span class="dim" style="font-size: 12px">Checking…</span></div>
+<div class="chk" style="border-bottom: 0; opacity: .55"><span class="i" aria-hidden="true"></span><div><div style="font-weight: 500">Common locations</div><div class="mono dim" style="font-size: 11px">/usr/local/bin, ~/Android/Sdk</div></div><span class="dim" style="font-size: 12px">Queued</span></div>
+</div>
+
+<div class="card" style="padding: 18px; display: flex; flex-direction: column; gap: 14px; border-color: var(--ok)">
+<div class="row" style="gap: 12px"><span style="width: 32px; height: 32px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: flex; align-items: center; justify-content: center"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.4"><path d="M20 6 9 17l-5-5"/></svg></span><div><div style="font-weight: 600; font-size: 14px">adb found</div><div class="dim" style="font-size: 12px">Android Debug Bridge <span class="mono num">35.0.2</span> · platform-tools <span class="mono num">35.0.2-12147458</span></div></div></div>
+<div class="row mono" style="padding: 8px 10px; border-radius: 7px; background: var(--bg2); border: 1px solid var(--border); font-size: 12px"><span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">/Users/daniel/Library/Android/sdk/platform-tools/adb</span><button class="btn btn-g btn-sm" aria-label="Copy path" style="width: 26px; padding: 0"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button></div>
+<div class="row" style="justify-content: space-between"><a href="#" style="font-size: 13px">Use a different adb…</a><button class="btn btn-p btn-lg">Continue<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button></div>
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"os":{"editor":"enum","options":["macos","windows"],"default":"macos"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const os = this.props.os ?? 'macos';
+    return { t: 'app win ' + (this.props.theme ?? 'dark'), mac: os === 'macos', win: os !== 'macos' };
+  }
+}
+</script>
+</body>
+</html>

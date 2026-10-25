@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Diagnostics — can't see device</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0D0E11}
+a{color:#A193FA}a:hover{color:#C4BBFC}
+.app{font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px;line-height:20px;color:var(--fg);background:var(--bg);-webkit-font-smoothing:antialiased}
+.app *{box-sizing:border-box}
+.dark{--bg:#0D0E11;--bg2:#121317;--card:#15171B;--elev:#1B1D22;--hover:#1F2228;--active:#262A31;--border:#24272E;--border2:#30343C;--fg:#ECEEF2;--fg2:#A3A9B6;--fg3:#8B91A0;--brand:#A193FA;--primary:#6D5AE6;--primary-h:#7B69F0;--brand-soft:rgba(139,124,246,.15);--ring:#8B7CF6;--destructive:#D13B41;--ok:#3DD68C;--ok-soft:rgba(61,214,140,.12);--warn:#F5B740;--warn-soft:rgba(245,183,64,.12);--err:#F2555A;--err-soft:rgba(242,85,90,.13);--info:#4AA3F0;--info-soft:rgba(74,163,240,.13);--shadow:0 16px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.05)}
+.light{--bg:#FFFFFF;--bg2:#F7F8FA;--card:#FFFFFF;--elev:#FFFFFF;--hover:#F1F2F5;--active:#E8EAEE;--border:#E4E6EB;--border2:#D4D7DD;--fg:#17191E;--fg2:#4F5562;--fg3:#6B717D;--brand:#5B47D6;--primary:#5B47D6;--primary-h:#4D3AC4;--brand-soft:rgba(91,71,214,.10);--ring:#5B47D6;--destructive:#C9262C;--ok:#12844F;--ok-soft:rgba(18,132,79,.10);--warn:#A35E00;--warn-soft:rgba(163,94,0,.10);--err:#C9262C;--err-soft:rgba(201,38,44,.09);--info:#1D6FC4;--info-soft:rgba(29,111,196,.10);--shadow:0 16px 40px rgba(16,18,24,.14),0 0 0 1px rgba(16,18,24,.06)}
+.win{height:900px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.tb{height:40px;flex:none;display:flex;align-items:center;gap:12px;padding-left:14px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.lights{display:flex;gap:8px;width:60px}.lights span{width:12px;height:12px;border-radius:50%;background:#FF5F57}.lights span+span{background:#FEBC2E}.lights span+span+span{background:#28C840}
+.wctl{display:flex}.wctl span{width:46px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--fg2)}
+.brandmk{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px;width:150px}
+.logo{width:20px;height:20px;border-radius:6px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.cmdk{flex:0 1 440px;margin:0 auto;height:28px;display:flex;align-items:center;gap:8px;padding:0 6px 0 10px;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--fg3);font:12px Inter,sans-serif;cursor:pointer;text-align:left}
+.tbr{display:flex;align-items:center;gap:2px;padding-right:8px;min-width:150px;justify-content:flex-end}
+.bd{flex:1;display:flex;min-height:0}
+.sb{width:240px;flex:none;border-right:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;padding:10px 8px 8px}
+.dev{width:100%;display:flex;align-items:center;gap:10px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--fg);font:inherit;text-align:left;cursor:pointer}
+.devic{width:30px;height:30px;border-radius:7px;background:var(--active);display:flex;align-items:center;justify-content:center;color:var(--fg2);flex:none}
+.nav{display:flex;flex-direction:column;gap:1px;margin-top:10px}
+.ni{display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:6px;color:var(--fg2);text-decoration:none;font-weight:500;position:relative}
+.ni.off{opacity:.45}
+.ni .i{width:18px;height:18px;stroke-width:1.6}
+.sl{font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fg3);padding:14px 8px 4px}
+.sbf{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg)}
+.hdr{height:52px;flex:none;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--border)}
+.crumb{display:flex;align-items:center;gap:6px;color:var(--fg3);font-size:13px;min-width:0;white-space:nowrap}
+.crumb b{color:var(--fg);font-weight:600;font-size:15px}
+.acts{margin-left:auto;display:flex;align-items:center;gap:8px}
+.st{height:24px;flex:none;display:flex;align-items:center;gap:14px;padding:0 12px;border-top:1px solid var(--border);background:var(--bg2);color:var(--fg3);font-size:11px;white-space:nowrap;overflow:hidden}
+.st .sep{width:1px;height:12px;background:var(--border2)}
+.btn{height:30px;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 12px;border-radius:7px;border:1px solid var(--border2);background:var(--card);color:var(--fg);font:500 13px/1 Inter,sans-serif;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn:hover{background:var(--hover)}
+.btn:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
+.btn-p{background:var(--primary);border-color:transparent;color:#fff}.btn-p:hover{background:var(--primary-h)}
+.btn-g{background:transparent;border-color:transparent;color:var(--fg2)}.btn-g:hover{background:var(--hover);color:var(--fg)}
+.btn-sm{height:26px;padding:0 9px;font-size:12px;border-radius:6px;gap:5px}
+.ib{width:30px;padding:0}.btn-sm.ib{width:26px}
+.kbd{font:500 11px/16px Inter,sans-serif;min-width:18px;height:18px;padding:0 5px;border-radius:4px;border:1px solid var(--border2);background:var(--bg2);color:var(--fg3);display:inline-flex;align-items:center;justify-content:center}
+.bdg{display:inline-flex;align-items:center;gap:5px;height:20px;padding:0 7px;border-radius:5px;font-size:11px;font-weight:500;line-height:1;background:var(--active);color:var(--fg2);white-space:nowrap}
+.b-ok{background:var(--ok-soft);color:var(--ok)}.b-warn{background:var(--warn-soft);color:var(--warn)}.b-err{background:var(--err-soft);color:var(--err)}.b-info{background:var(--info-soft);color:var(--info)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none;background:var(--fg3)}
+.d-ok{background:var(--ok)}.d-warn{background:var(--warn)}.d-err{background:var(--err)}
+.card{border:1px solid var(--border);border-radius:10px;background:var(--card)}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px}
+.num{font-variant-numeric:tabular-nums}
+.mut{color:var(--fg2)}.dim{color:var(--fg3)}
+.i{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.row{display:flex;align-items:center;gap:8px}
+.ck{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:14px;align-items:start;padding:14px 18px;border-bottom:1px solid var(--border)}
+.ck:last-child{border-bottom:0}
+.ic{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.ic .i{width:14px;height:14px;stroke-width:2.4}
+.ic.ok{background:var(--ok-soft);color:var(--ok)}.ic.warn{background:var(--warn-soft);color:var(--warn)}.ic.err{background:var(--err-soft);color:var(--err)}.ic.skip{background:var(--active);color:var(--fg3)}
+.ck .t{font-weight:600}
+.ck .d{color:var(--fg2);font-size:12px;line-height:18px;margin-top:2px}
+details summary{cursor:pointer;color:var(--fg3);font-size:12px;margin-top:6px}
+pre{margin:6px 0 0;padding:8px 10px;border-radius:7px;background:var(--bg2);border:1px solid var(--border);white-space:pre;overflow:auto}
+</style>
+</helmet>
+<div class="{{t}}">
+<div class="tb">
+<sc-if value="{{mac}}" hint-placeholder-val="{{ true }}"><div class="lights" aria-hidden="true"><span></span><span></span><span></span></div></sc-if>
+<div class="brandmk"><span class="logo"><svg class="i" viewBox="0 0 24 24" style="width:13px;height:13px;stroke-width:2.2" aria-hidden="true"><rect x="7" y="3" width="10" height="13" rx="2"/><path d="M12 16v2a3 3 0 0 0 3 3h4"/></svg></span>Tether</div>
+<button class="cmdk" aria-label="Open command palette"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>Search actions, devices, apps, files…<span style="margin-left: auto; display: flex; gap: 3px"><span class="kbd">{{mod}}</span><span class="kbd">K</span></span></button>
+<div class="tbr"><button class="btn btn-g btn-sm ib" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></button>
+<sc-if value="{{win}}" hint-placeholder-val="{{ false }}"><div class="wctl" aria-hidden="true"><span><svg class="i" viewBox="0 0 24 24"><path d="M5 12h14"/></svg></span><span><svg class="i" viewBox="0 0 24 24" style="width:14px;height:14px"><rect x="4" y="4" width="16" height="16" rx="1"/></svg></span><span><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span></div></sc-if></div>
+</div>
+<div class="bd">
+<aside class="sb">
+<button class="dev" aria-label="Switch device"><span class="devic" style="border: 1px dashed var(--border2); background: transparent"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg></span><span style="flex: 1; min-width: 0"><span style="display: block; font-weight: 600">No device</span><span class="dim" style="font-size: 11px; display: block">Connect one to start</span></span><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--fg3)"><path d="m7 15 5 5 5-5M7 9l5-5 5 5"/></svg></button>
+<nav class="nav" aria-label="Device sections">
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Overview</a>
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="14" height="10" rx="2"/><path d="M6 18h6M9 14v4"/><rect x="17" y="8" width="5" height="12" rx="1"/></svg>Screen</a>
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>Files</a>
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>Apps</a>
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 12h8M13 18h8M13 6h8M3 12h1M3 18h1M3 6h1M8 12h1M8 18h1M8 6h1"/></svg>Logcat</a>
+<a class="ni off" href="#"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>Shell</a>
+</nav>
+<div class="sbf"><div class="row" style="height: 30px; padding: 0 8px; font-size: 12px; color: var(--fg3)"><span class="dot d-warn"></span><span>adb <span class="mono num">35.0.2</span> · conflict</span></div></div>
+</aside>
+
+<main class="main">
+<div class="hdr">
+<div class="crumb"><a href="#" style="color: var(--fg3); text-decoration: none">Devices</a><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="m9 18 6-6-6-6"/></svg><b>Can't see your device?</b></div>
+<div class="acts"><span class="dim" style="font-size: 12px">Checked 4 s ago</span><button class="btn btn-sm"><svg class="i" viewBox="0 0 24 24" aria-hidden="true" style="width:14px;height:14px"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/></svg>Run again</button></div>
+</div>
+<div style="flex: 1; overflow: auto; padding: 24px 20px; display: flex; justify-content: center">
+<div style="width: 100%; max-width: 860px; display: flex; flex-direction: column; gap: 16px">
+<div class="card" style="padding: 16px 18px; display: flex; align-items: center; gap: 16px; border-color: var(--err); background: linear-gradient(0deg, var(--err-soft), var(--err-soft)), var(--card)">
+<div style="flex: 1"><div style="font-weight: 600; font-size: 15px">The phone is connected, but USB debugging is off</div><div class="mut" style="margin-top: 2px">Fix the red item first — the others usually resolve on their own.</div></div>
+<div class="row" style="gap: 6px"><span class="bdg b-ok num">4 passed</span><span class="bdg b-warn num">2 warnings</span><span class="bdg b-err num">1 problem</span></div>
+</div>
+
+<div class="card">
+<div class="ck"><span class="ic ok"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="t">adb server is running</div><div class="d">Version 41 on <span class="mono">localhost:5037</span>, started by Tether 6 min ago.</div></div><span></span></div>
+
+<div class="ck"><span class="ic warn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4M12 16h.01"/></svg></span><div><div class="t">Another adb is fighting for the server</div><div class="d">Android Studio's adb (<span class="mono">35.0.1</span>) restarted the server 3 times in the last minute. Devices may flicker between online and offline.</div>
+<details><summary>Show adb output</summary><pre class="mono" style="font-size: 11px; line-height: 17px">adb server version (41) doesn't match this client (40); killing...
+* daemon started successfully
+adb server version (40) doesn't match this client (41); killing...</pre></details></div><div class="row" style="gap: 6px"><button class="btn btn-sm">Use Tether's adb everywhere</button></div></div>
+
+<div class="ck"><span class="ic ok"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="t">The computer sees a USB device</div><div class="d">Google Pixel 8 Pro <span class="mono">18d1:4ee7</span> on USB 3.1 port 2.</div></div><span></span></div>
+
+<div class="ck"><span class="ic ok"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="t">The cable carries data</div><div class="d">Data interfaces are present, so it isn't a charge-only cable.</div></div><span></span></div>
+
+<div class="ck" style="background: var(--err-soft)"><span class="ic err"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></span><div><div class="t">USB debugging is off on the phone</div><div class="d">The phone doesn't expose an adb interface. Open <b>Settings › System › Developer options</b> and turn on <b>USB debugging</b>. No Developer options? Tap <b>Build number</b> 7 times first.</div></div><div class="row" style="gap: 6px"><button class="btn btn-sm btn-p">Show me how</button></div></div>
+
+<div class="ck"><span class="ic warn"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4M12 16h.01"/></svg></span><div><div class="t">USB mode is “Charging only”</div><div class="d">Some phones hide debugging in this mode. Pull down notifications, tap <b>USB charging this device</b> and pick <b>File transfer</b>.</div></div><span></span></div>
+
+<div class="ck"><span class="ic ok"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><div class="t">No permission problems</div><div class="d">macOS doesn't need USB drivers or udev rules.</div></div><span></span></div>
+
+<div class="ck" style="opacity: .6"><span class="ic skip"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></span><div><div class="t">Windows USB driver · Linux udev rules</div><div class="d">Not needed on this computer.</div></div><span class="dim" style="font-size: 12px">Skipped</span></div>
+</div>
+<div class="dim" style="font-size: 12px; text-align: center">Still stuck? <a href="#">Copy a diagnostic report</a> to paste into an issue.</div>
+</div>
+</div>
+</main>
+</div>
+<div class="st"><span class="row" style="gap: 6px"><span class="dot"></span>No device</span><span class="sep"></span><span>adb server :5037</span><span style="margin-left: auto">Tether 0.1.0</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"theme":{"editor":"enum","options":["dark","light"],"default":"dark"},"os":{"editor":"enum","options":["macos","windows"],"default":"macos"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const os = this.props.os ?? 'macos';
+    return { t: 'app win ' + (this.props.theme ?? 'dark'), mac: os === 'macos', win: os !== 'macos', mod: os === 'macos' ? '⌘' : 'Ctrl' };
+  }
+}
+</script>
+</body>
+</html>

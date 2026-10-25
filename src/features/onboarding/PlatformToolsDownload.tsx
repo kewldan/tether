@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { AlertCircle, Download, X } from "lucide-react";
+import { useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

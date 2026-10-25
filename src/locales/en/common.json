@@ -1,0 +1,83 @@
+{
+  "appName": "Tether",
+  "comingSoon": "This section is coming soon.",
+  "nav": {
+    "overview": "Overview",
+    "screen": "Screen",
+    "files": "Files",
+    "apps": "Apps",
+    "logcat": "Logcat",
+    "shell": "Shell",
+    "performance": "Performance",
+    "device-settings": "Device settings",
+    "ports": "Ports",
+    "intents": "Intents",
+    "bugreport": "Bugreport",
+    "devices": "Devices",
+    "diagnostics": "Can't see your device?",
+    "gallery": "Captures",
+    "settings": "Settings",
+    "tools": "Tools"
+  },
+  "titlebar": {
+    "search": "Search actions, devices, apps, files…",
+    "openPalette": "Open command palette",
+    "theme": "Toggle theme",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "close": "Close"
+  },
+  "sidebar": {
+    "switchDevice": "Switch device",
+    "noDevice": "No device",
+    "connectToStart": "Connect one to start",
+    "allDevices": "All devices",
+    "connectDevice": "Connect a device…",
+    "cantSee": "Can't see your device?",
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar",
+    "appSettings": "App settings",
+    "tasks_one": "{{count}} task",
+    "tasks_other": "{{count}} tasks",
+    "adbRunning": "running",
+    "adbDown": "not running"
+  },
+  "state": {
+    "device": "Online",
+    "unauthorized": "Unauthorized",
+    "authorizing": "Authorizing",
+    "offline": "Offline",
+    "connecting": "Connecting…",
+    "no_permissions": "No permissions",
+    "recovery": "Recovery",
+    "rescue": "Rescue",
+    "sideload": "Sideload",
+    "bootloader": "Bootloader",
+    "host": "Host",
+    "unknown": "Unknown"
+  },
+  "transport": {
+    "usb": "USB",
+    "wifi": "Wi-Fi",
+    "emulator": "Emulator"
+  },
+  "android": "Android {{version}}",
+  "androidSdk": "Android {{version}} (SDK {{sdk}})",
+  "palette": {
+    "placeholder": "Type a command or search…",
+    "empty": "Nothing found.",
+    "navigation": "Go to",
+    "devices": "Devices",
+    "preferences": "Preferences",
+    "themeDark": "Use dark theme",
+    "themeLight": "Use light theme",
+    "themeSystem": "Use system theme"
+  },
+  "actions": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "close": "Close"
+  }
+}

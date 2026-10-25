@@ -87,11 +87,36 @@ impl AdbServer {
         Err(AppError::ServerStart("server did not come up".into()))
     }
 
+    /// Switches a fresh connection to the device and opens a device service
+    /// on it (`shell:…`, `exec:…`, `sync:`, `tcp:…`, `localabstract:…`).
+    /// The returned stream carries that service's raw bytes.
+    pub async fn open_device(&self, serial: &str, service: &str) -> AppResult<TcpStream> {
+        let mut stream = self.open(&format!("host:transport:{serial}")).await?;
+        send_request(&mut stream, service).await?;
+        Ok(stream)
+    }
+
+    /// Runs `exec:<command>` and returns its raw stdout. Unlike `shell:` it
+    /// allocates no PTY, so binary output (screencap, files) is not mangled
+    /// and stderr is not mixed in.
+    pub async fn exec(&self, serial: &str, command: &str) -> AppResult<Vec<u8>> {
+        let mut stream = self.open_device(serial, &format!("exec:{command}")).await?;
+        let mut out = Vec::new();
+        stream.read_to_end(&mut out).await?;
+        Ok(out)
+    }
+
+    /// [`Self::exec`] decoded as (lossy) UTF-8 text.
+    pub async fn exec_text(&self, serial: &str, command: &str) -> AppResult<String> {
+        let out = self.exec(serial, command).await?;
+        Ok(String::from_utf8_lossy(&out).into_owned())
+    }
+
     /// Runs `shell:<command>` on a device and returns its stdout.
     pub async fn shell(&self, serial: &str, command: &str) -> AppResult<String> {
-        let mut stream = self.open(&format!("host:transport:{serial}")).await?;
-        send_request(&mut stream, &format!("shell:{command}")).await?;
-
+        let mut stream = self
+            .open_device(serial, &format!("shell:{command}"))
+            .await?;
         let mut out = Vec::new();
         stream.read_to_end(&mut out).await?;
         Ok(String::from_utf8_lossy(&out).into_owned())
