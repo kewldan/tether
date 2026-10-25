@@ -13,6 +13,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(state::AppState::default())
         .manage(commands::files::FilesState::default())
+        .manage(commands::logcat::LogcatSessions::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -31,6 +32,12 @@ pub fn run() {
             commands::files::files_pull,
             commands::files::files_push,
             commands::files::files_transfer_control,
+            commands::logcat::logcat_start,
+            commands::logcat::logcat_stop,
+            commands::logcat::logcat_clear,
+            commands::logcat::logcat_packages,
+            commands::logcat::logcat_package_processes,
+            commands::logcat::logcat_export,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
