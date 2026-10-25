@@ -16,7 +16,17 @@ import {
   SquareTerminal,
   Stethoscope,
 } from "lucide-react";
-import { type ComponentType, lazy } from "react";
+import { type ComponentType, type LazyExoticComponent, lazy } from "react";
+
+type PageModule = { default: ComponentType };
+type LazyPage = LazyExoticComponent<ComponentType> & {
+  preload: () => Promise<PageModule>;
+};
+
+/** `lazy()` that can also be preloaded, so switching sections never flashes. */
+function lazyPage(load: () => Promise<PageModule>): LazyPage {
+  return Object.assign(lazy(load), { preload: load });
+}
 
 /**
  * Every page of the app. Each feature owns its page component under
@@ -28,89 +38,96 @@ export const SECTIONS = {
   overview: {
     icon: LayoutDashboard,
     group: "device",
-    page: lazy(() => import("@/features/overview/OverviewPage")),
+    page: lazyPage(() => import("@/features/overview/OverviewPage")),
   },
   screen: {
     icon: MonitorSmartphone,
     group: "device",
-    page: lazy(() => import("@/features/mirror/MirrorPage")),
+    page: lazyPage(() => import("@/features/mirror/MirrorPage")),
   },
   files: {
     icon: FolderClosed,
     group: "device",
-    page: lazy(() => import("@/features/files/FilesPage")),
+    page: lazyPage(() => import("@/features/files/FilesPage")),
   },
   apps: {
     icon: Package,
     group: "device",
-    page: lazy(() => import("@/features/apps/AppsPage")),
+    page: lazyPage(() => import("@/features/apps/AppsPage")),
   },
   logcat: {
     icon: ScrollText,
     group: "device",
-    page: lazy(() => import("@/features/logcat/LogcatPage")),
+    page: lazyPage(() => import("@/features/logcat/LogcatPage")),
   },
   shell: {
     icon: SquareTerminal,
     group: "device",
-    page: lazy(() => import("@/features/shell/ShellPage")),
+    page: lazyPage(() => import("@/features/shell/ShellPage")),
   },
   performance: {
     icon: Gauge,
     group: "device",
-    page: lazy(() => import("@/features/performance/PerformancePage")),
+    page: lazyPage(() => import("@/features/performance/PerformancePage")),
   },
   "device-settings": {
     icon: SlidersHorizontal,
     group: "device",
-    page: lazy(() => import("@/features/device-settings/DeviceSettingsPage")),
+    page: lazyPage(
+      () => import("@/features/device-settings/DeviceSettingsPage"),
+    ),
   },
   // Tools (sidebar, needs a selected device)
   ports: {
     icon: Plug,
     group: "tools",
-    page: lazy(() => import("@/features/ports/PortsPage")),
+    page: lazyPage(() => import("@/features/ports/PortsPage")),
   },
   intents: {
     icon: Send,
     group: "tools",
-    page: lazy(() => import("@/features/intents/IntentsPage")),
+    page: lazyPage(() => import("@/features/intents/IntentsPage")),
   },
   bugreport: {
     icon: Bug,
     group: "tools",
-    page: lazy(() => import("@/features/bugreport/BugreportPage")),
+    page: lazyPage(() => import("@/features/bugreport/BugreportPage")),
   },
   // App-level pages (reached from the device switcher, palette, footer)
   devices: {
     icon: Smartphone,
     group: "app",
-    page: lazy(() => import("@/features/devices/DevicesPage")),
+    page: lazyPage(() => import("@/features/devices/DevicesPage")),
   },
   diagnostics: {
     icon: Stethoscope,
     group: "app",
-    page: lazy(() => import("@/features/diagnostics/DiagnosticsPage")),
+    page: lazyPage(() => import("@/features/diagnostics/DiagnosticsPage")),
   },
   gallery: {
     icon: Images,
     group: "app",
-    page: lazy(() => import("@/features/gallery/GalleryPage")),
+    page: lazyPage(() => import("@/features/gallery/GalleryPage")),
   },
   settings: {
     icon: Settings,
     group: "app",
-    page: lazy(() => import("@/features/settings/SettingsPage")),
+    page: lazyPage(() => import("@/features/settings/SettingsPage")),
   },
 } satisfies Record<
   string,
   {
     icon: LucideIcon;
     group: "device" | "tools" | "app";
-    page: ComponentType;
+    page: LazyPage;
   }
 >;
 
 export type SectionId = keyof typeof SECTIONS;
 
 export const SECTION_IDS = Object.keys(SECTIONS) as SectionId[];
+
+/** Loads every page's code in the background after startup. */
+export function preloadSections() {
+  for (const id of SECTION_IDS) void SECTIONS[id].page.preload();
+}

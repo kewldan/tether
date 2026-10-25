@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 
 import { useNavigation } from "@/app/navigation";
-import { SECTIONS } from "@/app/sections";
+import { preloadSections, SECTIONS } from "@/app/sections";
 import { CommandPalette } from "@/app/shell/CommandPalette";
 import { Sidebar } from "@/app/shell/Sidebar";
 import { StatusBar } from "@/app/shell/StatusBar";
@@ -22,6 +22,11 @@ export function AppShell() {
   useDeviceShortcuts();
   // Re-applies saved port rules whenever a device (re)connects.
   usePortRulesAutoRestore();
+
+  useEffect(() => {
+    const timer = setTimeout(preloadSections, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
