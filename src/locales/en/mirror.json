@@ -1,0 +1,88 @@
+{
+  "badge": {
+    "live": "Live · {{fps}} fps · {{mbps}} Mbps",
+    "connecting": "Connecting…",
+    "error": "Not mirroring",
+    "stopped": "Stopped"
+  },
+  "panel": {
+    "hide": "Hide settings panel",
+    "show": "Show settings panel"
+  },
+  "screen": {
+    "region": "Device screen",
+    "label": "Mirrored screen. Click to interact; while focused, typing goes to the device"
+  },
+  "toolbar": {
+    "label": "Device controls",
+    "back": "Back",
+    "home": "Home",
+    "recents": "Recent apps",
+    "volumeDown": "Volume down",
+    "volumeUp": "Volume up",
+    "power": "Power",
+    "rotate": "Rotate",
+    "screenshot": "Copy screenshot",
+    "clipboardOn": "Clipboard sync on",
+    "clipboardOff": "Clipboard sync off",
+    "audioOn": "Audio on",
+    "audioOff": "Audio off",
+    "audioUnavailable": "Audio needs Android 11 or newer",
+    "alwaysOnTop": "Always on top",
+    "fullscreen": "Full screen",
+    "exitFullscreen": "Exit full screen"
+  },
+  "settings": {
+    "label": "Mirroring settings",
+    "stream": "Stream",
+    "reset": "Reset",
+    "bitrate": "Bitrate",
+    "mbps": "{{value}} Mbps",
+    "maxSize": "Max resolution",
+    "native": "Native resolution",
+    "longSide": "{{px}} px (long side)",
+    "frameRate": "Frame rate",
+    "codec": "Codec",
+    "device": "Device",
+    "screenOff": "Turn device screen off",
+    "showTouches": "Show touches",
+    "stayAwake": "Stay awake",
+    "stayAwakeHint": "While plugged in",
+    "audio": "Forward audio",
+    "audioHint": "Needs Android 11 or newer",
+    "notStreaming": "Not streaming"
+  },
+  "state": {
+    "connecting": "Starting scrcpy on {{name}}…",
+    "noDeviceTitle": "No device",
+    "noDevice": "Connect a device to mirror its screen.",
+    "notReadyTitle": "Device not ready",
+    "notReady": "{{name}} is {{state}}. Mirroring starts as soon as it is online and authorized.",
+    "noWebCodecsTitle": "Video decoding is unavailable",
+    "noWebCodecs": "This system's web view has no WebCodecs video decoder. On Linux, update WebKitGTK and install the GStreamer plugins (gst-plugins-good, gst-libav).",
+    "codecTitle": "Codec not supported here",
+    "codec": "This computer can't decode the selected codec. H.264 works everywhere.",
+    "useH264": "Switch to H.264",
+    "encoderTitle": "The device can't encode this codec",
+    "encoder": "Its hardware has no encoder for the selected codec. H.264 is available on every device.",
+    "decodeTitle": "Video decoding failed",
+    "startTitle": "Couldn't start mirroring",
+    "startHint": "Unlock the device, check that it is still connected, then try again.",
+    "stoppedTitle": "Mirroring stopped",
+    "stopped": "The device ended the session.",
+    "startAgain": "Start again",
+    "details": "Details"
+  },
+  "clipboard": {
+    "fromDevice": "Device clipboard changed",
+    "copy": "Copy"
+  },
+  "audioUnavailable": "The device can't capture audio; mirroring continues without sound.",
+  "screenshot": {
+    "copied": "Screenshot copied to clipboard",
+    "failed": "Couldn't copy the screenshot"
+  },
+  "window": {
+    "failed": "Couldn't change the window"
+  }
+}
