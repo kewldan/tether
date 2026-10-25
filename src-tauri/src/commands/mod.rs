@@ -1,8 +1,8 @@
 pub mod adb;
+pub mod apps;
 pub mod bugreport;
 pub mod connection;
 pub mod dev_settings;
-pub mod apps;
 pub mod devices;
 pub mod diagnostics;
 pub mod files;

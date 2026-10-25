@@ -1,4 +1,5 @@
 pub mod actions;
+pub mod apk;
 pub mod bugreport;
 pub mod captures;
 pub mod dev_settings;
@@ -6,9 +7,8 @@ pub mod files;
 pub mod intents;
 pub mod logcat;
 pub mod overview;
-pub mod perf;
-pub mod apk;
 pub mod packages;
+pub mod perf;
 pub mod props;
 pub mod sections;
 pub mod summary;
