@@ -20,6 +20,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigation } from "@/app/navigation";
+import { Logo } from "@/components/layout/Logo";
 import { deviceTone, StatusDot } from "@/components/status/StatusDot";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -304,20 +305,8 @@ function QrTab() {
         ) : (
           <div className="size-[200px]" />
         )}
-        <span className="bg-primary text-primary-foreground absolute top-1/2 left-1/2 -mt-[18px] -ml-[18px] flex size-9 items-center justify-center rounded-[9px] border-[3px] border-white">
-          <svg
-            viewBox="0 0 24 24"
-            className="size-[15px]"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={2.2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <rect x="7" y="3" width="10" height="13" rx="2" />
-            <path d="M12 16v2a3 3 0 0 0 3 3h4" />
-          </svg>
+        <span className="absolute top-1/2 left-1/2 -mt-[18px] -ml-[18px] flex size-9 items-center justify-center rounded-[10px] bg-white">
+          <Logo size={30} />
         </span>
       </div>
       <div className="text-small text-muted-foreground text-center">

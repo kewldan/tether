@@ -10,6 +10,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Logo } from "@/components/layout/Logo";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { AdbScan, LocationCheck } from "@/features/onboarding/api";
@@ -140,22 +141,7 @@ function Welcome() {
     <section className="bg-sidebar hidden flex-[1_1_520px] flex-col gap-7 border-r px-18 pt-18 pb-12 min-[1100px]:flex">
       <Steps current={2} />
       <div>
-        <span className="bg-primary text-primary-foreground mb-7 flex size-16 items-center justify-center rounded-2xl">
-          <svg
-            viewBox="0 0 24 24"
-            className="size-9"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden
-          >
-            <rect x="7" y="3" width="10" height="13" rx="2" />
-            <path d="M12 16v2a3 3 0 0 0 3 3h4" />
-            <circle cx="12" cy="12.5" r=".6" />
-          </svg>
-        </span>
+        <Logo size={64} className="mb-7" />
         <h1 className="max-w-[460px] text-[34px] leading-10 font-bold tracking-[-0.025em]">
           {t("welcome.title")}
         </h1>
