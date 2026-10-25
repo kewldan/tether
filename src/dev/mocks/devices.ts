@@ -140,10 +140,6 @@ const handlers: MockHandlers = {
     if (!s) throw { kind: "device", message: "device offline", hint: null };
     return s;
   },
-  devices_reboot: async () => {
-    await sleep(300);
-    return null;
-  },
   devices_reconnect: async () => {
     await sleep(500);
     return null;

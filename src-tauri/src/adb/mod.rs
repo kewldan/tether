@@ -1,12 +1,12 @@
 pub mod avd;
 pub mod devices;
+pub mod diagnostics;
 pub mod forward;
+pub mod hostkey;
 pub mod installer;
 pub mod locator;
 pub mod server;
 pub mod shell_v2;
 pub mod sync;
-pub mod diagnostics;
-pub mod hostkey;
 pub mod usb;
 pub mod wireless;

@@ -14,7 +14,7 @@ use tauri::{AppHandle, Manager, State};
 use crate::adb::avd::{self, Avd};
 use crate::adb::devices::{self, Device, Transport};
 use crate::adb::server::{AdbServer, read_length_prefixed};
-use crate::adb::wireless::{self, MdnsService, RebootMode, ServiceKind};
+use crate::adb::wireless::{self, MdnsService, ServiceKind};
 use crate::device::summary::{self, DeviceSummary};
 use crate::error::{AppError, AppResult};
 use crate::state::{AppState, lock};
@@ -330,15 +330,6 @@ pub async fn device_wifi_ip(
     serial: String,
 ) -> AppResult<Option<String>> {
     wireless::device_ip(&state.server, &serial).await
-}
-
-#[tauri::command]
-pub async fn devices_reboot(
-    state: State<'_, AppState>,
-    serial: String,
-    mode: RebootMode,
-) -> AppResult<()> {
-    wireless::reboot(&state.server, &serial, mode).await
 }
 
 /// Re-runs the transport handshake (shows the RSA prompt again).

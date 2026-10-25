@@ -1,7 +1,9 @@
 pub mod adb;
 pub mod bugreport;
+pub mod connection;
 pub mod dev_settings;
 pub mod devices;
+pub mod diagnostics;
 pub mod files;
 pub mod gallery;
 pub mod intents;
@@ -10,5 +12,3 @@ pub mod overview;
 pub mod perf;
 pub mod ports;
 pub mod shell;
-pub mod connection;
-pub mod diagnostics;

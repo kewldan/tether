@@ -82,8 +82,9 @@ export const switchToWifi = (serial: string, port: number) =>
 export const deviceWifiIp = (serial: string) =>
   invoke<string | null>("device_wifi_ip", { serial });
 
+/** Reboots via the shared `reboot_device` command (see device/actions.rs). */
 export const rebootDevice = (serial: string, mode: RebootMode) =>
-  invoke<void>("devices_reboot", { serial, mode });
+  invoke<void>("reboot_device", { serial, target: mode });
 
 export const reconnectDevice = (serial: string) =>
   invoke<void>("devices_reconnect", { serial });

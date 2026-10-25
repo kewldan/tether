@@ -90,7 +90,6 @@ pub fn run() {
             commands::connection::wifi_disconnect,
             commands::connection::wifi_tcpip,
             commands::connection::device_wifi_ip,
-            commands::connection::devices_reboot,
             commands::connection::devices_reconnect,
             commands::connection::devices_reconnect_offline,
             commands::connection::devices_summary,

@@ -9,5 +9,5 @@ pub mod overview;
 pub mod perf;
 pub mod props;
 pub mod sections;
-pub mod transfer;
 pub mod summary;
+pub mod transfer;

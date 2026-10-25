@@ -189,34 +189,6 @@ pub async fn reconnect_offline(server: &AdbServer) -> AppResult<()> {
     Ok(())
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum RebootMode {
-    System,
-    Recovery,
-    Bootloader,
-    Sideload,
-}
-
-impl RebootMode {
-    fn service(self) -> &'static str {
-        match self {
-            Self::System => "reboot:",
-            Self::Recovery => "reboot:recovery",
-            Self::Bootloader => "reboot:bootloader",
-            Self::Sideload => "reboot:sideload",
-        }
-    }
-}
-
-pub async fn reboot(server: &AdbServer, serial: &str, mode: RebootMode) -> AppResult<()> {
-    let mut stream = server.open_device(serial, mode.service()).await?;
-    // adbd closes the stream once it starts rebooting.
-    let mut sink = Vec::new();
-    let _ = stream.read_to_end(&mut sink).await;
-    Ok(())
-}
-
 /// Puts a USB device's adbd into TCP mode (`adb tcpip <port>`).
 pub async fn tcpip(server: &AdbServer, serial: &str, port: u16) -> AppResult<()> {
     let mut stream = server.open_device(serial, &format!("tcpip:{port}")).await?;
