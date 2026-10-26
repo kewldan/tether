@@ -41,6 +41,11 @@ export interface TransferSpec {
 
 export interface Transfer extends TransferSpec {
   id: string;
+  /**
+   * Multi-file transfers get one row per file; rows started together share
+   * a batch id and are reported with one toast.
+   */
+  batch: string | null;
   name: string;
   /** Number of top-level sources beyond the first. */
   more: number;
@@ -185,28 +190,38 @@ export const useTransfers = create<TransfersState>()((set, get) => {
   return {
     items: [],
     enqueue: (spec) => {
-      const id = newId();
-      const first = spec.sources[0] ?? "";
-      const item: Transfer = {
-        ...spec,
-        id,
-        name:
-          spec.direction === "pull" ? basename(first) : localBasename(first),
-        more: Math.max(0, spec.sources.length - 1),
-        status: "queued",
-        bytes: 0,
-        totalBytes: 0,
-        filesDone: 0,
-        totalFiles: 0,
-        current: "",
-        speed: 0,
-        error: null,
-        summary: null,
-      };
-      set((s) => ({ items: [...s.items, item] }));
-      syncTask(item);
+      const nameOf = spec.direction === "pull" ? basename : localBasename;
+      // One row per top-level item, unless two share a name: then they go
+      // together so the backend can give them unique names at the target.
+      const names = spec.sources.map(nameOf);
+      const split =
+        spec.sources.length > 1 && new Set(names).size === names.length;
+      const batch = split ? newId() : null;
+      const specs = split
+        ? spec.sources.map((source) => ({ ...spec, sources: [source] }))
+        : [spec];
+      const items = specs.map(
+        (one): Transfer => ({
+          ...one,
+          id: newId(),
+          batch,
+          name: nameOf(one.sources[0] ?? ""),
+          more: Math.max(0, one.sources.length - 1),
+          status: "queued",
+          bytes: 0,
+          totalBytes: 0,
+          filesDone: 0,
+          totalFiles: 0,
+          current: "",
+          speed: 0,
+          error: null,
+          summary: null,
+        }),
+      );
+      set((s) => ({ items: [...s.items, ...items] }));
+      for (const item of items) syncTask(item);
       pump();
-      return id;
+      return items[0]?.id ?? "";
     },
     cancel: (id) => {
       const item = get().items.find((t) => t.id === id);
@@ -283,14 +298,29 @@ function syncTask(t: Transfer) {
   });
 }
 
-// Report finished transfers wherever the user is in the app.
+// Report finished transfers wherever the user is in the app: once per
+// batch, when its last row ends.
 onTransferFinished((tr) => {
+  const rows = tr.batch
+    ? useTransfers.getState().items.filter((x) => x.batch === tr.batch)
+    : [tr];
+  if (rows.some((x) => !isFinished(x))) return;
   const t = i18n.getFixedT(null, "files");
-  const name =
-    tr.more > 0 ? t("queue.more", { name: tr.name, count: tr.more }) : tr.name;
-  if (tr.status === "done") {
-    const size = formatBytes(tr.summary?.bytes ?? 0);
-    const dest = tr.summary?.destinations[0];
+  const label = (list: Transfer[]) => {
+    const first = list[0] as Transfer;
+    const more = list.length - 1 + list.reduce((n, x) => n + x.more, 0);
+    return more > 0
+      ? t("queue.more", { name: first.name, count: more })
+      : first.name;
+  };
+  const done = rows.filter((x) => x.status === "done");
+  const failed = rows.filter((x) => x.status === "failed");
+  if (done.length > 0) {
+    const name = label(done);
+    const size = formatBytes(
+      done.reduce((sum, x) => sum + (x.summary?.bytes ?? 0), 0),
+    );
+    const dest = done[0]?.summary?.destinations[0];
     if (tr.direction === "pull") {
       toast.success(t("toast.downloaded", { name, size }), {
         action: dest
@@ -300,12 +330,14 @@ onTransferFinished((tr) => {
     } else {
       toast.success(t("toast.uploaded", { name, size, path: tr.target }));
     }
-  } else if (tr.status === "failed") {
+  }
+  if (failed.length > 0) {
+    const name = label(failed);
     toast.error(
       tr.direction === "pull"
         ? t("toast.downloadFailed", { name })
         : t("toast.uploadFailed", { name }),
-      { description: tr.error?.message },
+      { description: failed[0]?.error?.message },
     );
   }
 });
