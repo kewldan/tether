@@ -14,6 +14,7 @@ import {
   resizeShell,
   writeShell,
 } from "@/features/shell/api";
+import { ScreenLine } from "@/features/shell/screenLine";
 import { useShellStore } from "@/features/shell/store";
 import { hasMod } from "@/lib/platform";
 
@@ -26,7 +27,7 @@ class ShellSession {
   readonly term: Terminal;
   readonly el: HTMLDivElement;
   private readonly fit = new FitAddon();
-  private readonly tracker = new LineTracker();
+  private readonly tracker: LineTracker;
   private backendId: number | null = null;
   private v2 = true;
   private opened = false;
@@ -51,6 +52,7 @@ class ShellSession {
       macOptionIsMeta: true,
       theme: readTheme(),
     });
+    this.tracker = new LineTracker(new ScreenLine(this.term));
     this.term.loadAddon(this.fit);
     this.term.loadAddon(
       new WebLinksAddon((_event, uri) => {

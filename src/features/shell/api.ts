@@ -89,31 +89,58 @@ export function snippetParts(
   return parts;
 }
 
+/** Where the line being edited can be read back from (the terminal). */
+export interface LineSource {
+  /** Called on the first key of a line: remember where the input starts. */
+  mark(): void;
+  /** The line as the shell shows it now, without the prompt; null if unsure. */
+  read(): string | null;
+}
+
 /**
  * Tracks what the user types to record commands for the history panel.
- * Arrow keys, Tab completion and other escape sequences make the line
- * unknowable (the device shell edits it), so such lines are skipped.
+ * Arrow keys, Tab completion and other control keys let the device shell
+ * edit the line, so such lines are read back from the screen when Enter is
+ * pressed (see `screenLine.ts`).
  */
 export class LineTracker {
   private line = "";
   private dirty = false;
+  /** The next key starts a new line. */
+  private fresh = true;
+
+  /**
+   * `screen` reads lines the shell edited (history, completion) off the
+   * terminal; without it such lines are skipped.
+   */
+  constructor(private readonly screen: LineSource | null = null) {}
 
   /** Feeds xterm `onData`; returns the commands completed by it. */
   feed(data: string): string[] {
     const done: string[] = [];
     for (let i = 0; i < data.length; i++) {
       const ch = data[i] ?? "";
+      if (this.fresh) {
+        this.fresh = false;
+        this.screen?.mark();
+      }
       if (ch === "\r" || ch === "\n") {
-        const cmd = this.line.trim();
-        if (cmd && !this.dirty) done.push(cmd);
+        // A line typed key by key is known exactly; one the shell edited
+        // is read back from the screen.
+        const cmd = this.dirty
+          ? (this.screen?.read()?.trim() ?? "")
+          : this.line.trim();
+        if (cmd) done.push(cmd);
         this.line = "";
         this.dirty = false;
+        this.fresh = true;
       } else if (ch === "\x7f" || ch === "\b") {
         this.line = this.line.slice(0, -1);
       } else if (ch === "\x03" || ch === "\x15") {
         // Ctrl+C / Ctrl+U drop the line.
         this.line = "";
         this.dirty = false;
+        this.fresh = true;
       } else if (ch === "\x1b") {
         this.dirty = true;
         // Skip the rest of a CSI/SS3 sequence.
