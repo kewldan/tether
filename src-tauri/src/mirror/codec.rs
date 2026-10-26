@@ -168,6 +168,177 @@ pub fn av1_config(config: &[u8]) -> DecoderConfig {
     }
 }
 
+/// Builds an `HEVCDecoderConfigurationRecord` (`hvcC`, ISO/IEC 14496-15
+/// §8.3.3) from an H.265 config packet (VPS + SPS + PPS, Annex-B), for
+/// muxing into MP4. Samples then carry 4-byte NAL lengths.
+pub fn hevc_record(config: &[u8]) -> Option<Vec<u8>> {
+    let units = nal_units(config);
+    let of_type = |t: u8| -> Vec<&[u8]> {
+        units
+            .iter()
+            .copied()
+            .filter(|u| u.len() > 2 && (u[0] >> 1) & 0x3F == t)
+            .collect()
+    };
+    let (vps, sps, pps) = (of_type(32), of_type(33), of_type(34));
+    let first = sps.first()?;
+    let rbsp = remove_emulation_prevention(&first[2..]);
+    if rbsp.len() < 13 {
+        return None;
+    }
+    let mut r = BitReader::new(&rbsp);
+    r.skip(4)?; // sps_video_parameter_set_id
+    let sub_layers = r.bits(3)? as usize; // sps_max_sub_layers_minus1
+    let nested = r.bits(1)? as u8;
+    r.skip(96)?; // general profile_tier_level, copied byte-wise below
+    let mut present = [(false, false); 8];
+    for p in present.iter_mut().take(sub_layers) {
+        *p = (r.bits(1)? == 1, r.bits(1)? == 1);
+    }
+    if sub_layers > 0 {
+        r.skip(2 * (8 - sub_layers))?;
+    }
+    for &(profile, level) in present.iter().take(sub_layers) {
+        if profile {
+            r.skip(88)?;
+        }
+        if level {
+            r.skip(8)?;
+        }
+    }
+    r.ue()?; // sps_seq_parameter_set_id
+    let chroma = r.ue()?;
+    if chroma == 3 {
+        r.skip(1)?; // separate_colour_plane_flag
+    }
+    r.ue()?; // pic_width_in_luma_samples
+    r.ue()?; // pic_height_in_luma_samples
+    if r.bits(1)? == 1 {
+        for _ in 0..4 {
+            r.ue()?; // conformance window offsets
+        }
+    }
+    let luma = r.ue()?;
+    let chroma_depth = r.ue()?;
+    if chroma > 3 || luma > 7 || chroma_depth > 7 {
+        return None;
+    }
+
+    let mut out = vec![1];
+    out.extend_from_slice(&rbsp[1..13]); // profile, compat, constraints, level
+    out.extend_from_slice(&[
+        0xF0, // min_spatial_segmentation_idc = 0
+        0x00,
+        0xFC,                      // parallelismType = 0
+        0xFC | chroma as u8,       // chromaFormat
+        0xF8 | luma as u8,         // bitDepthLumaMinus8
+        0xF8 | chroma_depth as u8, // bitDepthChromaMinus8
+        0x00,                      // avgFrameRate = unknown
+        0x00,
+        // constantFrameRate 0, numTemporalLayers, temporalIdNested,
+        // lengthSizeMinusOne = 3.
+        ((sub_layers as u8 + 1) << 3) | (nested << 2) | 3,
+    ]);
+    let arrays: Vec<(u8, &Vec<&[u8]>)> = [(32, &vps), (33, &sps), (34, &pps)]
+        .into_iter()
+        .filter(|(_, units)| !units.is_empty())
+        .collect();
+    out.push(arrays.len() as u8);
+    for (kind, units) in arrays {
+        out.push(0x80 | kind); // array_completeness = 1
+        out.extend_from_slice(&(units.len() as u16).to_be_bytes());
+        for unit in units {
+            out.extend_from_slice(&(unit.len() as u16).to_be_bytes());
+            out.extend_from_slice(unit);
+        }
+    }
+    Some(out)
+}
+
+/// Drops temporal delimiter OBUs from an AV1 temporal unit: the AV1
+/// ISOBMFF binding (§2.4) keeps them out of samples. Data whose OBUs carry
+/// no size field is returned unchanged.
+pub fn av1_sample(data: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(data.len());
+    let mut at = 0;
+    while at < data.len() {
+        let header = data[at];
+        let kind = (header >> 3) & 0x0F;
+        let extension = header & 0x04 != 0;
+        if header & 0x02 == 0 {
+            return data.to_vec();
+        }
+        let mut p = at + 1 + usize::from(extension);
+        let mut size = 0usize;
+        let mut shift = 0;
+        loop {
+            let Some(&byte) = data.get(p) else {
+                return data.to_vec();
+            };
+            p += 1;
+            size |= usize::from(byte & 0x7F) << shift;
+            shift += 7;
+            if byte & 0x80 == 0 {
+                break;
+            }
+            if shift > 56 {
+                return data.to_vec();
+            }
+        }
+        let end = p.saturating_add(size);
+        if end > data.len() {
+            return data.to_vec();
+        }
+        if kind != 2 {
+            out.extend_from_slice(&data[at..end]);
+        }
+        at = end;
+    }
+    out
+}
+
+/// MSB-first bit reader for RBSP fields.
+struct BitReader<'a> {
+    data: &'a [u8],
+    pos: usize,
+}
+
+impl<'a> BitReader<'a> {
+    fn new(data: &'a [u8]) -> Self {
+        Self { data, pos: 0 }
+    }
+
+    fn bits(&mut self, n: usize) -> Option<u64> {
+        let mut v = 0;
+        for _ in 0..n {
+            let byte = *self.data.get(self.pos / 8)?;
+            v = (v << 1) | u64::from((byte >> (7 - self.pos % 8)) & 1);
+            self.pos += 1;
+        }
+        Some(v)
+    }
+
+    fn skip(&mut self, n: usize) -> Option<()> {
+        if self.pos + n > self.data.len() * 8 {
+            return None;
+        }
+        self.pos += n;
+        Some(())
+    }
+
+    /// Exp-Golomb `ue(v)`.
+    fn ue(&mut self) -> Option<u64> {
+        let mut zeros = 0;
+        while self.bits(1)? == 0 {
+            zeros += 1;
+            if zeros > 31 {
+                return None;
+            }
+        }
+        Some((1 << zeros) - 1 + self.bits(zeros)?)
+    }
+}
+
 /// Drops the `0x03` of every `00 00 03` sequence (H.264/H.265 RBSP).
 fn remove_emulation_prevention(data: &[u8]) -> Vec<u8> {
     let mut out = Vec::with_capacity(data.len());
@@ -272,6 +443,77 @@ mod tests {
         assert_eq!(c.codec, "av01.1.13H.10");
         let c = av1_config(&[0x0A, 0x0B]);
         assert!(c.inband_config && c.description.is_empty());
+    }
+
+    #[test]
+    fn hvcc_from_real_config() {
+        // H.265 config packet from the Android 16 emulator
+        // (c2.android.hevc.encoder, Main profile, level 3.1, 228x512).
+        let vps: &[u8] = &[
+            0x40, 0x01, 0x0C, 0x01, 0xFF, 0xFF, 0x01, 0x40, 0x00, 0x00, 0x03, 0x00, 0xA0, 0x00,
+            0x00, 0x03, 0x00, 0x00, 0x03, 0x00, 0x5D, 0x1B, 0x02, 0x40,
+        ];
+        let sps: &[u8] = &[
+            0x42, 0x01, 0x01, 0x01, 0x40, 0x00, 0x00, 0x03, 0x00, 0xA0, 0x00, 0x00, 0x03, 0x00,
+            0x00, 0x03, 0x00, 0x5D, 0xA0, 0x1D, 0x20, 0x08, 0x07, 0x7E, 0x71, 0xB9, 0x24, 0x22,
+            0x4B, 0x9A, 0x82, 0x80, 0x83, 0x08, 0x40,
+        ];
+        let pps: &[u8] = &[0x44, 0x01, 0xC0, 0x18, 0xC3, 0x09, 0x30, 0x33, 0x24];
+        let record = hevc_record(&annexb(&[vps, sps, pps])).unwrap();
+
+        let mut expected = vec![
+            1,    // configurationVersion
+            0x01, // space 0, main tier, Main profile
+            0x40, 0x00, 0x00, 0x00, // compatibility: Main
+            0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, // progressive, frame only
+            0x5D, // level 3.1
+            0xF0, 0x00, 0xFC, //
+            0xFD, // 4:2:0
+            0xF8, 0xF8, // 8-bit
+            0x00, 0x00, //
+            0x0F, // 1 temporal layer, nested, 4-byte lengths
+            3,    // arrays
+        ];
+        for (kind, unit) in [(32u8, vps), (33, sps), (34, pps)] {
+            expected.push(0x80 | kind);
+            expected.extend_from_slice(&1u16.to_be_bytes());
+            expected.extend_from_slice(&(unit.len() as u16).to_be_bytes());
+            expected.extend_from_slice(unit);
+        }
+        assert_eq!(record, expected);
+        // Same SPS fields as the WebCodecs string.
+        assert_eq!(
+            h265_config(&annexb(&[vps, sps, pps])).unwrap().codec,
+            "hvc1.1.2.L93.A0"
+        );
+        assert!(hevc_record(&annexb(&[vps, pps])).is_none());
+    }
+
+    #[test]
+    fn av1_samples_lose_temporal_delimiters() {
+        // TD (type 2, size 0), sequence header (type 1, 2 bytes), frame
+        // (type 6, 3 bytes) with an extension byte.
+        let tu = [
+            0x12, 0x00, 0x0A, 0x02, 0xAA, 0xBB, 0x36, 0x00, 0x03, 1, 2, 3,
+        ];
+        assert_eq!(
+            av1_sample(&tu),
+            [0x0A, 0x02, 0xAA, 0xBB, 0x36, 0x00, 0x03, 1, 2, 3]
+        );
+        // No size field: left alone.
+        assert_eq!(av1_sample(&[0x30, 1, 2]), [0x30, 1, 2]);
+        // Truncated: left alone.
+        assert_eq!(av1_sample(&[0x0A, 0x05, 1]), [0x0A, 0x05, 1]);
+    }
+
+    #[test]
+    fn exp_golomb() {
+        // 1 → 0, 010 → 1, 011 → 2, 00100 → 3, 00111 → 6.
+        let data = [0b1010_0110, 0b0100_0011, 0b1000_0000];
+        let mut r = BitReader::new(&data);
+        let values: Vec<_> = (0..5).map(|_| r.ue().unwrap()).collect();
+        assert_eq!(values, [0, 1, 2, 3, 6]);
+        assert!(BitReader::new(&[0, 0]).ue().is_none());
     }
 
     #[test]

@@ -7,19 +7,26 @@
 //! `adb forward`/`reverse` rules are created). The wire protocol of the
 //! pinned version (`doc/develop.md` of scrcpy v5.0.1) lives in [`protocol`]
 //! and [`control`]; [`codec`] turns the H.264/H.265/AV1 config packets into
-//! what WebCodecs wants; [`session`] wires it all together.
+//! what WebCodecs wants; [`session`] wires it all together; [`record`] and
+//! [`mp4`] save the stream to a file without re-encoding.
 
 pub mod codec;
 pub mod control;
+pub mod mp4;
 pub mod protocol;
 pub mod push;
+pub mod record;
 pub mod session;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use tauri::async_runtime::JoinHandle;
+use tauri::ipc::{Channel, InvokeResponseBody};
 use tokio::sync::mpsc::UnboundedSender;
+
+use record::Tap;
+use session::{MirrorEvent, MirrorInfo, MirrorOptions};
 
 /// Version of the bundled server; the server refuses any other client
 /// version, so it is passed as the first argument.
@@ -43,11 +50,30 @@ pub struct MirrorState {
     pub starting: tokio::sync::Mutex<()>,
 }
 
+/// The window currently showing a session and its channels.
+pub struct Viewer {
+    pub window: String,
+    pub video: Channel<InvokeResponseBody>,
+    pub events: Channel<MirrorEvent>,
+}
+
+/// Swapped when the session moves between windows (pop-out and back);
+/// `None` while nobody watches (recording in the background, or the
+/// short grace period after a view goes away).
+pub type ViewerSlot = Arc<Mutex<Option<Viewer>>>;
+
 pub struct SessionHandle {
     /// Distinguishes a session from its replacement for the same serial.
     pub id: u64,
+    pub info: MirrorInfo,
+    pub options: MirrorOptions,
     /// Encoded control messages for the control socket.
     pub control: UnboundedSender<Vec<u8>>,
+    pub viewer: ViewerSlot,
+    /// Stream cache and recorder.
+    pub tap: Arc<Tap>,
+    /// Label of the pop-out window holding this session, if any.
+    pub popout: Option<String>,
     /// The supervisor task; aborting it closes every socket, which makes
     /// the server exit on the device.
     pub task: JoinHandle<()>,

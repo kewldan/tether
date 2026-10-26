@@ -18,6 +18,7 @@ use super::codec::{self, DecoderConfig};
 use super::protocol::{
     self, DeviceMessage, HEADER_LEN, Header, StreamStart, VideoCodec, record, write_record,
 };
+use super::record::Tap;
 use super::{SCRCPY_VERSION, SERVER_DEVICE_PATH, push};
 use crate::adb::server::AdbServer;
 use crate::error::{AppError, AppResult};
@@ -31,7 +32,7 @@ const MAX_BATCH: usize = 4 * 1024 * 1024;
 /// Server output kept for error messages.
 const LOG_LIMIT: usize = 16 * 1024;
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MirrorOptions {
     pub video_codec: VideoCodec,
@@ -68,6 +69,8 @@ pub enum MirrorEvent {
     AudioDisabled,
     /// The session ended on its own (device gone, server exited, error).
     Stopped { error: Option<AppError> },
+    /// Another window took the session over (pop-out or back).
+    Detached,
 }
 
 pub type DataSink = Arc<dyn Fn(Vec<u8>) + Send + Sync>;
@@ -135,6 +138,7 @@ type Log = Arc<Mutex<String>>;
 
 /// Pushes and starts the server, connects all sockets and returns once the
 /// video stream is announced. Errors carry the server's own message.
+#[allow(clippy::too_many_arguments)]
 pub async fn start(
     server: AdbServer,
     serial: &str,
@@ -143,6 +147,7 @@ pub async fn start(
     options: &MirrorOptions,
     on_data: DataSink,
     on_event: EventSink,
+    tap: Arc<Tap>,
 ) -> AppResult<Running> {
     push::push(&server, serial, jar, SERVER_DEVICE_PATH, 0o644).await?;
 
@@ -209,7 +214,7 @@ pub async fn start(
             }
         };
         let result = tokio::select! {
-            r = video_loop(video, codec, &on_data) => r,
+            r = video_loop(video, codec, &on_data, &tap) => r,
             r = audio_loop => r,
             r = control_writer(control_write, control_rx) => r,
             r = control_reader(control_read, &on_event) => r,
@@ -336,6 +341,7 @@ pub async fn video_loop<R: AsyncRead + Unpin>(
     stream: R,
     codec: VideoCodec,
     on_data: &DataSink,
+    tap: &Tap,
 ) -> AppResult<()> {
     let mut reader = BufReader::with_capacity(1 << 20, stream);
     let mut converter = VideoConverter::new(codec);
@@ -346,7 +352,9 @@ pub async fn video_loop<R: AsyncRead + Unpin>(
             // Mapped to the server's explanation by `start`.
             return Err(std::io::Error::from(std::io::ErrorKind::UnexpectedEof).into());
         };
+        let start = batch.len();
         converter.convert(header, &payload, &mut batch)?;
+        tap.observe(header, &payload, &batch[start..]);
         let flush =
             batch.len() >= MAX_BATCH || protocol::buffered_packet_len(reader.buffer()).is_none();
         if flush && !batch.is_empty() {
@@ -556,7 +564,7 @@ mod tests {
         let batches = Arc::new(Mutex::new(Vec::<Vec<u8>>::new()));
         let sink_batches = batches.clone();
         let sink: DataSink = Arc::new(move |b| lock(&sink_batches).push(b));
-        let err = video_loop(&stream[..], VideoCodec::H264, &sink)
+        let err = video_loop(&stream[..], VideoCodec::H264, &sink, &Tap::default())
             .await
             .unwrap_err();
         assert!(matches!(err, AppError::Io(_)));

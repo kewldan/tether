@@ -152,6 +152,11 @@ pub fn run() {
             commands::sideload::sideload_inspect,
             commands::sideload::sideload_start,
             commands::sideload::sideload_cancel,
+            commands::mirror::mirror_attach,
+            commands::mirror::mirror_popout,
+            commands::mirror::mirror_popout_close,
+            commands::mirror::mirror_record_start,
+            commands::mirror::mirror_record_stop,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
