@@ -2,6 +2,7 @@ import {
   type RefObject,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -18,7 +19,11 @@ import {
   startMirror,
   stopMirror,
 } from "@/features/mirror/api";
-import { PcmPlayer } from "@/features/mirror/audio";
+import {
+  type AudioPlayer,
+  createAudioPlayer,
+  preferredAudioCodec,
+} from "@/features/mirror/audio";
 import { hasWebCodecs, VideoPipeline } from "@/features/mirror/decoder";
 import { streamOptions, useMirrorSettings } from "@/features/mirror/store";
 import type { AppError } from "@/lib/tauri";
@@ -71,8 +76,9 @@ export function useMirrorSession(
   mode: SessionMode = "start",
 ) {
   const { t } = useTranslation("mirror");
+  // The audio codec is filled in at start (it depends on the web view).
   const settingsKey = useMirrorSettings((s) =>
-    JSON.stringify(streamOptions(s)),
+    JSON.stringify(streamOptions(s, "opus")),
   );
   // Attached views show the stream as it is; settings belong to its owner.
   const optionsKey = mode === "attach" ? "" : settingsKey;
@@ -82,8 +88,15 @@ export function useMirrorSession(
   const [info, setInfo] = useState<MirrorInfo | null>(null);
   const [size, setSize] = useState<VideoSize | null>(null);
   const [stats, setStats] = useState({ fps: 0, mbps: 0 });
-  const audioRef = useRef<PcmPlayer | null>(null);
+  const audioRef = useRef<AudioPlayer | null>(null);
   const lastClipboard = useRef<string | null>(null);
+
+  // Each device's first session in a run starts from the saved defaults;
+  // switched before the session effect below reads the settings.
+  const activate = useMirrorSettings((s) => s.activate);
+  useLayoutEffect(() => {
+    if (serial && mode === "start") activate(serial);
+  }, [serial, mode, activate]);
 
   const control = useCallback(
     (message: ControlMessage) => {
@@ -108,16 +121,18 @@ export function useMirrorSession(
       return;
     }
 
-    // Attached views only need to know whether the stream carries audio.
-    const options: MirrorOptions = optionsKey
-      ? JSON.parse(optionsKey)
-      : streamOptions(useMirrorSettings.getState());
     let cancelled = false;
     let sessionId: number | undefined;
     setStatus({ kind: "connecting" });
 
-    const audio = options.audio ? new PcmPlayer() : null;
-    audioRef.current = audio;
+    // Audio is announced by the stream itself (also to attached views).
+    let audio: AudioPlayer | null = null;
+    const audioFailed = () => {
+      audio?.close();
+      audio = null;
+      audioRef.current = null;
+      if (!cancelled) toast(t("audioPlaybackFailed"));
+    };
     const fail = (reason: "codec" | "decode", message: string) => {
       if (cancelled) return;
       setStatus({
@@ -144,7 +159,14 @@ export function useMirrorSession(
         e.kind === "unsupported"
           ? fail("codec", e.codec)
           : fail("decode", e.message),
-      onAudio: (pcm) => audio?.push(pcm),
+      onAudioConfig: (codec, description) => {
+        audio?.close();
+        audio = createAudioPlayer(codec, description, audioFailed);
+        audioRef.current = audio;
+        if (audio) audio.resume();
+        else audioFailed();
+      },
+      onAudio: (pts, data) => audio?.push(pts, data),
       requestKeyFrame: () => {
         sendControl(serial, { type: "resetVideo" }).catch(() => {});
       },
@@ -157,14 +179,18 @@ export function useMirrorSession(
     }, 1000);
 
     const timer = setTimeout(
-      () => {
+      async () => {
         const onVideo = (batch: ArrayBuffer) => pipeline.push(batch);
-        const open =
-          mode === "attach"
-            ? (onEvent: (e: MirrorEvent) => void) =>
-                attachMirror(serial, onVideo, onEvent)
-            : (onEvent: (e: MirrorEvent) => void) =>
-                startMirror(serial, options, onVideo, onEvent);
+        let open = (onEvent: (e: MirrorEvent) => void) =>
+          attachMirror(serial, onVideo, onEvent);
+        if (mode === "start") {
+          const options: MirrorOptions = {
+            ...JSON.parse(optionsKey),
+            audioCodec: await preferredAudioCodec(),
+          };
+          if (cancelled) return;
+          open = (onEvent) => startMirror(serial, options, onVideo, onEvent);
+        }
         open((event) => {
           if (cancelled) return;
           switch (event.type) {

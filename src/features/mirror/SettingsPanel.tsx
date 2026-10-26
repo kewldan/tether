@@ -1,6 +1,8 @@
 import { motion } from "motion/react";
-import { type ReactNode, useId } from "react";
+import { type ReactNode, useEffect, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
   Select,
@@ -12,6 +14,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import type { MirrorInfo, VideoCodec } from "@/features/mirror/api";
+import { canDecodeOpus } from "@/features/mirror/audio";
 import {
   formatTimer,
   type MirrorRecording,
@@ -22,6 +25,7 @@ import {
   CODECS,
   FRAME_RATES,
   MAX_SIZES,
+  samePrefs,
   useMirrorSettings,
 } from "@/features/mirror/store";
 import type { VideoSize } from "@/features/mirror/useMirrorSession";
@@ -202,6 +206,12 @@ export function SettingsPanel({
 }) {
   const { t } = useTranslation("mirror");
   const s = useMirrorSettings();
+  const isDefault = samePrefs(s, s.defaults);
+  // Without an Opus decoder the stream is raw PCM: heard, not recorded.
+  const [opus, setOpus] = useState<boolean | null>(null);
+  useEffect(() => {
+    void canDecodeOpus().then(setOpus);
+  }, []);
 
   const sizeLabel = (px: number) =>
     px === 0 ? t("settings.native") : t("settings.longSide", { px });
@@ -215,8 +225,10 @@ export function SettingsPanel({
         <span className="font-semibold">{t("settings.stream")}</span>
         <button
           type="button"
-          className="text-brand text-small focus-visible:outline-ring rounded-sm hover:underline focus-visible:outline-2"
-          onClick={s.resetStream}
+          title={t("settings.resetHint")}
+          disabled={isDefault}
+          className="text-brand text-small focus-visible:outline-ring rounded-sm hover:underline focus-visible:outline-2 disabled:pointer-events-none disabled:opacity-50"
+          onClick={s.resetToDefaults}
         >
           {t("settings.reset")}
         </button>
@@ -306,11 +318,33 @@ export function SettingsPanel({
       />
       <Toggle
         label={t("settings.audio")}
-        hint={audioAvailable ? undefined : t("settings.audioHint")}
+        hint={
+          !audioAvailable
+            ? t("settings.audioHint")
+            : opus === false && s.audio
+              ? t("settings.audioNotRecorded")
+              : undefined
+        }
         checked={s.audio && audioAvailable}
         disabled={!audioAvailable}
         onChange={(audio) => s.set({ audio })}
       />
+      <div className="flex flex-col gap-1.5">
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={isDefault}
+          onClick={() => {
+            s.saveAsDefaults();
+            toast.success(t("settings.savedAsDefault"));
+          }}
+        >
+          {t("settings.saveAsDefault")}
+        </Button>
+        <span className="text-muted-foreground text-caption">
+          {isDefault ? t("settings.usingDefaults") : t("settings.defaultHint")}
+        </span>
+      </div>
 
       <div className="bg-border h-px flex-none" />
       <RecordingSection recording={recording} />

@@ -8,6 +8,7 @@ export const RECORD = {
   videoConfig: 2,
   videoFrame: 3,
   audio: 4,
+  audioConfig: 5,
 } as const;
 
 export const FLAG_KEY = 1;
@@ -17,7 +18,9 @@ export type MirrorRecord =
   | { kind: "session"; width: number; height: number }
   | { kind: "config"; codec: string; description: Uint8Array }
   | { kind: "frame"; key: boolean; pts: number; data: Uint8Array }
-  | { kind: "audio"; pts: number; data: Uint8Array };
+  | { kind: "audio"; pts: number; data: Uint8Array }
+  /** `opus` (description: the OpusHead) or `pcm-s16` (s16le stereo 48 kHz). */
+  | { kind: "audioConfig"; codec: string; description: Uint8Array };
 
 export function* parseRecords(buffer: ArrayBuffer): Generator<MirrorRecord> {
   const view = new DataView(buffer);
@@ -39,10 +42,11 @@ export function* parseRecords(buffer: ArrayBuffer): Generator<MirrorRecord> {
           height: view.getUint32(start + 4),
         };
         break;
-      case RECORD.videoConfig: {
+      case RECORD.videoConfig:
+      case RECORD.audioConfig: {
         const n = data[0] ?? 0;
         yield {
-          kind: "config",
+          kind: kind === RECORD.videoConfig ? "config" : "audioConfig",
           codec: new TextDecoder().decode(data.subarray(1, 1 + n)),
           description: data.subarray(1 + n),
         };

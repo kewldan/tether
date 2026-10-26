@@ -56,6 +56,49 @@ impl VideoCodec {
 
 /// `raw` audio: 16-bit little-endian interleaved stereo PCM at 48 kHz.
 pub const AUDIO_CODEC_RAW: u32 = 0x0072_6177;
+/// `opus` audio: one Opus packet per media packet, 48 kHz stereo; the
+/// config packet is the `OpusHead` (RFC 7845) the server extracts.
+pub const AUDIO_CODEC_OPUS: u32 = 0x6F70_7573;
+
+/// Audio the server is asked for. Opus is decoded in the webview (WebCodecs
+/// `AudioDecoder`) and muxed into recordings; raw PCM is the fallback for
+/// web views without an Opus decoder (live playback only).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum AudioCodec {
+    #[default]
+    Opus,
+    Raw,
+}
+
+impl AudioCodec {
+    /// Value of the `audio_codec=` server option.
+    pub fn option(self) -> &'static str {
+        match self {
+            Self::Opus => "opus",
+            Self::Raw => "raw",
+        }
+    }
+
+    pub fn id(self) -> u32 {
+        match self {
+            Self::Opus => AUDIO_CODEC_OPUS,
+            Self::Raw => AUDIO_CODEC_RAW,
+        }
+    }
+
+    pub fn from_id(id: u32) -> Option<Self> {
+        [Self::Opus, Self::Raw].into_iter().find(|c| c.id() == id)
+    }
+
+    /// Codec string of the `AUDIO_CONFIG` record (WebCodecs naming).
+    pub fn record_name(self) -> &'static str {
+        match self {
+            Self::Opus => "opus",
+            Self::Raw => "pcm-s16",
+        }
+    }
+}
 
 /// What the server writes instead of a codec id when a stream is unusable.
 #[derive(Debug, PartialEq, Eq)]
@@ -178,8 +221,12 @@ pub mod record {
     pub const VIDEO_CONFIG: u8 = 2;
     /// Payload: one encoded frame in the format announced by the config.
     pub const VIDEO_FRAME: u8 = 3;
-    /// Payload: raw PCM s16le stereo 48 kHz.
+    /// Payload: one audio packet in the format of the last audio config
+    /// (an Opus packet, or raw PCM s16le stereo 48 kHz).
     pub const AUDIO: u8 = 4;
+    /// Payload: codec string length u8, codec string (`opus` or
+    /// `pcm-s16`), decoder description (the `OpusHead`, empty for PCM).
+    pub const AUDIO_CONFIG: u8 = 5;
 
     pub const FLAG_KEY: u8 = 1;
 }
@@ -266,6 +313,13 @@ mod tests {
         assert_eq!(&VideoCodec::H265.id().to_be_bytes(), b"h265");
         assert_eq!(&VideoCodec::Av1.id().to_be_bytes(), b"\0av1");
         assert_eq!(&AUDIO_CODEC_RAW.to_be_bytes(), b"\0raw");
+        assert_eq!(&AUDIO_CODEC_OPUS.to_be_bytes(), b"opus");
+        assert_eq!(
+            AudioCodec::from_id(AUDIO_CODEC_OPUS),
+            Some(AudioCodec::Opus)
+        );
+        assert_eq!(AudioCodec::from_id(AUDIO_CODEC_RAW), Some(AudioCodec::Raw));
+        assert_eq!(AudioCodec::from_id(0x0061_6163), None); // aac
         assert_eq!(
             parse_stream_start(0x6832_3634, VideoCodec::from_id),
             StreamStart::Codec(VideoCodec::H264)

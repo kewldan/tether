@@ -32,7 +32,7 @@ import {
 import { hasMod } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 
-/** Raw audio forwarding needs Android 11 (SDK 30). */
+/** Audio capture needs Android 11 (SDK 30). */
 const AUDIO_MIN_SDK = 30;
 
 const PROBE_CODECS: Record<VideoCodec, string> = {

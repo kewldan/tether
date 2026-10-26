@@ -52,7 +52,13 @@
     "stayAwakeHint": "While plugged in",
     "audio": "Forward audio",
     "audioHint": "Needs Android 11 or newer",
-    "notStreaming": "Not streaming"
+    "notStreaming": "Not streaming",
+    "resetHint": "Back to your default settings",
+    "saveAsDefault": "Save as default",
+    "savedAsDefault": "New mirroring sessions will start with these settings",
+    "defaultHint": "Changes apply to this device until Tether restarts.",
+    "usingDefaults": "These are your default settings.",
+    "audioNotRecorded": "Recordings stay silent: this system can't decode Opus"
   },
   "state": {
     "connecting": "Starting scrcpy on {{name}}…",
@@ -111,5 +117,16 @@
     "close": "Close",
     "connecting": "Connecting…",
     "detached": "The main window shows this device now."
+  },
+  "audioPlaybackFailed": "Couldn't play the device audio here; mirroring continues without sound.",
+  "defaults": {
+    "title": "Mirroring",
+    "bitrateDesc": "Higher looks sharper over USB; lower it for Wi-Fi.",
+    "codecDesc": "H.264 works on every device; H.265 and AV1 need a hardware encoder.",
+    "audioDesc": "Plays the device sound and adds it to recordings. Needs Android 11 or newer.",
+    "screenOffDesc": "Mirroring keeps working while the device display is off.",
+    "reset": "Reset to defaults",
+    "resetDesc": "Restores Tether's original mirroring settings.",
+    "resetButton": "Reset"
   }
 }

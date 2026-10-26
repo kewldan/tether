@@ -8,11 +8,13 @@
 //! pinned version (`doc/develop.md` of scrcpy v5.0.1) lives in [`protocol`]
 //! and [`control`]; [`codec`] turns the H.264/H.265/AV1 config packets into
 //! what WebCodecs wants; [`session`] wires it all together; [`record`] and
-//! [`mp4`] save the stream to a file without re-encoding.
+//! [`mp4`] save the stream (video plus Opus audio, see [`opus`]) to a file
+//! without re-encoding.
 
 pub mod codec;
 pub mod control;
 pub mod mp4;
+pub mod opus;
 pub mod protocol;
 pub mod push;
 pub mod record;

@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 
 use adb_gui_lib::adb::server::AdbServer;
 use adb_gui_lib::mirror::control::{ControlMessage, KeyAction, Position, TouchAction};
-use adb_gui_lib::mirror::protocol::{VideoCodec, record};
+use adb_gui_lib::mirror::protocol::{AudioCodec, VideoCodec, record};
 use adb_gui_lib::mirror::record::{Recorder, Tap};
 use adb_gui_lib::mirror::session::{self, MirrorEvent, MirrorOptions, Running};
 
@@ -34,6 +34,11 @@ struct Collected {
     frames: usize,
     key_frames: usize,
     audio_bytes: usize,
+    /// (pts, size) of each audio packet.
+    audio_packets: Vec<(u64, usize)>,
+    audio_configs: Vec<(String, Vec<u8>)>,
+    /// PTS of the first video frame.
+    first_video_pts: Option<u64>,
     first_frame: Option<Instant>,
     first_key: Option<Vec<u8>>,
     events: Vec<String>,
@@ -63,13 +68,29 @@ fn parse(batch: &[u8], c: &mut Collected) {
             record::VIDEO_FRAME => {
                 c.frames += 1;
                 c.first_frame.get_or_insert_with(Instant::now);
+                c.first_video_pts.get_or_insert(u64::from_be_bytes(
+                    batch[at + 8..at + 16].try_into().unwrap(),
+                ));
                 if flags & record::FLAG_KEY != 0 {
                     c.first_key
                         .get_or_insert_with(|| body[..body.len().min(160)].to_vec());
                     c.key_frames += 1;
                 }
             }
-            record::AUDIO => c.audio_bytes += len,
+            record::AUDIO => {
+                c.audio_bytes += len;
+                c.audio_packets.push((
+                    u64::from_be_bytes(batch[at + 8..at + 16].try_into().unwrap()),
+                    len,
+                ));
+            }
+            record::AUDIO_CONFIG => {
+                let n = body[0] as usize;
+                c.audio_configs.push((
+                    String::from_utf8(body[1..1 + n].to_vec()).unwrap(),
+                    body[1 + n..].to_vec(),
+                ));
+            }
             other => panic!("unknown record {other}"),
         }
         at += 16 + len;
@@ -117,6 +138,7 @@ fn options() -> MirrorOptions {
         video_bit_rate: 8_000_000,
         max_fps: 60,
         audio: false,
+        audio_codec: AudioCodec::Opus,
         show_touches: false,
         stay_awake: false,
     }
@@ -405,5 +427,158 @@ async fn records_mp4() {
         }
         // Let the server exit before the next codec.
         tokio::time::sleep(Duration::from_millis(500)).await;
+    }
+}
+
+/// Every stream of a file as ffprobe sees it after decoding all packets.
+fn ffprobe_streams(path: &std::path::Path) -> Option<String> {
+    let out = std::process::Command::new("ffprobe")
+        .args([
+            "-v",
+            "error",
+            "-count_frames",
+            "-show_entries",
+            "stream=index,codec_type,codec_name,channels,sample_rate,nb_read_frames,start_time,duration",
+            "-of",
+            "compact",
+        ])
+        .arg(path)
+        .output()
+        .ok()?;
+    assert!(
+        out.status.success(),
+        "ffprobe failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    Some(String::from_utf8_lossy(&out.stdout).into_owned())
+}
+
+/// Decodes the whole file with ffmpeg; returns its error lines and the
+/// mean volume of the audio.
+fn ffmpeg_decode(path: &std::path::Path) -> Option<(String, String)> {
+    let out = std::process::Command::new("ffmpeg")
+        .args(["-hide_banner", "-nostats", "-v", "info", "-i"])
+        .arg(path)
+        // Audio only: ffprobe already decoded the video, and the null
+        // muxer complains about variable-rate video timestamps.
+        .args(["-map", "0:a", "-af", "volumedetect", "-f", "null", "-"])
+        .output()
+        .ok()?;
+    let log = String::from_utf8_lossy(&out.stderr).into_owned();
+    let errors = log
+        .lines()
+        .filter(|l| l.contains("rror") || l.contains("nvalid"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let volume = log
+        .lines()
+        .find(|l| l.contains("mean_volume"))
+        .unwrap_or("")
+        .to_owned();
+    Some((errors, volume))
+}
+
+fn field(line: &str, name: &str) -> usize {
+    line.split('|')
+        .find_map(|f| f.strip_prefix(name))
+        .and_then(|n| n.parse().ok())
+        .unwrap_or(0)
+}
+
+/// Streams Opus audio next to the video, records both into one MP4 and
+/// checks with ffprobe/ffmpeg that the audio track decodes and lines up.
+#[tokio::test]
+#[ignore = "needs a device with Android 11+"]
+async fn records_mp4_with_opus_audio() {
+    let dir = tempfile::tempdir().unwrap();
+    let mut o = options();
+    o.audio = true;
+    o.audio_codec = AudioCodec::Opus;
+    let tap = Arc::new(Tap::default());
+    let (running, collected, _) = start_with(o, tap.clone()).await;
+    let control = running.control.clone();
+    let run = tokio::spawn(running.run);
+    let running = Running {
+        info: running.info,
+        control,
+        run: Box::pin(std::future::pending()),
+    };
+    tokio::time::sleep(Duration::from_millis(1500)).await;
+    {
+        let c = collected.lock().unwrap();
+        println!("audio configs {:02X?}", c.audio_configs);
+        println!("events {:?}", c.events);
+        assert_eq!(c.audio_configs.len(), 1, "{:?}", c.events);
+        assert_eq!(c.audio_configs[0].0, "opus");
+        assert_eq!(&c.audio_configs[0].1[..8], b"OpusHead");
+        let first_audio = c.audio_packets.first().map(|p| p.0).unwrap();
+        let first_video = c.first_video_pts.unwrap();
+        println!(
+            "{} audio packets, first audio pts {first_audio} µs, first video pts \
+             {first_video} µs (diff {} ms)",
+            c.audio_packets.len(),
+            (first_audio as i64 - first_video as i64) / 1000
+        );
+        let deltas: Vec<i64> = c
+            .audio_packets
+            .windows(2)
+            .take(8)
+            .map(|w| w[1].0 as i64 - w[0].0 as i64)
+            .collect();
+        println!("audio pts deltas {deltas:?}");
+        // Same clock: both started within a few seconds of each other.
+        assert!((first_audio as i64 - first_video as i64).abs() < 5_000_000);
+    }
+
+    let path = dir.path().join("opus.mp4");
+    let recorder = Recorder::start(
+        VideoCodec::H264,
+        path.clone(),
+        Box::new(|_| {}),
+        Box::new(|r| panic!("unexpected end: {r:?}")),
+    )
+    .unwrap();
+    tap.attach(recorder).unwrap();
+    send(&running, ControlMessage::ResetVideo);
+    let size = *collected.lock().unwrap().sessions.last().unwrap();
+    for _ in 0..2 {
+        swipe(&running, size, (0.5, 0.85), (0.5, 0.3)).await;
+        tokio::time::sleep(Duration::from_millis(900)).await;
+        swipe(&running, size, (0.5, 0.3), (0.5, 0.8)).await;
+        tokio::time::sleep(Duration::from_millis(900)).await;
+    }
+    let saved = tap.detach().unwrap().stop().await.unwrap();
+    run.abort();
+    println!("{saved:?}");
+    assert!(saved.summary.frames > 10, "{saved:?}");
+    // ~50 packets a second of 20 ms.
+    assert!(saved.summary.audio_packets > 100, "{saved:?}");
+
+    if let Some(probe) = ffprobe_streams(&path) {
+        println!("{probe}");
+        let audio = probe
+            .lines()
+            .find(|l| l.contains("codec_type=audio"))
+            .expect("no audio stream");
+        assert!(audio.contains("codec_name=opus"), "{audio}");
+        assert!(audio.contains("sample_rate=48000"), "{audio}");
+        assert!(audio.contains("channels=2"), "{audio}");
+        assert_eq!(
+            field(audio, "nb_read_frames="),
+            saved.summary.audio_packets,
+            "every packet decodes"
+        );
+        let video = probe
+            .lines()
+            .find(|l| l.contains("codec_type=video"))
+            .unwrap();
+        assert_eq!(field(video, "nb_read_frames="), saved.summary.frames);
+    }
+    if let Some((errors, volume)) = ffmpeg_decode(&path) {
+        println!("ffmpeg decode: {volume}");
+        assert!(errors.is_empty(), "{errors}");
+    }
+    if let Some(keep) = std::env::var_os("KEEP_RECORDINGS") {
+        std::fs::copy(&path, std::path::Path::new(&keep).join("opus.mp4")).unwrap();
     }
 }

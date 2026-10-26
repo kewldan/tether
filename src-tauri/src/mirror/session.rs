@@ -16,7 +16,8 @@ use tokio::task::JoinHandle;
 
 use super::codec::{self, DecoderConfig};
 use super::protocol::{
-    self, DeviceMessage, HEADER_LEN, Header, StreamStart, VideoCodec, record, write_record,
+    self, AudioCodec, DeviceMessage, HEADER_LEN, Header, StreamStart, VideoCodec, record,
+    write_record,
 };
 use super::record::Tap;
 use super::{SCRCPY_VERSION, SERVER_DEVICE_PATH, push};
@@ -42,8 +43,12 @@ pub struct MirrorOptions {
     pub video_bit_rate: u32,
     /// 0 means no limit.
     pub max_fps: u32,
-    /// Forward device audio (Android 11+) as raw PCM.
+    /// Forward device audio (Android 11+).
     pub audio: bool,
+    /// Opus where the webview can decode it (and recordings get an audio
+    /// track), raw PCM otherwise.
+    #[serde(default)]
+    pub audio_codec: AudioCodec,
     pub show_touches: bool,
     pub stay_awake: bool,
 }
@@ -111,7 +116,7 @@ pub fn server_command(scid: u32, o: &MirrorOptions) -> String {
         args.push(format!("max_fps={}", o.max_fps));
     }
     if o.audio {
-        args.push("audio_codec=raw".into());
+        args.push(format!("audio_codec={}", o.audio_codec.option()));
     }
     args.join(" ")
 }
@@ -209,7 +214,7 @@ pub async fn start(
     let run = async move {
         let audio_loop = async {
             match audio {
-                Some(stream) => audio_loop(stream, &on_data, &on_event).await,
+                Some(stream) => audio_loop(stream, &on_data, &on_event, &tap).await,
                 None => std::future::pending().await,
             }
         };
@@ -425,29 +430,66 @@ impl VideoConverter {
     }
 }
 
-/// Raw PCM audio; the codec id comes first, like on the video socket.
-async fn audio_loop(stream: TcpStream, on_data: &DataSink, on_event: &EventSink) -> AppResult<()> {
+/// The `AUDIO_CONFIG` record announcing `codec` to the frontend.
+fn audio_config_record(codec: AudioCodec, description: &[u8]) -> Vec<u8> {
+    let name = codec.record_name();
+    let mut body = Vec::with_capacity(1 + name.len() + description.len());
+    body.push(name.len() as u8);
+    body.extend_from_slice(name.as_bytes());
+    body.extend_from_slice(description);
+    let mut out = Vec::new();
+    write_record(&mut out, record::AUDIO_CONFIG, 0, 0, &body);
+    out
+}
+
+/// Audio packets; the codec id comes first, like on the video socket.
+/// Opus is announced with its config packet (the `OpusHead`), raw PCM at
+/// once. Opus packets also go to the tap for recording. When the device
+/// can't capture audio, video keeps going and the frontend is told.
+pub async fn audio_loop<R: AsyncRead + Unpin>(
+    stream: R,
+    on_data: &DataSink,
+    on_event: &EventSink,
+    tap: &Tap,
+) -> AppResult<()> {
     let mut reader = BufReader::with_capacity(256 * 1024, stream);
     let id = reader.read_u32().await?;
-    match protocol::parse_stream_start(id, |id| (id == protocol::AUDIO_CODEC_RAW).then_some(())) {
-        StreamStart::Codec(()) => {}
+    let codec = match protocol::parse_stream_start(id, AudioCodec::from_id) {
+        StreamStart::Codec(codec) => codec,
         StreamStart::Disabled | StreamStart::Error | StreamStart::Unknown(_) => {
             on_event(MirrorEvent::AudioDisabled);
             return std::future::pending().await;
         }
-    }
+    };
     let mut payload = Vec::new();
     let mut batch = Vec::new();
+    let mut announced = codec == AudioCodec::Raw;
+    if announced {
+        let config = audio_config_record(codec, &[]);
+        tap.audio_config(&config, None);
+        batch.extend_from_slice(&config);
+    }
     loop {
         let Some(header) = read_packet(&mut reader, &mut payload).await? else {
             on_event(MirrorEvent::AudioDisabled);
             return std::future::pending().await;
         };
-        if let Header::Media {
-            config: false, pts, ..
-        } = header
-        {
-            write_record(&mut batch, record::AUDIO, 0, pts, &payload);
+        match header {
+            Header::Media { config: true, .. } => {
+                let config = audio_config_record(codec, &payload);
+                let recordable =
+                    codec == AudioCodec::Opus && super::opus::parse_opus_head(&payload).is_some();
+                tap.audio_config(&config, recordable.then_some(&payload[..]));
+                batch.extend_from_slice(&config);
+                announced = true;
+            }
+            Header::Media { pts, .. } if announced => {
+                write_record(&mut batch, record::AUDIO, 0, pts, &payload);
+                if codec == AudioCodec::Opus {
+                    tap.audio_packet(pts, &payload);
+                }
+            }
+            _ => {}
         }
         if protocol::buffered_packet_len(reader.buffer()).is_none() && !batch.is_empty() {
             on_data(std::mem::take(&mut batch));
@@ -485,6 +527,7 @@ mod tests {
             video_bit_rate: 8_000_000,
             max_fps: 60,
             audio: false,
+            audio_codec: AudioCodec::Opus,
             show_touches: true,
             stay_awake: false,
         }
@@ -510,7 +553,9 @@ mod tests {
         let cmd = server_command(1, &o);
         assert!(cmd.contains("scid=00000001"));
         assert!(cmd.contains("video_codec=h265"));
-        assert!(cmd.ends_with("audio_codec=raw"));
+        assert!(cmd.ends_with("audio_codec=opus"));
+        o.audio_codec = AudioCodec::Raw;
+        assert!(server_command(1, &o).ends_with("audio_codec=raw"));
         assert!(!cmd.contains("max_size") && !cmd.contains("max_fps"));
     }
 
@@ -660,5 +705,66 @@ mod tests {
         )
         .unwrap();
         assert!(out.is_empty());
+    }
+
+    const OPUS_HEAD: [u8; 19] = [
+        b'O', b'p', b'u', b's', b'H', b'e', b'a', b'd', 1, 2, 0x38, 0x01, 0x80, 0xBB, 0, 0, 0, 0, 0,
+    ];
+
+    /// Runs the audio loop over `stream` until it parks; returns the
+    /// batches and events.
+    async fn run_audio(stream: Vec<u8>, tap: &Tap) -> (Vec<u8>, Vec<String>) {
+        let data = Arc::new(Mutex::new(Vec::new()));
+        let events = Arc::new(Mutex::new(Vec::new()));
+        let sink_data = data.clone();
+        let sink_events = events.clone();
+        let on_data: DataSink = Arc::new(move |b| lock(&sink_data).extend(b));
+        let on_event: EventSink = Arc::new(move |e| lock(&sink_events).push(format!("{e:?}")));
+        let run = audio_loop(&stream[..], &on_data, &on_event, tap);
+        // The loop parks forever once the stream ends.
+        let _ = tokio::time::timeout(Duration::from_millis(50), run).await;
+        let data = lock(&data).clone();
+        let events = lock(&events).clone();
+        (data, events)
+    }
+
+    #[tokio::test]
+    async fn opus_stream_is_announced_and_tapped() {
+        let mut stream = b"opus".to_vec();
+        stream.extend(packet(1 << 62, &OPUS_HEAD));
+        stream.extend(packet(1_000, &[0xFC, 1, 2]));
+        stream.extend(packet(21_000, &[0xFC, 3]));
+        let tap = Tap::default();
+        let (data, events) = run_audio(stream, &tap).await;
+        assert_eq!(events, ["AudioDisabled"], "end of stream");
+
+        let mut config = vec![4];
+        config.extend_from_slice(b"opus");
+        config.extend_from_slice(&OPUS_HEAD);
+        let mut expected = Vec::new();
+        write_record(&mut expected, record::AUDIO_CONFIG, 0, 0, &config);
+        assert_eq!(tap.cached_records(), expected, "cached for new views");
+        write_record(&mut expected, record::AUDIO, 0, 1_000, &[0xFC, 1, 2]);
+        write_record(&mut expected, record::AUDIO, 0, 21_000, &[0xFC, 3]);
+        assert_eq!(data, expected);
+    }
+
+    #[tokio::test]
+    async fn raw_stream_is_announced_at_once() {
+        let mut stream = protocol::AUDIO_CODEC_RAW.to_be_bytes().to_vec();
+        stream.extend(packet(500, &[1, 0, 2, 0]));
+        let (data, _) = run_audio(stream, &Tap::default()).await;
+        let mut expected = Vec::new();
+        write_record(&mut expected, record::AUDIO_CONFIG, 0, 0, b"\x07pcm-s16");
+        write_record(&mut expected, record::AUDIO, 0, 500, &[1, 0, 2, 0]);
+        assert_eq!(data, expected);
+    }
+
+    #[tokio::test]
+    async fn disabled_audio_is_reported() {
+        // Code 0: no audio capture (Android 10 and older).
+        let (data, events) = run_audio(vec![0, 0, 0, 0], &Tap::default()).await;
+        assert!(data.is_empty());
+        assert_eq!(events, ["AudioDisabled"]);
     }
 }

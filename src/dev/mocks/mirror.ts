@@ -173,11 +173,103 @@ async function startFake(
     video.close();
     frame += 1;
   }, 1000 / 30);
+  const stopAudio = options.audio ? startFakeAudio(options, send) : () => {};
   fake.stop = () => {
     clearInterval(timer);
+    stopAudio();
     if (encoder.state !== "closed") encoder.close();
   };
   return fake;
+}
+
+/** OpusHead for 48 kHz stereo, as scrcpy-server sends it. */
+const OPUS_HEAD = new Uint8Array([
+  0x4f, 0x70, 0x75, 0x73, 0x48, 0x65, 0x61, 0x64, 1, 2, 0x38, 0x01, 0x80, 0xbb,
+  0, 0, 0, 0, 0,
+]);
+
+function audioConfig(codec: string, description: Uint8Array) {
+  const name = new TextEncoder().encode(codec);
+  const body = new Uint8Array(1 + name.length + description.length);
+  body[0] = name.length;
+  body.set(name, 1);
+  body.set(description, 1 + name.length);
+  return encodeRecord(RECORD.audioConfig, 0, 0, body);
+}
+
+/**
+ * Device audio: a soft two-note chime every 2 s, as Opus (WebCodecs'
+ * AudioEncoder) or raw s16le PCM, in 20 ms packets.
+ */
+function startFakeAudio(
+  options: MirrorOptions,
+  send: (record: Uint8Array) => void,
+): () => void {
+  const rate = 48_000;
+  const frames = 960;
+  const opus = options.audioCodec === "opus";
+  if (opus && typeof AudioEncoder === "undefined") return () => {};
+  let sample = 0;
+  const started = performance.now() * 1000;
+  const next = () => {
+    const pcm = new Float32Array(frames * 2);
+    for (let i = 0; i < frames; i++, sample++) {
+      const t = (sample % (rate * 2)) / rate;
+      const f = t < 0.25 ? 660 : 880;
+      const env = t < 0.6 ? Math.exp(-6 * (t % 0.25)) * 0.08 : 0;
+      const v = Math.sin(2 * Math.PI * f * t) * env;
+      pcm[i * 2] = v;
+      pcm[i * 2 + 1] = v;
+    }
+    return pcm;
+  };
+  const pts = () => started + Math.round((sample * 1e6) / rate);
+
+  if (!opus) {
+    send(audioConfig("pcm-s16", new Uint8Array()));
+    const timer = setInterval(() => {
+      const at = pts();
+      const pcm = next();
+      const out = new Int16Array(pcm.length);
+      pcm.forEach((v, i) => {
+        out[i] = Math.round(v * 32767);
+      });
+      send(encodeRecord(RECORD.audio, 0, at, new Uint8Array(out.buffer)));
+    }, 20);
+    return () => clearInterval(timer);
+  }
+
+  send(audioConfig("opus", OPUS_HEAD));
+  const encoder = new AudioEncoder({
+    output: (chunk) => {
+      const data = new Uint8Array(chunk.byteLength);
+      chunk.copyTo(data);
+      send(encodeRecord(RECORD.audio, 0, chunk.timestamp, data));
+    },
+    error: (e) => console.warn("[mock mirror] audio encoder", e),
+  });
+  encoder.configure({
+    codec: "opus",
+    sampleRate: rate,
+    numberOfChannels: 2,
+    bitrate: 128_000,
+  });
+  const timer = setInterval(() => {
+    const data = new AudioData({
+      format: "f32",
+      sampleRate: rate,
+      numberOfFrames: frames,
+      numberOfChannels: 2,
+      timestamp: pts(),
+      data: next(),
+    });
+    encoder.encode(data);
+    data.close();
+  }, 20);
+  return () => {
+    clearInterval(timer);
+    if (encoder.state !== "closed") encoder.close();
+  };
 }
 
 const MOCK_OPTIONS: MirrorOptions = {
@@ -186,6 +278,7 @@ const MOCK_OPTIONS: MirrorOptions = {
   videoBitRate: 8_000_000,
   maxFps: 60,
   audio: false,
+  audioCodec: "opus",
   showTouches: false,
   stayAwake: true,
 };
@@ -221,7 +314,7 @@ const handlers: MockHandlers = {
       sessionId: nextSession++,
       deviceName: "sdk_gphone64_arm64",
       videoCodec: "h264",
-      audio: false,
+      audio: (options as MirrorOptions).audio,
       scrcpyVersion: "5.0.1",
     };
     return info;

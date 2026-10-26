@@ -9,7 +9,9 @@ interface Callbacks {
   onSession: (width: number, height: number) => void;
   onFirstFrame: () => void;
   onError: (error: PipelineError) => void;
-  onAudio: (pcm: Uint8Array) => void;
+  /** The stream's audio format: `opus` (OpusHead) or `pcm-s16`. */
+  onAudioConfig: (codec: string, description: Uint8Array) => void;
+  onAudio: (pts: number, data: Uint8Array) => void;
   /** Ask the device encoder for a key frame (decoder recovered). */
   requestKeyFrame: () => void;
 }
@@ -82,8 +84,11 @@ export class VideoPipeline {
       case "frame":
         this.decode(record.key, record.pts, record.data);
         break;
+      case "audioConfig":
+        this.callbacks.onAudioConfig(record.codec, record.description);
+        break;
       case "audio":
-        this.callbacks.onAudio(record.data);
+        this.callbacks.onAudio(record.pts, record.data);
         break;
     }
   }

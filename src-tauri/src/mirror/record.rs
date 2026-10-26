@@ -11,6 +11,11 @@
 //! A config change mid-recording (rotation, encoder reset) keeps the first
 //! sample description; the new parameter sets are prepended to the next
 //! key frame, as scrcpy's own recorder does, which players decode in-band.
+//!
+//! Opus audio (when the session streams it) goes to a second track. Both
+//! streams carry PTS from the device's monotonic clock, so audio is placed
+//! relative to the first recorded video frame; packets from before it are
+//! dropped.
 
 use std::fs::File;
 use std::io::BufWriter;
@@ -23,7 +28,8 @@ use std::time::{Duration, Instant};
 use tokio::sync::oneshot;
 
 use super::codec;
-use super::mp4::{Mp4Writer, SampleEntry, Summary};
+use super::mp4::{AudioEntry, Mp4Writer, SampleEntry, Summary, Track};
+use super::opus;
 use super::protocol::{Header, VideoCodec};
 use crate::error::{AppError, AppResult};
 use crate::state::lock;
@@ -34,9 +40,23 @@ const PROGRESS_EVERY: Duration = Duration::from_secs(1);
 /// Stream packets the writer thread needs.
 #[derive(Debug)]
 pub enum Packet {
-    Session { width: u32, height: u32 },
+    Session {
+        width: u32,
+        height: u32,
+    },
     Config(Vec<u8>),
-    Frame { key: bool, pts: u64, data: Vec<u8> },
+    Frame {
+        key: bool,
+        pts: u64,
+        data: Vec<u8>,
+    },
+    /// The `OpusHead` of the audio stream.
+    AudioConfig(Vec<u8>),
+    /// One Opus packet.
+    Audio {
+        pts: u64,
+        data: Vec<u8>,
+    },
 }
 
 #[derive(Default)]
@@ -47,6 +67,9 @@ struct Cache {
     /// Same, raw, for a recorder that starts mid-stream.
     size: Option<(u32, u32)>,
     config: Option<Vec<u8>>,
+    /// Last audio config record, and the `OpusHead` for recorders.
+    audio_config_record: Vec<u8>,
+    opus_head: Option<Vec<u8>>,
 }
 
 /// Per-session observer of the video stream.
@@ -90,11 +113,41 @@ impl Tap {
         }
     }
 
-    /// The session size and decoder config records seen last, so a new
-    /// view can configure its decoder before the next key frame.
+    /// Called by the audio loop once the stream format is known: `record`
+    /// is the frontend's audio config record, `opus_head` the stream's
+    /// `OpusHead` when it is recordable Opus.
+    pub fn audio_config(&self, record: &[u8], opus_head: Option<&[u8]>) {
+        {
+            let mut cache = lock(&self.cache);
+            cache.audio_config_record = record.to_vec();
+            cache.opus_head = opus_head.map(<[u8]>::to_vec);
+        }
+        if let (Some(head), Some(r)) = (opus_head, lock(&self.recorder).as_ref()) {
+            r.send(Packet::AudioConfig(head.to_vec()));
+        }
+    }
+
+    /// One Opus packet of the audio stream.
+    pub fn audio_packet(&self, pts: u64, data: &[u8]) {
+        if let Some(r) = lock(&self.recorder).as_ref() {
+            r.send(Packet::Audio {
+                pts,
+                data: data.to_vec(),
+            });
+        }
+    }
+
+    /// The session size and decoder config records seen last (video and
+    /// audio), so a new view can configure its decoders before the next
+    /// key frame.
     pub fn cached_records(&self) -> Vec<u8> {
         let cache = lock(&self.cache);
-        [cache.session_record.as_slice(), &cache.config_record].concat()
+        [
+            cache.session_record.as_slice(),
+            &cache.config_record,
+            &cache.audio_config_record,
+        ]
+        .concat()
     }
 
     pub fn is_recording(&self) -> bool {
@@ -115,6 +168,9 @@ impl Tap {
         }
         if let Some(config) = &cache.config {
             recorder.send(Packet::Config(config.clone()));
+        }
+        if let Some(head) = &cache.opus_head {
+            recorder.send(Packet::AudioConfig(head.clone()));
         }
         *slot = Some(recorder);
         Ok(())
@@ -235,6 +291,16 @@ pub fn sample_data(codec: VideoCodec, frame: &[u8]) -> Vec<u8> {
     }
 }
 
+/// One sample for the MP4 writer.
+#[derive(Debug, PartialEq, Eq)]
+pub struct Sample {
+    pub track: Track,
+    /// Microseconds since the first recorded video frame.
+    pub time_us: u64,
+    pub data: Vec<u8>,
+    pub key: bool,
+}
+
 /// Pure packet → sample logic, separate from the thread for testing.
 pub struct Muxer {
     codec: VideoCodec,
@@ -245,6 +311,8 @@ pub struct Muxer {
     first_pts: u64,
     /// Parameter sets to put in front of the next key frame.
     pending_params: Option<Vec<u8>>,
+    /// Opus sample description, fixed by the first readable `OpusHead`.
+    audio: Option<AudioEntry>,
 }
 
 impl Muxer {
@@ -256,12 +324,12 @@ impl Muxer {
             track: None,
             first_pts: 0,
             pending_params: None,
+            audio: None,
         }
     }
 
-    /// Feeds one packet; returns `(time_us, data, key)` for a sample to
-    /// write, if any.
-    pub fn push(&mut self, packet: Packet) -> AppResult<Option<(u64, Vec<u8>, bool)>> {
+    /// Feeds one packet; returns the sample to write, if any.
+    pub fn push(&mut self, packet: Packet) -> AppResult<Option<Sample>> {
         match packet {
             Packet::Session { width, height } => {
                 self.size = Some((width, height));
@@ -292,13 +360,40 @@ impl Muxer {
                     params.extend_from_slice(&sample);
                     sample = params;
                 }
-                Ok(Some((pts.saturating_sub(self.first_pts), sample, key)))
+                Ok(Some(Sample {
+                    track: Track::Video,
+                    time_us: pts.saturating_sub(self.first_pts),
+                    data: sample,
+                    key,
+                }))
+            }
+            Packet::AudioConfig(head) => {
+                if self.audio.is_none() {
+                    self.audio = opus::parse_opus_head(&head).map(AudioEntry::from);
+                }
+                Ok(None)
+            }
+            Packet::Audio { pts, data } => {
+                // Audio joins the video timeline once it has started.
+                if self.track.is_none() || self.audio.is_none() || pts < self.first_pts {
+                    return Ok(None);
+                }
+                Ok(Some(Sample {
+                    track: Track::Audio,
+                    time_us: pts - self.first_pts,
+                    data,
+                    key: true,
+                }))
             }
         }
     }
 
     pub fn track(&self) -> Option<(&SampleEntry, u32, u32)> {
         self.track.as_ref().map(|(e, w, h, _)| (e, *w, *h))
+    }
+
+    pub fn audio(&self) -> Option<&AudioEntry> {
+        self.audio.as_ref()
     }
 }
 
@@ -312,8 +407,8 @@ fn write_loop(
     let mut muxer = Muxer::new(codec);
     let mut last_progress = Instant::now();
     while let Ok(packet) = rx.recv() {
-        if let Some((time, data, key)) = muxer.push(packet)? {
-            writer.write_sample(time, &data, key)?;
+        if let Some(s) = muxer.push(packet)? {
+            writer.write_sample(s.track, s.time_us, &s.data, s.key)?;
             if last_progress.elapsed() >= PROGRESS_EVERY {
                 last_progress = Instant::now();
                 on_progress(Progress {
@@ -328,7 +423,7 @@ fn write_loop(
             "nothing was recorded: no video frame arrived".into(),
         ));
     };
-    let (out, summary) = writer.finish(entry, width, height)?;
+    let (out, summary) = writer.finish(entry, width, height, muxer.audio())?;
     let file = out.into_inner().map_err(|e| AppError::Io(e.into_error()))?;
     file.sync_all()?;
     Ok(Saved {
@@ -371,11 +466,11 @@ mod tests {
         m.push(Packet::Config(config())).unwrap();
         // Delta frames before the first key frame are dropped.
         assert!(m.push(frame(false, 20, &[0x41, 1])).unwrap().is_none());
-        let (t, data, key) = m.push(frame(true, 1_000, &[0x65, 7])).unwrap().unwrap();
-        assert_eq!((t, key), (0, true));
-        assert_eq!(data, [0, 0, 0, 2, 0x65, 7]);
-        let (t, _, key) = m.push(frame(false, 17_667, &[0x41, 8])).unwrap().unwrap();
-        assert_eq!((t, key), (16_667, false));
+        let s = m.push(frame(true, 1_000, &[0x65, 7])).unwrap().unwrap();
+        assert_eq!((s.time_us, s.key), (0, true));
+        assert_eq!(s.data, [0, 0, 0, 2, 0x65, 7]);
+        let s = m.push(frame(false, 17_667, &[0x41, 8])).unwrap().unwrap();
+        assert_eq!((s.time_us, s.key), (16_667, false));
         let (entry, w, h) = m.track().unwrap();
         assert_eq!((w, h), (576, 1280));
         let SampleEntry::Avc(avcc) = entry else {
@@ -396,7 +491,7 @@ mod tests {
         m.push(frame(true, 0, &[0x65])).unwrap();
         // Same config again (encoder reset): nothing added.
         m.push(Packet::Config(config())).unwrap();
-        let (_, data, _) = m.push(frame(true, 5, &[0x65, 2])).unwrap().unwrap();
+        let data = m.push(frame(true, 5, &[0x65, 2])).unwrap().unwrap().data;
         assert_eq!(data, [0, 0, 0, 2, 0x65, 2]);
         // Rotation: new SPS, prepended to the next key frame only.
         let mut rotated = config();
@@ -407,14 +502,69 @@ mod tests {
         })
         .unwrap();
         m.push(Packet::Config(rotated.clone())).unwrap();
-        let (_, data, _) = m.push(frame(false, 6, &[0x41])).unwrap().unwrap();
+        let data = m.push(frame(false, 6, &[0x41])).unwrap().unwrap().data;
         assert_eq!(data, [0, 0, 0, 1, 0x41]);
-        let (_, data, _) = m.push(frame(true, 7, &[0x65, 3])).unwrap().unwrap();
+        let data = m.push(frame(true, 7, &[0x65, 3])).unwrap().unwrap().data;
         let mut expected = codec::to_length_prefixed(&rotated);
         expected.extend_from_slice(&[0, 0, 0, 2, 0x65, 3]);
         assert_eq!(data, expected);
         // The sample description keeps the first size.
         assert_eq!(m.track().unwrap().1, 8);
+    }
+
+    const OPUS_HEAD: [u8; 19] = [
+        b'O', b'p', b'u', b's', b'H', b'e', b'a', b'd', 1, 2, 0x38, 0x01, 0x80, 0xBB, 0, 0, 0, 0, 0,
+    ];
+
+    #[test]
+    fn audio_joins_the_video_timeline() {
+        let mut m = Muxer::new(VideoCodec::H264);
+        m.push(Packet::AudioConfig(OPUS_HEAD.to_vec())).unwrap();
+        m.push(Packet::Session {
+            width: 8,
+            height: 16,
+        })
+        .unwrap();
+        m.push(Packet::Config(config())).unwrap();
+        let audio = |pts| Packet::Audio {
+            pts,
+            data: vec![0xFC, 1],
+        };
+        // Before the first video frame: dropped.
+        assert!(m.push(audio(900)).unwrap().is_none());
+        m.push(frame(true, 1_000, &[0x65])).unwrap().unwrap();
+        // Captured before the first frame but delivered later: dropped.
+        assert!(m.push(audio(990)).unwrap().is_none());
+        let s = m.push(audio(1_250)).unwrap().unwrap();
+        assert_eq!(
+            s,
+            Sample {
+                track: Track::Audio,
+                time_us: 250,
+                data: vec![0xFC, 1],
+                key: true
+            }
+        );
+        assert_eq!(m.audio().unwrap().channels, 2);
+    }
+
+    #[test]
+    fn unreadable_opus_head_means_no_audio_track() {
+        let mut m = Muxer::new(VideoCodec::H264);
+        m.push(Packet::AudioConfig(b"AOPUSHDR".to_vec())).unwrap();
+        m.push(Packet::Session {
+            width: 8,
+            height: 16,
+        })
+        .unwrap();
+        m.push(Packet::Config(config())).unwrap();
+        m.push(frame(true, 0, &[0x65])).unwrap().unwrap();
+        let audio = Packet::Audio {
+            pts: 10,
+            data: vec![0xFC],
+        };
+        assert!(m.push(audio).unwrap().is_none());
+        assert!(m.audio().is_none());
     }
 
     #[test]

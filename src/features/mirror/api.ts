@@ -4,6 +4,11 @@ import type { Capture } from "@/features/overview/api";
 import type { AppError } from "@/lib/tauri";
 
 export type VideoCodec = "h264" | "h265" | "av1";
+/**
+ * Opus (decoded with WebCodecs, recorded into the MP4) or raw PCM for web
+ * views without an Opus `AudioDecoder` (live only).
+ */
+export type AudioCodec = "opus" | "raw";
 
 export interface MirrorOptions {
   videoCodec: VideoCodec;
@@ -13,6 +18,7 @@ export interface MirrorOptions {
   videoBitRate: number;
   maxFps: number;
   audio: boolean;
+  audioCodec: AudioCodec;
   showTouches: boolean;
   stayAwake: boolean;
 }

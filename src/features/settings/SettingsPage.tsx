@@ -8,6 +8,7 @@ import {
   Info,
   Keyboard,
   Loader,
+  MonitorSmartphone,
   RefreshCw,
   Search,
   Settings2,
@@ -39,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useMirrorDefaultsSettings } from "@/features/mirror/useMirrorDefaultsSettings";
 import { useNotificationSettings } from "@/features/notifications/useNotificationSettings";
 import {
   downloadPlatformTools,
@@ -66,6 +68,7 @@ import { cn } from "@/lib/utils";
 const SECTION_IDS = [
   "general",
   "adb",
+  "mirroring",
   "files",
   "notifications",
   "shortcuts",
@@ -75,6 +78,7 @@ type SectionKey = (typeof SECTION_IDS)[number];
 const ICONS: Record<SectionKey, typeof Settings2> = {
   general: Settings2,
   adb: TerminalSquare,
+  mirroring: MonitorSmartphone,
   files: FolderOpen,
   notifications: Bell,
   shortcuts: Keyboard,
@@ -102,6 +106,7 @@ export default function SettingsPage() {
   > = {
     general: { title: t("general.title"), rows: useGeneralRows() },
     adb: { title: t("adb.title"), rows: useAdbRows(), extra: <AdbBanner /> },
+    mirroring: useMirrorDefaultsSettings(),
     files: { title: t("files.title"), rows: useFilesRows() },
     notifications: useNotificationSettings(),
     shortcuts: { title: t("shortcuts.title"), rows: useShortcutRows() },
