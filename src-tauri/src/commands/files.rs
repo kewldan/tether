@@ -10,8 +10,11 @@ use serde::{Deserialize, Serialize};
 use tauri::ipc::{Channel, Response};
 use tauri::{AppHandle, Manager, State};
 
+use crate::device::exif::{self, ImageDetails};
 use crate::device::files::{self, DirListing, StorageInfo};
-use crate::device::transfer::{self, TransferControl, TransferEvent, TransferSummary};
+use crate::device::transfer::{
+    self, CompressionMode, TransferControl, TransferEvent, TransferOptions, TransferSummary,
+};
 use crate::error::{AppError, AppResult};
 use crate::localfs::{self, LocalListing, LocalPlace};
 use crate::state::{AppState, lock};
@@ -112,6 +115,16 @@ pub async fn files_preview(
     Ok(Response::new(data))
 }
 
+/// Camera details of a photo (EXIF), `null` when it has none.
+#[tauri::command]
+pub async fn files_exif(
+    state: State<'_, AppState>,
+    serial: String,
+    path: String,
+) -> AppResult<Option<ImageDetails>> {
+    exif::read(&state.server, &serial, &path).await
+}
+
 /// Where downloads go unless the user picks another folder.
 #[tauri::command]
 pub fn files_default_download_dir(app: AppHandle) -> AppResult<String> {
@@ -163,7 +176,19 @@ pub async fn files_local_summary(paths: Vec<String>) -> AppResult<LocalSummary> 
     .map_err(|e| AppError::InvalidInput(e.to_string()))
 }
 
+/// Compression is on unless the UI turned it off.
+fn transfer_options(compress: Option<bool>) -> TransferOptions {
+    TransferOptions {
+        compression: if compress.unwrap_or(true) {
+            CompressionMode::Auto
+        } else {
+            CompressionMode::Off
+        },
+    }
+}
+
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub async fn files_pull(
     state: State<'_, AppState>,
     files_state: State<'_, FilesState>,
@@ -171,15 +196,17 @@ pub async fn files_pull(
     serial: String,
     paths: Vec<String>,
     local_dir: String,
+    compress: Option<bool>,
     on_event: Channel<TransferEvent>,
 ) -> AppResult<TransferSummary> {
     let control = files_state.register(&id)?;
-    let result = transfer::pull(
+    let result = transfer::pull_with_options(
         &state.server,
         &serial,
         &paths,
         &PathBuf::from(local_dir),
         &control,
+        transfer_options(compress),
         |event| {
             let _ = on_event.send(event);
         },
@@ -190,6 +217,7 @@ pub async fn files_pull(
 }
 
 #[tauri::command]
+#[allow(clippy::too_many_arguments)]
 pub async fn files_push(
     state: State<'_, AppState>,
     files_state: State<'_, FilesState>,
@@ -197,16 +225,18 @@ pub async fn files_push(
     serial: String,
     paths: Vec<String>,
     remote_dir: String,
+    compress: Option<bool>,
     on_event: Channel<TransferEvent>,
 ) -> AppResult<TransferSummary> {
     let control = files_state.register(&id)?;
     let locals: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
-    let result = transfer::push(
+    let result = transfer::push_with_options(
         &state.server,
         &serial,
         &locals,
         &remote_dir,
         &control,
+        transfer_options(compress),
         |event| {
             let _ = on_event.send(event);
         },

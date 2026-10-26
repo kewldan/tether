@@ -2,20 +2,25 @@ import type { TFunction } from "i18next";
 import { Copy, Download, FolderOpen, Loader2, Trash2 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { type FileEntry, isDirLike } from "../api";
+import { type FileEntry, type ImageDetails, isDirLike } from "../api";
 import {
   categoryOf,
   extension,
   formatBytes,
+  formatCoordinates,
+  formatExposure,
   formatFullDate,
+  formatTaken,
   imageMime,
+  trimNumber,
 } from "../format";
 import { totalSize } from "../model";
-import { usePreview } from "../queries";
+import { useExif, usePreview } from "../queries";
 import type { FileActions } from "../useFileActions";
 import { FileIcon } from "./FileIcon";
 
@@ -82,6 +87,7 @@ function Single({
   const { t, i18n } = useTranslation("files");
   const dir = isDirLike(entry);
   const { data: preview, isLoading } = usePreview(serial, dir ? null : entry);
+  const { data: exif } = useExif(serial, dir ? null : entry);
   const [dims, setDims] = useState<{
     path: string;
     w: number;
@@ -133,13 +139,20 @@ function Single({
       </div>
 
       <dl className="text-small grid grid-cols-[90px_minmax(0,1fr)] gap-x-2.5 gap-y-[5px]">
-        {size && (
+        {size ? (
           <Fact label={t("preview.dimensions")}>
             <span className="num">
               {size.w} × {size.h}
             </span>
           </Fact>
-        )}
+        ) : exif?.width && exif.height ? (
+          <Fact label={t("preview.dimensions")}>
+            <span className="num">
+              {exif.width} × {exif.height}
+            </span>
+          </Fact>
+        ) : null}
+        {exif && <ExifFacts exif={exif} />}
         <Fact label={t("preview.modified")}>
           <span className="num">
             {formatFullDate(entry.mtime, i18n.language)}
@@ -324,6 +337,107 @@ function FolderSummary({
       </div>
       <p className="text-muted-foreground text-small">{t("preview.hint")}</p>
     </div>
+  );
+}
+
+/** "Google Pixel 8 Pro", without repeating a make the model already has. */
+function cameraName(exif: ImageDetails): string | null {
+  const { make, model } = exif;
+  if (!model) return make;
+  if (!make || model.toLowerCase().startsWith(make.toLowerCase())) return model;
+  return `${make} ${model}`;
+}
+
+function ExifFacts({ exif }: { exif: ImageDetails }) {
+  const { t, i18n } = useTranslation("files");
+  const camera = cameraName(exif);
+  const exposure = [
+    exif.exposure ? formatExposure(exif.exposure) : null,
+    exif.fNumber ? `f/${trimNumber(exif.fNumber)}` : null,
+    exif.iso ? `ISO ${exif.iso}` : null,
+    exif.focalLength
+      ? `${trimNumber(exif.focalLength)} mm${
+          exif.focalLength35mm && exif.focalLength35mm !== exif.focalLength
+            ? ` (${exif.focalLength35mm} mm)`
+            : ""
+        }`
+      : null,
+  ].filter(Boolean);
+  const coordinates =
+    exif.latitude !== null && exif.longitude !== null
+      ? formatCoordinates(exif.latitude, exif.longitude)
+      : null;
+
+  const copyCoordinates = async () => {
+    if (!coordinates) return;
+    try {
+      await navigator.clipboard.writeText(coordinates);
+      toast.success(t("preview.locationCopied"));
+    } catch (e) {
+      toast.error(String(e));
+    }
+  };
+
+  return (
+    <>
+      {exif.taken && (
+        <Fact label={t("preview.taken")}>
+          <span
+            className="num"
+            title={exif.offset ? `UTC${exif.offset}` : undefined}
+          >
+            {formatTaken(exif.taken, i18n.language)}
+          </span>
+        </Fact>
+      )}
+      {camera && (
+        <Fact label={t("preview.camera")}>
+          <span className="selectable block truncate" title={camera}>
+            {camera}
+          </span>
+        </Fact>
+      )}
+      {exif.lens && (
+        <Fact label={t("preview.lens")}>
+          <span className="selectable block truncate" title={exif.lens}>
+            {exif.lens}
+          </span>
+        </Fact>
+      )}
+      {exposure.length > 0 && (
+        <Fact label={t("preview.exposure")}>
+          <span className="num">{exposure.join(" · ")}</span>
+        </Fact>
+      )}
+      {coordinates && (
+        <Fact label={t("preview.location")}>
+          <span className="flex min-w-0 items-center gap-1">
+            <span
+              className="selectable num min-w-0 truncate font-mono"
+              title={
+                exif.altitude !== null
+                  ? `${coordinates} · ${t("preview.altitude", {
+                      value: Math.round(exif.altitude),
+                    })}`
+                  : coordinates
+              }
+            >
+              {coordinates}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="-my-1 flex-none"
+              aria-label={t("preview.copyLocation")}
+              title={t("preview.copyLocation")}
+              onClick={() => void copyCoordinates()}
+            >
+              <Copy />
+            </Button>
+          </span>
+        </Fact>
+      )}
+    </>
   );
 }
 

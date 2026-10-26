@@ -94,6 +94,7 @@ function FilesBrowser({ serial }: { serial: string }) {
   const go = useBrowser((s) => s.go);
   const query = useBrowser((s) => s.query);
   const showHidden = useFilesPrefs((s) => s.showHidden);
+  const compressTransfers = useFilesPrefs((s) => s.compressTransfers);
   const sort = useFilesPrefs((s) => s.sort);
   const view = useFilesPrefs((s) => s.view);
   const downloadDir = useFilesPrefs((s) => s.downloadDir);
@@ -459,6 +460,19 @@ function FilesBrowser({ serial }: { serial: string }) {
                 onCheckedChange={() => useFilesPrefs.getState().toggleHidden()}
               >
                 {t("actions.showHidden")}
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={compressTransfers}
+                onCheckedChange={() =>
+                  useFilesPrefs.getState().toggleCompression()
+                }
+              >
+                <span className="flex min-w-0 flex-col">
+                  {t("actions.compress")}
+                  <span className="text-muted-foreground text-caption">
+                    {t("actions.compressHint")}
+                  </span>
+                </span>
               </DropdownMenuCheckboxItem>
               <DropdownMenuItem onClick={actions.refresh}>
                 {t("actions.refresh")}

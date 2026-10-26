@@ -50,6 +50,7 @@ pub fn run() {
             commands::files::files_chmod,
             commands::files::files_storage,
             commands::files::files_preview,
+            commands::files::files_exif,
             commands::files::files_default_download_dir,
             commands::files::files_local_summary,
             commands::files::files_pull,

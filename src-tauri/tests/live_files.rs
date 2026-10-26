@@ -335,3 +335,36 @@ async fn push_pull_and_file_operations() {
         .unwrap();
     assert!(files::list_dir(&server, &serial, TMP).await.is_err());
 }
+
+/// EXIF from a photo on the device, read from the head of the file.
+#[tokio::test]
+#[ignore = "needs a device"]
+async fn reads_exif_from_device_photo() {
+    use adb_gui_lib::device::exif;
+
+    let dir = format!("{SDCARD}/exif");
+    let server = AdbServer::default();
+    let serial = serial(&server).await;
+    files::mkdirs(&server, &serial, std::slice::from_ref(&dir))
+        .await
+        .unwrap();
+    let fixture =
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/exif/pixel.jpg");
+    let control = TransferControl::default();
+    let pushed = transfer::push(&server, &serial, &[fixture], &dir, &control, |_| {})
+        .await
+        .unwrap();
+    let remote = &pushed.destinations[0];
+    let details = exif::read(&server, &serial, remote).await.unwrap().unwrap();
+    println!("{details:#?}");
+    assert_eq!(details.model.as_deref(), Some("Pixel 8 Pro"));
+    assert!(details.latitude.is_some());
+    // A file without EXIF.
+    let plain = exif::read(&server, &serial, "/system/etc/hosts")
+        .await
+        .unwrap();
+    assert_eq!(plain, None);
+    files::delete(&server, &serial, std::slice::from_ref(&dir))
+        .await
+        .unwrap();
+}

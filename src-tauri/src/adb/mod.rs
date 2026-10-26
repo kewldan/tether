@@ -1,4 +1,5 @@
 pub mod avd;
+pub mod compression;
 pub mod devices;
 pub mod diagnostics;
 pub mod forward;

@@ -160,3 +160,48 @@ export function looksLikeText(bytes: Uint8Array): boolean {
   for (const b of sample) if (b === 0) return false;
   return true;
 }
+
+/** Formats that may carry EXIF (the backend reads it from the file head). */
+const EXIF_EXTENSIONS = new Set([
+  "jpg",
+  "jpeg",
+  "heic",
+  "heif",
+  "avif",
+  "png",
+  "webp",
+  "dng",
+  "tif",
+  "tiff",
+]);
+
+export const mayHaveExif = (name: string) =>
+  EXIF_EXTENSIONS.has(extension(name));
+
+/** EXIF wall time (`2026-10-25T18:22:11`) as the camera's clock showed it. */
+export function formatTaken(taken: string, locale: string): string {
+  // No zone suffix: JS reads it as local time, so the reading stays as is.
+  const date = new Date(taken);
+  if (Number.isNaN(date.getTime())) return taken;
+  return date.toLocaleString(locale, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+}
+
+/** `1/120 s`, `0.5 s`, `2 s`. */
+export function formatExposure(seconds: number): string {
+  if (seconds < 0.5) return `1/${Math.round(1 / seconds)} s`;
+  return `${Number(seconds.toFixed(1))} s`;
+}
+
+/** Up to two decimals without trailing zeros: 1.68, 6.9, 24. */
+export const trimNumber = (value: number) => String(Number(value.toFixed(2)));
+
+/** `55.75583, 37.62000`: five decimals is about a metre. */
+export const formatCoordinates = (lat: number, lon: number) =>
+  `${lat.toFixed(5)}, ${lon.toFixed(5)}`;

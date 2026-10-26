@@ -6,11 +6,13 @@ import type { AppError } from "@/lib/tauri";
 import {
   type DirListing,
   type FileEntry,
+  type ImageDetails,
   type LocalListing,
   type LocalPlace,
   listDir,
   listLocal,
   localPlaces,
+  readExif,
   readPreview,
   storageInfo,
 } from "./api";
@@ -19,6 +21,7 @@ import {
   imageMime,
   isTextLike,
   looksLikeText,
+  mayHaveExif,
   TEXT_PREVIEW_MAX,
   THUMBNAIL_MAX,
 } from "./format";
@@ -193,6 +196,27 @@ function useRevokeOnGc(url: string | null) {
       }, 90_000);
     };
   }, [url]);
+}
+
+/** EXIF of a photo; null when the file has none. */
+export function useExif(serial: string | null, entry: FileEntry | null) {
+  return useQuery<ImageDetails | null, AppError>({
+    queryKey: filesKeys.preview(
+      serial ?? "",
+      entry?.path ?? "",
+      entry?.mtime ?? 0,
+      "exif",
+    ),
+    queryFn: () => readExif(serial as string, (entry as FileEntry).path),
+    enabled:
+      serial !== null &&
+      entry !== null &&
+      entry.kind !== "dir" &&
+      mayHaveExif(entry.name),
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 60_000,
+    retry: false,
+  });
 }
 
 export function usePreview(serial: string | null, entry: FileEntry | null) {

@@ -27,6 +27,8 @@ interface FilesPrefs {
   layout: Layout;
   /** Last folder of the computer pane; null → home. */
   localPath: string | null;
+  /** Compress transfers when the device supports it (`sendrecv_v2`). */
+  compressTransfers: boolean;
   setView: (view: ViewMode) => void;
   toggleHidden: () => void;
   sortBy: (key: SortKey) => void;
@@ -36,6 +38,7 @@ interface FilesPrefs {
   rememberPath: (serial: string, path: string) => void;
   setLayout: (layout: Layout) => void;
   setLocalPath: (path: string) => void;
+  toggleCompression: () => void;
 }
 
 /** File manager preferences, kept in localStorage. */
@@ -50,6 +53,7 @@ export const useFilesPrefs = create<FilesPrefs>()(
       lastPath: {},
       layout: "single",
       localPath: null,
+      compressTransfers: true,
       setView: (view) => set({ view }),
       toggleHidden: () => set((s) => ({ showHidden: !s.showHidden })),
       sortBy: (key) =>
@@ -72,6 +76,8 @@ export const useFilesPrefs = create<FilesPrefs>()(
         set((s) => ({ lastPath: { ...s.lastPath, [serial]: path } })),
       setLayout: (layout) => set({ layout }),
       setLocalPath: (localPath) => set({ localPath }),
+      toggleCompression: () =>
+        set((s) => ({ compressTransfers: !s.compressTransfers })),
     }),
     { name: "tether.files" },
   ),

@@ -13,6 +13,10 @@
 //! - `RECV` → `DATA` chunks, then `DONE`, or `FAIL` with a message;
 //! - `SEND` (`path,mode`) → the client streams `DATA` chunks of at most
 //!   64 KiB and `DONE <mtime>`; the device answers `OKAY` or `FAIL`.
+//! - `RCV2` / `SND2` (`sendrecv_v2`) → like `RECV` / `SEND`, but the path
+//!   is followed by a second `RCV2 flags` / `SND2 mode flags` message whose
+//!   flags pick a codec; `DATA` then carries one compressed stream (see
+//!   [`super::compression`]).
 //!
 //! v1 `STAT` and `LIST` use `lstat`, so symlinks are reported as links.
 
@@ -20,6 +24,7 @@ use serde::Serialize;
 use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 use tokio::net::TcpStream;
 
+use super::compression::Compression;
 use super::server::{AdbServer, read_length_prefixed};
 use crate::error::{AppError, AppResult};
 
@@ -37,6 +42,8 @@ const ID_STA2: &[u8; 4] = b"STA2";
 const ID_LST2: &[u8; 4] = b"LST2";
 const ID_RECV: &[u8; 4] = b"RECV";
 const ID_SEND: &[u8; 4] = b"SEND";
+const ID_RCV2: &[u8; 4] = b"RCV2";
+const ID_SND2: &[u8; 4] = b"SND2";
 const ID_DATA: &[u8; 4] = b"DATA";
 const ID_DONE: &[u8; 4] = b"DONE";
 const ID_OKAY: &[u8; 4] = b"OKAY";
@@ -107,6 +114,47 @@ impl SyncFeatures {
     }
 }
 
+/// Codecs the device accepts for `sendrecv_v2` transfers.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct CompressionFeatures {
+    pub brotli: bool,
+    pub lz4: bool,
+    pub zstd: bool,
+}
+
+impl CompressionFeatures {
+    /// Most preferred first: LZ4 costs the phone the least CPU and still
+    /// shrinks text and logs several times; Zstandard and Brotli are kept
+    /// for devices without it.
+    pub const PREFERENCE: [Compression; 3] =
+        [Compression::Lz4, Compression::Zstd, Compression::Brotli];
+
+    pub fn parse(features: &str) -> Self {
+        let has = |name: &str| features.split(',').any(|f| f.trim() == name);
+        if !has("sendrecv_v2") {
+            return Self::default();
+        }
+        Self {
+            brotli: has("sendrecv_v2_brotli"),
+            lz4: has("sendrecv_v2_lz4"),
+            zstd: has("sendrecv_v2_zstd"),
+        }
+    }
+
+    pub fn supports(&self, codec: Compression) -> bool {
+        match codec {
+            Compression::Brotli => self.brotli,
+            Compression::Lz4 => self.lz4,
+            Compression::Zstd => self.zstd,
+        }
+    }
+
+    /// The preferred codec the device supports.
+    pub fn best(&self) -> Option<Compression> {
+        Self::PREFERENCE.into_iter().find(|&c| self.supports(c))
+    }
+}
+
 /// Comma-separated feature list the device advertised to the server.
 pub async fn device_features(server: &AdbServer, serial: &str) -> AppResult<String> {
     let mut stream = server
@@ -121,15 +169,17 @@ pub async fn device_features(server: &AdbServer, serial: &str) -> AppResult<Stri
 pub struct SyncConn<S> {
     stream: S,
     features: SyncFeatures,
+    compression: CompressionFeatures,
     buf: Vec<u8>,
 }
 
 impl SyncConn<TcpStream> {
     /// Detects the device's sync features and opens `sync:` on it.
     pub async fn open(server: &AdbServer, serial: &str) -> AppResult<Self> {
-        let features = SyncFeatures::parse(&device_features(server, serial).await?);
+        let list = device_features(server, serial).await?;
         let stream = server.open_device(serial, "sync:").await?;
-        Ok(Self::new(stream, features))
+        Ok(Self::new(stream, SyncFeatures::parse(&list))
+            .with_compression(CompressionFeatures::parse(&list)))
     }
 }
 
@@ -138,12 +188,23 @@ impl<S: AsyncRead + AsyncWrite + Unpin> SyncConn<S> {
         Self {
             stream,
             features,
+            compression: CompressionFeatures::default(),
             buf: Vec::with_capacity(DATA_MAX),
         }
     }
 
+    /// Enables `RCV2` / `SND2` with these codecs.
+    pub fn with_compression(mut self, compression: CompressionFeatures) -> Self {
+        self.compression = compression;
+        self
+    }
+
     pub fn features(&self) -> SyncFeatures {
         self.features
+    }
+
+    pub fn compression(&self) -> CompressionFeatures {
+        self.compression
     }
 
     async fn send_request(&mut self, id: &[u8; 4], payload: &[u8]) -> AppResult<()> {
@@ -369,6 +430,32 @@ impl<S: AsyncRead + AsyncWrite + Unpin> SyncConn<S> {
         self.send_path_request(ID_RECV, path).await
     }
 
+    /// Starts a compressed download (`RCV2`); [`Self::recv_chunk`] then
+    /// returns pieces of one `codec` stream.
+    pub async fn recv_start_v2(&mut self, path: &str, codec: Compression) -> AppResult<()> {
+        self.check_codec(codec)?;
+        check_path(path)?;
+        let mut msg = Vec::with_capacity(16 + path.len());
+        msg.extend_from_slice(ID_RCV2);
+        msg.extend_from_slice(&(path.len() as u32).to_le_bytes());
+        msg.extend_from_slice(path.as_bytes());
+        msg.extend_from_slice(ID_RCV2);
+        msg.extend_from_slice(&codec.flag().to_le_bytes());
+        self.stream.write_all(&msg).await?;
+        Ok(())
+    }
+
+    fn check_codec(&self, codec: Compression) -> AppResult<()> {
+        if self.compression.supports(codec) {
+            Ok(())
+        } else {
+            Err(AppError::InvalidInput(format!(
+                "the device does not accept {} transfers",
+                codec.name()
+            )))
+        }
+    }
+
     /// Next chunk of a `RECV`, or `None` once the file is complete. The
     /// slice is valid until the next call.
     pub async fn recv_chunk(&mut self) -> AppResult<Option<&[u8]>> {
@@ -411,6 +498,27 @@ impl<S: AsyncRead + AsyncWrite + Unpin> SyncConn<S> {
             return Err(AppError::InvalidInput(format!("path is too long: {path}")));
         }
         self.send_request(ID_SEND, spec.as_bytes()).await
+    }
+
+    /// Starts a compressed upload (`SND2`): pass [`Self::send_data`] the
+    /// bytes of one `codec` stream.
+    pub async fn send_start_v2(
+        &mut self,
+        path: &str,
+        mode: u32,
+        codec: Compression,
+    ) -> AppResult<()> {
+        self.check_codec(codec)?;
+        check_path(path)?;
+        let mut msg = Vec::with_capacity(20 + path.len());
+        msg.extend_from_slice(ID_SND2);
+        msg.extend_from_slice(&(path.len() as u32).to_le_bytes());
+        msg.extend_from_slice(path.as_bytes());
+        msg.extend_from_slice(ID_SND2);
+        msg.extend_from_slice(&mode.to_le_bytes());
+        msg.extend_from_slice(&codec.flag().to_le_bytes());
+        self.stream.write_all(&msg).await?;
+        Ok(())
     }
 
     /// Streams file content, split into `DATA` messages of at most 64 KiB.
@@ -543,6 +651,70 @@ pub(crate) mod tests {
         assert_eq!(f, V2);
         assert_eq!(SyncFeatures::parse("shell_v2,cmd"), V1);
         assert_eq!(SyncFeatures::parse(""), V1);
+    }
+
+    #[test]
+    fn parses_compression_features() {
+        let all = "shell_v2,sendrecv_v2,sendrecv_v2_brotli,sendrecv_v2_lz4,sendrecv_v2_zstd";
+        let f = CompressionFeatures::parse(all);
+        assert!(f.brotli && f.lz4 && f.zstd);
+        assert_eq!(f.best(), Some(Compression::Lz4));
+        let r = CompressionFeatures::parse("sendrecv_v2,sendrecv_v2_brotli");
+        assert_eq!(r.best(), Some(Compression::Brotli));
+        // Codec flags without sendrecv_v2 itself do not count.
+        let none = CompressionFeatures::parse("sendrecv_v2_zstd,stat_v2");
+        assert_eq!(none.best(), None);
+    }
+
+    #[tokio::test]
+    async fn v2_requests_carry_codec_flags() {
+        let (client, mut dev) = duplex(4096);
+        let device = tokio::spawn(async move {
+            let (id, path) = read_req(&mut dev).await;
+            assert_eq!(
+                (id.as_str(), path.as_slice()),
+                ("RCV2", &b"/sdcard/a.log"[..])
+            );
+            let mut setup = [0u8; 8];
+            dev.read_exact(&mut setup).await.unwrap();
+            assert_eq!(&setup[..4], b"RCV2");
+            assert_eq!(u32::from_le_bytes(setup[4..].try_into().unwrap()), 4);
+            dev.write_all(b"DONE\0\0\0\0").await.unwrap();
+
+            let (id, path) = read_req(&mut dev).await;
+            assert_eq!(
+                (id.as_str(), path.as_slice()),
+                ("SND2", &b"/sdcard/b.log"[..])
+            );
+            let mut setup = [0u8; 12];
+            dev.read_exact(&mut setup).await.unwrap();
+            assert_eq!(&setup[..4], b"SND2");
+            assert_eq!(
+                u32::from_le_bytes(setup[4..8].try_into().unwrap()),
+                S_IFREG | 0o644
+            );
+            assert_eq!(u32::from_le_bytes(setup[8..].try_into().unwrap()), 2);
+            dev
+        });
+
+        let features = CompressionFeatures {
+            brotli: false,
+            lz4: true,
+            zstd: true,
+        };
+        let mut conn = SyncConn::new(client, V2).with_compression(features);
+        conn.recv_start_v2("/sdcard/a.log", Compression::Zstd)
+            .await
+            .unwrap();
+        assert!(conn.recv_chunk().await.unwrap().is_none());
+        conn.send_start_v2("/sdcard/b.log", S_IFREG | 0o644, Compression::Lz4)
+            .await
+            .unwrap();
+        device.await.unwrap();
+        assert!(matches!(
+            conn.recv_start_v2("/x", Compression::Brotli).await,
+            Err(AppError::InvalidInput(_))
+        ));
     }
 
     #[tokio::test]

@@ -426,6 +426,29 @@ const handlers: MockHandlers = {
     // Binary noise for everything else.
     return new Uint8Array(Math.min(256, maxBytes as number)).buffer;
   },
+  files_exif: async ({ path }) => {
+    await sleep(120);
+    const p = norm(path as string);
+    if (!/\.(jpe?g|heic|dng)$/i.test(p) || !p.includes("/DCIM/")) return null;
+    const seed = p.length;
+    return {
+      taken: "2026-10-25T18:22:11",
+      offset: "+03:00",
+      make: "Google",
+      model: "Pixel 8 Pro",
+      lens: "Pixel 8 Pro back camera 6.9mm f/1.68",
+      width: 4080,
+      height: 3072,
+      exposure: 1 / (60 + (seed % 5) * 30),
+      fNumber: 1.68,
+      iso: 50 + (seed % 4) * 50,
+      focalLength: 6.9,
+      focalLength35mm: 24,
+      latitude: seed % 3 === 0 ? null : 55.755833,
+      longitude: seed % 3 === 0 ? null : 37.62,
+      altitude: 156,
+    };
+  },
   files_default_download_dir: () => "/Users/me/Downloads",
   files_local_summary: ({ paths }): LocalSummary => ({
     files: (paths as string[]).length,

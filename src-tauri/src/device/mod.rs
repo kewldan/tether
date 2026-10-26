@@ -3,6 +3,7 @@ pub mod apk;
 pub mod bugreport;
 pub mod captures;
 pub mod dev_settings;
+pub mod exif;
 pub mod files;
 pub mod intents;
 pub mod logcat;

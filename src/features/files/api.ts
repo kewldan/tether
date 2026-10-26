@@ -1,5 +1,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 
+import { useFilesPrefs } from "./store";
+
 export type EntryKind = "file" | "dir" | "symlink" | "other";
 
 export interface FileEntry {
@@ -90,6 +92,34 @@ export const storageInfo = (serial: string, path: string) =>
 export const readPreview = (serial: string, path: string, maxBytes: number) =>
   invoke<ArrayBuffer>("files_preview", { serial, path, maxBytes });
 
+/** Photo metadata from EXIF; every field is optional. */
+export interface ImageDetails {
+  /** Camera wall time, `YYYY-MM-DDTHH:MM:SS`. */
+  taken: string | null;
+  /** UTC offset of `taken`, e.g. `+03:00`. */
+  offset: string | null;
+  make: string | null;
+  model: string | null;
+  lens: string | null;
+  width: number | null;
+  height: number | null;
+  /** Seconds. */
+  exposure: number | null;
+  fNumber: number | null;
+  iso: number | null;
+  /** Millimetres. */
+  focalLength: number | null;
+  focalLength35mm: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  /** Metres. */
+  altitude: number | null;
+}
+
+/** EXIF of a photo on the device, null when it has none. */
+export const readExif = (serial: string, path: string) =>
+  invoke<ImageDetails | null>("files_exif", { serial, path });
+
 export const defaultDownloadDir = () =>
   invoke<string>("files_default_download_dir");
 
@@ -110,6 +140,7 @@ export function pullPaths(
     serial,
     paths,
     localDir,
+    compress: useFilesPrefs.getState().compressTransfers,
     onEvent: channel,
   });
 }
@@ -128,6 +159,7 @@ export function pushPaths(
     serial,
     paths,
     remoteDir,
+    compress: useFilesPrefs.getState().compressTransfers,
     onEvent: channel,
   });
 }

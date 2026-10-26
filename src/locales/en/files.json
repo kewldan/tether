@@ -69,7 +69,9 @@
     "showHidden": "Show hidden files",
     "downloadFolder": "Download folder…",
     "downloadFolderDefault": "Downloads (default)",
-    "downloadFolderReset": "Use the Downloads folder"
+    "downloadFolderReset": "Use the Downloads folder",
+    "compress": "Compress transfers",
+    "compressHint": "Faster for text and logs; photos, videos and archives go as they are"
   },
   "preview": {
     "loading": "Loading preview",
@@ -88,7 +90,15 @@
     "folders_other": "{{count}} folders",
     "files_one": "{{count}} file",
     "files_other": "{{count}} files",
-    "hint": "Select a file to preview it. Drop files from your computer to upload them here."
+    "hint": "Select a file to preview it. Drop files from your computer to upload them here.",
+    "taken": "Taken",
+    "camera": "Camera",
+    "lens": "Lens",
+    "exposure": "Exposure",
+    "location": "Location",
+    "altitude": "{{value}} m",
+    "copyLocation": "Copy coordinates",
+    "locationCopied": "Coordinates copied"
   },
   "kind": {
     "folder": "Folder",
