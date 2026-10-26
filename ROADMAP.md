@@ -30,9 +30,12 @@ already works; this is the work that comes next.
 
 ## 🖥️ Screen mirroring
 
-- [ ] Record the mirrored screen to a file
-- [ ] Pop-out picture-in-picture window
-- [ ] Verify H.265 and AV1 decoding and audio playback inside the app
+- [x] Record the mirrored screen to a file
+- [x] Pop-out picture-in-picture window
+- [ ] Verify audio playback inside the app (H.265 and AV1 decoding verified
+      in WebKit on macOS)
+- [ ] Audio track in recordings (raw PCM is forwarded today; needs an AAC or
+      Opus stream from the server)
 
 ## 📁 Files
 
