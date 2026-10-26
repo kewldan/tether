@@ -18,16 +18,34 @@ import {
   SquareTerminal,
   Stethoscope,
 } from "lucide-react";
-import { type ComponentType, type LazyExoticComponent, lazy } from "react";
+import { type ComponentType, lazy } from "react";
 
 type PageModule = { default: ComponentType };
-type LazyPage = LazyExoticComponent<ComponentType> & {
+type LazyPage = ComponentType & {
   preload: () => Promise<PageModule>;
 };
 
-/** `lazy()` that can also be preloaded, so switching sections never flashes. */
+/**
+ * A lazily loaded page that can be preloaded. Once its module has loaded,
+ * it renders synchronously; plain `React.lazy` would still suspend once on
+ * first render and flash an empty page when switching sections.
+ */
 function lazyPage(load: () => Promise<PageModule>): LazyPage {
-  return Object.assign(lazy(load), { preload: load });
+  let loaded: ComponentType | null = null;
+  let pending: Promise<PageModule> | null = null;
+  const preload = () => {
+    pending ??= load().then((module) => {
+      loaded = module.default;
+      return module;
+    });
+    return pending;
+  };
+  const Lazy = lazy(preload);
+  function Page() {
+    const Loaded = loaded;
+    return Loaded ? <Loaded /> : <Lazy />;
+  }
+  return Object.assign(Page, { preload });
 }
 
 /**
