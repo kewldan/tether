@@ -15,10 +15,12 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { deviceName } from "@/features/devices/naming";
+import { useDeviceInfo } from "@/features/devices/queries";
 import { useConnectSheet } from "@/features/devices/sheetStore";
 import { useDevices } from "@/features/devices/store";
 import { useSettings } from "@/lib/settings";
 import { type ShortcutId, ShortcutKbd } from "@/lib/shortcuts";
+import type { Device } from "@/lib/tauri";
 
 /** Palette entries that also have a shortcut show its current keys. */
 const NAV_SHORTCUTS: Partial<Record<string, ShortcutId>> = {
@@ -84,18 +86,12 @@ export function CommandPalette({
           {devices.length > 0 && (
             <CommandGroup heading={t("palette.devices")}>
               {devices.map((d, i) => (
-                <CommandItem
+                <DeviceCommand
                   key={d.serial}
-                  value={`device ${d.serial} ${deviceName(d)}`}
+                  device={d}
+                  index={i}
                   onSelect={run(() => select(d.serial))}
-                >
-                  <StatusDot tone={deviceTone(d.state)} />
-                  {deviceName(d)}
-                  <span className="text-caption text-muted-foreground ml-auto font-mono">
-                    {d.serial}
-                  </span>
-                  {i < 9 && <Hint id="switch" digit={i + 1} />}
-                </CommandItem>
+                />
               ))}
             </CommandGroup>
           )}
@@ -141,5 +137,31 @@ export function CommandPalette({
         </CommandList>
       </Command>
     </CommandDialog>
+  );
+}
+
+/** One device row; resolves the display name (alias, AVD, model) like the switcher. */
+function DeviceCommand({
+  device,
+  index,
+  onSelect,
+}: {
+  device: Device;
+  index: number;
+  onSelect: () => void;
+}) {
+  const { data: info } = useDeviceInfo(
+    device.state.kind === "device" ? device.serial : null,
+  );
+  const name = deviceName(device, info);
+  return (
+    <CommandItem value={`device ${device.serial} ${name}`} onSelect={onSelect}>
+      <StatusDot tone={deviceTone(device.state)} />
+      {name}
+      <span className="text-caption text-muted-foreground ml-auto font-mono">
+        {device.serial}
+      </span>
+      {index < 9 && <Hint id="switch" digit={index + 1} />}
+    </CommandItem>
   );
 }
