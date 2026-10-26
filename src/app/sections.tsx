@@ -41,6 +41,7 @@ function lazyPage(load: () => Promise<PageModule>): LazyPage {
     return pending;
   };
   const Lazy = lazy(preload);
+  // biome-ignore lint/correctness/noComponentHookFactories: called once per section at module load, never during render
   function Page() {
     const Loaded = loaded;
     return Loaded ? <Loaded /> : <Lazy />;
