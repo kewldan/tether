@@ -266,7 +266,7 @@ function SessionTabs({
             }}
             onAuxClick={(e) => e.button === 1 && destroySession(s.uid)}
             className={cn(
-              "group text-small focus-visible:outline-ring flex h-[30px] flex-none cursor-default items-center gap-2 rounded-[7px] pr-1.5 pl-2.5 whitespace-nowrap outline-none focus-visible:outline-2",
+              "group text-small focus-visible:outline-ring h-ctl flex flex-none cursor-default items-center gap-2 rounded-[7px] pr-1.5 pl-2.5 whitespace-nowrap outline-none focus-visible:outline-2",
               on
                 ? "bg-background text-foreground ring-border ring-1"
                 : s.uid === split

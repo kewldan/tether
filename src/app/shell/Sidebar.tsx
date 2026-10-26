@@ -100,7 +100,7 @@ function NavItem({
       disabled={disabled}
       onClick={() => navigate(id)}
       className={cn(
-        "focus-visible:outline-ring relative flex h-[30px] items-center gap-2.5 rounded-sm px-2 font-medium transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-45",
+        "focus-visible:outline-ring h-ctl relative flex items-center gap-2.5 rounded-sm px-2 font-medium transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-45",
         active
           ? "bg-selected text-foreground"
           : "text-secondary-foreground hover:bg-accent hover:text-foreground",
@@ -189,7 +189,7 @@ function AdbFooter({
     <div
       className={cn(
         "text-muted-foreground text-small flex items-center gap-2 px-2",
-        collapsed ? "h-auto flex-col" : "h-[30px]",
+        collapsed ? "h-auto flex-col" : "h-ctl",
       )}
     >
       {!collapsed && (

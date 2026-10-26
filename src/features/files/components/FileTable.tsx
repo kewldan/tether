@@ -7,7 +7,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useSettings } from "@/lib/settings";
+import { useCompact } from "@/lib/density";
 import { cn } from "@/lib/utils";
 
 import { type FileEntry, isDirLike } from "../api";
@@ -30,7 +30,7 @@ export function FileTable({
   onOpen,
 }: ListProps) {
   const { t, i18n } = useTranslation("files");
-  const compact = useSettings((s) => s.density === "compact");
+  const compact = useCompact();
   const rowHeight = compact ? 28 : 32;
   const virtualizer = useVirtualizer({
     count: entries.length,

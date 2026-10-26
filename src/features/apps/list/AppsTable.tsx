@@ -1,8 +1,9 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { ArrowDown, ArrowUp } from "lucide-react";
-import { type KeyboardEvent, useRef } from "react";
+import { type KeyboardEvent, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useCompact } from "@/lib/density";
 import { cn } from "@/lib/utils";
 import type { AppMeta, AppSummary } from "../api";
 import { AppBadges } from "../components/AppBadges";
@@ -13,10 +14,12 @@ import { type SortKey, useAppsView } from "../store";
 import type { AppActions } from "../useAppActions";
 import { AppRowMenu } from "./AppRowMenu";
 
+/** Two-line rows (name + package): 44 px, 38 px in compact density. */
 const ROW = 44;
+const ROW_COMPACT = 38;
 const TH =
-  "bg-background text-small text-muted-foreground sticky top-0 z-10 h-8 border-b px-3 text-left font-medium whitespace-nowrap";
-const TD = "h-11 border-b px-3 whitespace-nowrap";
+  "bg-background text-small text-muted-foreground sticky top-0 z-10 h-row border-b px-3 text-left font-medium whitespace-nowrap";
+const TD = "border-b px-3 whitespace-nowrap";
 
 function SortHeader({
   sortKey,
@@ -70,12 +73,15 @@ export function AppsTable({
   const { t, i18n } = useTranslation("apps");
   const { sort, descending } = useAppsView();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const rowHeight = useCompact() ? ROW_COMPACT : ROW;
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => ROW,
+    estimateSize: () => rowHeight,
     overscan: 12,
   });
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-measure when density changes
+  useEffect(() => virtualizer.measure(), [rowHeight]);
   const items = virtualizer.getVirtualItems();
   const before = items[0]?.start ?? 0;
   const after = virtualizer.getTotalSize() - (items.at(-1)?.end ?? 0);
@@ -167,6 +173,7 @@ export function AppsTable({
                 key={app.package}
                 aria-rowindex={item.index + 2}
                 aria-selected={isSelected}
+                style={{ height: rowHeight }}
                 onClick={(e) => {
                   if (e.shiftKey || e.metaKey || e.ctrlKey) {
                     onToggle(app.package, !isSelected, e.shiftKey);

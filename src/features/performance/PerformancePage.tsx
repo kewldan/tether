@@ -808,7 +808,7 @@ function ProcessTable({ serial, paused }: { serial: string; paused: boolean }) {
     return (
       <th
         className={cn(
-          "bg-card h-8 border-b px-3 font-medium whitespace-nowrap",
+          "bg-card h-row border-b px-3 font-medium whitespace-nowrap",
           right ? "text-right" : "text-left",
         )}
         aria-sort={on ? (sort.desc ? "descending" : "ascending") : "none"}
@@ -835,7 +835,7 @@ function ProcessTable({ serial, paused }: { serial: string; paused: boolean }) {
     );
   };
 
-  const cell = "h-[30px] border-b px-3 whitespace-nowrap";
+  const cell = "h-row border-b px-3 whitespace-nowrap";
 
   return (
     <section className="bg-card overflow-hidden rounded-lg border">
@@ -870,7 +870,7 @@ function ProcessTable({ serial, paused }: { serial: string; paused: boolean }) {
                 {header("cpu", t("cpuPct"), true)}
                 {header("rssKb", t("rss"), true)}
                 {header("state", t("state"))}
-                <th className="bg-card h-8 w-[72px] border-b" />
+                <th className="bg-card h-row w-[72px] border-b" />
               </tr>
             </thead>
             <tbody className="text-small font-mono">

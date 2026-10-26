@@ -40,10 +40,10 @@ export function ListState(props: Props) {
   if (props.kind === "loading") {
     return (
       <div aria-busy className="flex flex-col">
-        <div className="h-8 border-b" />
+        <div className="h-row border-b" />
         {Array.from({ length: 9 }, (_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: static skeleton
-          <div key={i} className="flex h-8 items-center gap-3 border-b px-3">
+          <div key={i} className="h-row flex items-center gap-3 border-b px-3">
             <Skeleton className="bg-selected size-4 rounded-xs" />
             <Skeleton className="bg-selected size-4 rounded-xs" />
             <Skeleton

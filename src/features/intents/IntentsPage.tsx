@@ -712,7 +712,7 @@ function TypeOnDevice({ serial }: { serial: string }) {
             aria-label={k.aria}
             title={`KEYCODE_${k.key}`}
             onClick={() => key(k.key)}
-            className="border-input bg-card text-small hover:bg-accent focus-visible:outline-ring ease-spring-snappy h-[30px] min-w-[46px] rounded-[7px] border border-b-2 px-2.5 font-medium transition-[background-color,transform] duration-[340ms] outline-none focus-visible:outline-2 active:scale-[.97]"
+            className="border-input bg-card text-small hover:bg-accent focus-visible:outline-ring ease-spring-snappy h-ctl min-w-[46px] rounded-[7px] border border-b-2 px-2.5 font-medium transition-[background-color,transform] duration-[340ms] outline-none focus-visible:outline-2 active:scale-[.97]"
           >
             {k.label}
           </button>
@@ -807,7 +807,7 @@ function Empty({ text }: { text: string }) {
 }
 
 const rowClass =
-  "text-small focus-visible:outline-ring flex h-[30px] w-full items-center gap-2 overflow-hidden rounded-sm px-2 text-left font-mono whitespace-nowrap outline-none focus-visible:outline-2";
+  "text-small focus-visible:outline-ring flex h-ctl w-full items-center gap-2 overflow-hidden rounded-sm px-2 text-left font-mono whitespace-nowrap outline-none focus-visible:outline-2";
 
 function HistoryRow({
   entry,

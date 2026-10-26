@@ -494,7 +494,7 @@ function Th({
   return (
     <th
       className={cn(
-        "bg-card h-8 border-b px-3 text-left font-medium whitespace-nowrap",
+        "bg-card h-row border-b px-3 text-left font-medium whitespace-nowrap",
         className,
       )}
     >
@@ -517,7 +517,7 @@ function RuleRow({
   const { t } = useTranslation("ports");
   const host = useHostName();
   const inUse = row.error ? isAddressInUse(row.error) : false;
-  const cell = "h-8 border-b px-3 whitespace-nowrap";
+  const cell = "h-row border-b px-3 whitespace-nowrap";
 
   return (
     <tr

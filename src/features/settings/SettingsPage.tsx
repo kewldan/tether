@@ -162,7 +162,7 @@ export default function SettingsPage() {
                 aria-current={active === id ? "true" : undefined}
                 onClick={() => jump(id)}
                 className={cn(
-                  "focus-visible:outline-ring flex h-[30px] items-center gap-2.5 rounded-sm px-2.5 font-medium outline-none focus-visible:outline-2",
+                  "focus-visible:outline-ring h-ctl flex items-center gap-2.5 rounded-sm px-2.5 font-medium outline-none focus-visible:outline-2",
                   active === id
                     ? "bg-selected text-foreground"
                     : "text-secondary-foreground hover:bg-accent hover:text-foreground",

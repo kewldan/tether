@@ -199,19 +199,23 @@ export default function DevicesPage() {
                 <thead>
                   <tr className="text-small text-muted-foreground border-b text-left">
                     <th
-                      className="h-8 w-8 px-3"
+                      className="h-row w-8 px-3"
                       aria-label={t("page.select")}
                     />
-                    <th className="h-8 px-3 font-medium">{t("list.name")}</th>
-                    <th className="h-8 px-3 font-medium">{t("list.serial")}</th>
-                    <th className="h-8 px-3 font-medium">
+                    <th className="h-row px-3 font-medium">{t("list.name")}</th>
+                    <th className="h-row px-3 font-medium">
+                      {t("list.serial")}
+                    </th>
+                    <th className="h-row px-3 font-medium">
                       {t("card.transport")}
                     </th>
-                    <th className="h-8 px-3 font-medium">
+                    <th className="h-row px-3 font-medium">
                       {t("card.android")}
                     </th>
-                    <th className="h-8 px-3 font-medium">{t("list.state")}</th>
-                    <th className="h-8 w-10 px-3" />
+                    <th className="h-row px-3 font-medium">
+                      {t("list.state")}
+                    </th>
+                    <th className="h-row w-10 px-3" />
                   </tr>
                 </thead>
                 <tbody>
@@ -226,17 +230,17 @@ export default function DevicesPage() {
                   ))}
                   {remembered.map((w) => (
                     <tr key={w.address} className="border-b last:border-b-0">
-                      <td className="h-8 px-3" />
-                      <td className="h-8 px-3">{w.name ?? w.address}</td>
-                      <td className="text-small h-8 px-3 font-mono">
+                      <td className="h-row px-3" />
+                      <td className="h-row px-3">{w.name ?? w.address}</td>
+                      <td className="text-small h-row px-3 font-mono">
                         {w.address}
                       </td>
-                      <td className="h-8 px-3">Wi-Fi</td>
-                      <td className="h-8 px-3">—</td>
-                      <td className="h-8 px-3">
+                      <td className="h-row px-3">Wi-Fi</td>
+                      <td className="h-row px-3">—</td>
+                      <td className="h-row px-3">
                         <Badge variant="error">{t("list.remembered")}</Badge>
                       </td>
-                      <td className="h-8 px-3" />
+                      <td className="h-row px-3" />
                     </tr>
                   ))}
                 </tbody>
@@ -288,7 +292,7 @@ function ListRow({
       )}
       onDoubleClick={() => ready && open("overview")}
     >
-      <td className="h-8 px-3">
+      <td className="h-row px-3">
         <Checkbox
           aria-label={t("card.select", { name })}
           checked={selected}
@@ -296,16 +300,16 @@ function ListRow({
           onCheckedChange={onToggle}
         />
       </td>
-      <td className="h-8 px-3 font-medium">{name}</td>
-      <td className="text-small h-8 px-3 font-mono">{device.serial}</td>
-      <td className="h-8 px-3">
+      <td className="h-row px-3 font-medium">{name}</td>
+      <td className="text-small h-row px-3 font-mono">{device.serial}</td>
+      <td className="h-row px-3">
         {t(`transport.${device.transport}`, { ns: "common" })}
       </td>
-      <td className="h-8 px-3 tabular-nums">{info?.androidVersion ?? "—"}</td>
-      <td className="h-8 px-3">
+      <td className="h-row px-3 tabular-nums">{info?.androidVersion ?? "—"}</td>
+      <td className="h-row px-3">
         <StateBadge device={device} />
       </td>
-      <td className="h-8 px-2">
+      <td className="h-row px-2">
         <MoreMenu device={device} onRename={onRename} />
       </td>
     </tr>

@@ -11,6 +11,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
+  /* Density: rows 32 / controls 30 / small 26; compact drops each by 4 px
+     without changing type size (Main.dc.html, "Density by default"). */
+  --row-h: 32px;
+  --ctl-h: 30px;
+  --ctl-h-sm: 26px;
   --radius: 0.5rem;
   --background: #ffffff;
   --foreground: #17191e;
@@ -61,6 +66,12 @@
   --shadow-md-c: 0 6px 16px rgb(16 18 24 / 0.1), 0 0 0 1px rgb(16 18 24 / 0.06);
   --shadow-lg-c:
     0 16px 40px rgb(16 18 24 / 0.14), 0 0 0 1px rgb(16 18 24 / 0.06);
+}
+
+[data-density="compact"] {
+  --row-h: 28px;
+  --ctl-h: 26px;
+  --ctl-h-sm: 22px;
 }
 
 .dark {
@@ -167,6 +178,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+
+  /* h-row, h-ctl, h-ctl-sm, size-ctl… follow the density setting. */
+  --spacing-row: var(--row-h);
+  --spacing-ctl: var(--ctl-h);
+  --spacing-ctl-sm: var(--ctl-h-sm);
 
   /* 4 badge · 6 sm control · 8 control · 10 · 12 card/dialog */
   --radius-xs: 4px;
