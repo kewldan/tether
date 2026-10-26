@@ -27,11 +27,6 @@ already works; this is the work that comes next.
 - [ ] Audio track in recordings (raw PCM is forwarded today; needs an AAC or
       Opus stream from the server)
 
-## 📁 Files
-
-- [ ] EXIF details in the image preview
-- [ ] Compressed transfers (adb `sendrecv_v2` with brotli/lz4/zstd)
-
 ## 📦 Apps
 
 - [ ] Signing certificate SHA-256 and issuer in the app details
