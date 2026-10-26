@@ -358,20 +358,36 @@ pub async fn mirror_popout(
             )));
         }
     };
+    // Window event callbacks run inside the event loop while it holds its
+    // window table, and the callbacks themselves are dropped there too.
+    // Anything that talks to a webview (closing a window, a Channel
+    // message, even dropping a Channel, which unregisters it in its
+    // webview) must happen later, off the callback.
     // Closing the main window takes its pop-outs along.
     if let Some(main) = app.get_webview_window("main") {
         let popout = window.clone();
         main.on_window_event(move |event| {
             if let WindowEvent::Destroyed = event {
-                let _ = popout.close();
+                let popout = popout.clone();
+                tauri::async_runtime::spawn(async move {
+                    let _ = popout.close();
+                });
             }
         });
     }
     let handle_app = app.clone();
+    let on_closed = Mutex::new(Some(on_closed));
     window.on_window_event(move |event| {
         if let WindowEvent::Destroyed = event {
-            popout_closed(&handle_app, &label);
-            let _ = on_closed.send(());
+            let app = handle_app.clone();
+            let label = label.clone();
+            let on_closed = lock(&on_closed).take();
+            tauri::async_runtime::spawn(async move {
+                popout_closed(&app, &label);
+                if let Some(channel) = on_closed {
+                    let _ = channel.send(());
+                }
+            });
         }
     });
     Ok(())
