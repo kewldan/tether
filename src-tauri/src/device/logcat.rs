@@ -143,6 +143,17 @@ struct Header {
 /// Parses `[ 2026-10-25 23:44:02.346 10230: 6230: 6230 E/AndroidRuntime ]`
 /// and the Android 6 form `[ 10-25 23:44:02.346  6230: 6230 E/Tag ]`, whose
 /// date gets `year` in front.
+/// Byte offset of the `X/` level marker that follows the ids in a `-v long`
+/// header: a level letter right after whitespace and followed by `/`.
+fn level_tag_start(s: &str) -> Option<usize> {
+    let bytes = s.as_bytes();
+    (1..bytes.len().saturating_sub(1)).find(|&i| {
+        bytes[i + 1] == b'/'
+            && bytes[i - 1].is_ascii_whitespace()
+            && matches!(bytes[i], b'V' | b'D' | b'I' | b'W' | b'E' | b'F' | b'A')
+    })
+}
+
 fn parse_header(line: &str, year: &str) -> Option<Header> {
     let inner = line.strip_prefix("[ ")?.trim_end().strip_suffix(']')?;
     let mut rest = inner.trim_start();
@@ -166,19 +177,26 @@ fn parse_header(line: &str, year: &str) -> Option<Header> {
     if !is_time(time) {
         return None;
     }
-    // `uid: pid: tid`, or `pid: tid` without `-v uid`; padded after each
-    // colon.
-    let first = next_token().strip_suffix(':')?;
-    let second = next_token();
-    let (uid, pid, tid) = match second.strip_suffix(':') {
-        Some(pid) => (first.to_owned(), pid, next_token()),
-        None => (String::new(), first, second),
+    // `uid: pid: tid`, or `pid: tid` without `-v uid`. Fields are padded
+    // after each colon, but wide values leave no space at all
+    // (`shell:18737:18737`), so split on colons up to the `X/tag` part.
+    let rest_trimmed = rest.trim_start();
+    let ids_end = level_tag_start(rest_trimmed)?;
+    let ids: Vec<&str> = rest_trimmed[..ids_end]
+        .split(':')
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .collect();
+    let (uid, pid, tid) = match ids.as_slice() {
+        [uid, pid, tid] => ((*uid).to_owned(), *pid, *tid),
+        [pid, tid] => (String::new(), *pid, *tid),
+        _ => return None,
     };
     let pid = pid.parse().ok()?;
     let tid = tid.parse().ok()?;
 
     // `E/AndroidRuntime ` — the tag is padded and may contain spaces.
-    let level_tag = rest.trim_start();
+    let level_tag = rest_trimmed[ids_end..].trim_start();
     let mut chars = level_tag.chars();
     let level = Level::parse(chars.next()?)?;
     let tag = chars.as_str().strip_prefix('/')?.trim_end().to_owned();
@@ -956,6 +974,31 @@ mod tests {
 
     fn parse_all(text: &str) -> Vec<LogEntry> {
         parse_with(text, &LogDialect::default())
+    }
+
+    #[test]
+    fn parses_headers_without_padding_between_ids() {
+        // Wide uid/pid/tid values fill the padding, so there is no space
+        // after the colons (captured from an Android 16 emulator).
+        let h = header(
+            "[ 2026-10-26 19:05:08.166 shell:18737:18737 W/libbinder.BackendUnifiedServiceManager ]",
+        )
+        .unwrap();
+        assert_eq!(
+            (h.uid.as_str(), h.pid, h.tid, h.level, h.tag.as_str()),
+            (
+                "shell",
+                18737,
+                18737,
+                Level::W,
+                "libbinder.BackendUnifiedServiceManager"
+            )
+        );
+        let h = header("[ 2026-10-26 19:05:08.166  1000:  744:  758 I/Wifi Service ]").unwrap();
+        assert_eq!(
+            (h.uid.as_str(), h.pid, h.tid, h.tag.as_str()),
+            ("1000", 744, 758, "Wifi Service")
+        );
     }
 
     #[test]
