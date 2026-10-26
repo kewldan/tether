@@ -15,6 +15,10 @@ if (import.meta.env.DEV && !("__TAURI_INTERNALS__" in window)) {
   const { installMockBackend } = await import("@/dev/mockBackend");
   installMockBackend();
 }
+if (import.meta.env.DEV && import.meta.env.VITE_DEMO === "1") {
+  const { startDemoDriver } = await import("@/dev/demoDriver");
+  startDemoDriver();
+}
 
 // The screen-mirroring pop-out window loads the same page with
 // `?popout=<serial>` and renders only the mirror view.
