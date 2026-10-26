@@ -39,3 +39,18 @@ async fn cancel_stops_download() {
     assert_eq!(err.to_string(), "operation was cancelled");
     assert!(!app_data.path().join("platform-tools").exists());
 }
+
+#[tokio::test]
+#[ignore = "fetches the ~400 KB SDK manifest from dl.google.com"]
+async fn reads_latest_platform_tools_from_manifest() {
+    let app_data = tempfile::tempdir().unwrap();
+    let latest = adb_gui_lib::adb::latest::latest(app_data.path(), true)
+        .await
+        .expect("manifest must list platform-tools");
+    println!("latest platform-tools: {latest}");
+    assert!(latest.major >= 35);
+    assert!(
+        app_data.path().join("platform-tools-latest.json").is_file(),
+        "result must be cached"
+    );
+}

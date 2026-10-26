@@ -4,6 +4,7 @@ pub mod diagnostics;
 pub mod forward;
 pub mod hostkey;
 pub mod installer;
+pub mod latest;
 pub mod locator;
 pub mod server;
 pub mod shell_v2;

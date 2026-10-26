@@ -12,7 +12,7 @@ use serde::Serialize;
 use crate::adb::installer::{self, InstallEvent};
 use crate::adb::locator::{self, ADB_EXE, AdbInstall, AdbSource, LocationCheck, LocatorEnv};
 use crate::adb::server::{DEFAULT_PORT, send_request};
-use crate::adb::{diagnostics, hostkey};
+use crate::adb::{diagnostics, hostkey, latest};
 use crate::commands::connection::ConnectionState;
 use crate::error::{AppError, AppResult};
 use crate::state::{AppState, lock};
@@ -216,4 +216,38 @@ pub fn cancel_platform_tools_install(state: State<'_, AppState>) {
     if let Some(cancel) = lock(&state.install_cancel).as_ref() {
         cancel.store(true, Ordering::Relaxed);
     }
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PlatformToolsLatest {
+    /// Newest stable platform-tools, e.g. `37.0.1`.
+    pub latest: String,
+    /// Version of the active adb, as `adb version` prints it.
+    pub current: Option<String>,
+    /// The active adb is older than `latest`.
+    pub update_available: bool,
+}
+
+/// Compares the active adb with the newest platform-tools Google lists.
+/// Checked at most daily (`force` skips the cache); offline or on any
+/// error it answers `None` instead of failing.
+#[tauri::command]
+pub async fn platform_tools_latest(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    force: Option<bool>,
+) -> AppResult<Option<PlatformToolsLatest>> {
+    let Ok(app_data) = app.path().app_data_dir() else {
+        return Ok(None);
+    };
+    let Some(latest) = latest::latest(&app_data, force.unwrap_or(false)).await else {
+        return Ok(None);
+    };
+    let current = state.adb().and_then(|a| a.version);
+    Ok(Some(PlatformToolsLatest {
+        latest: latest.to_string(),
+        update_available: latest::is_outdated(current.as_deref(), latest),
+        current,
+    }))
 }
