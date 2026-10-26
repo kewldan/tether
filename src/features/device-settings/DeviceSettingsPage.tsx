@@ -21,6 +21,7 @@ import {
 import { type ReactNode, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useNavigation } from "@/app/navigation";
 import { Page } from "@/components/layout/Page";
 import {
   AlertDialog,
@@ -47,7 +48,13 @@ import {
   sameValue,
   useOriginals,
 } from "@/features/device-settings/originals";
+import {
+  ProfilesMenu,
+  SaveProfileDialog,
+} from "@/features/device-settings/ProfileParts";
+import { ProfilesView } from "@/features/device-settings/ProfilesView";
 import { Segmented } from "@/features/device-settings/Segmented";
+import { useProfileActions } from "@/features/device-settings/useProfileActions";
 import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useSelectedDevice } from "@/features/devices/store";
@@ -111,6 +118,14 @@ export default function DeviceSettingsPage() {
   const apply = (change: DevChange) => mutation.mutate(change);
   const [confirmWifiOff, setConfirmWifiOff] = useState(false);
   const [reverting, setReverting] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const view = useNavigation((s) => s.params.view);
+  const navigate = useNavigation((s) => s.navigate);
+  const profileActions = useProfileActions(
+    serial,
+    device?.transport ?? "usb",
+    settings,
+  );
 
   const revertAll = async () => {
     if (!serial || !settings || !originals) return;
@@ -138,12 +153,18 @@ export default function DeviceSettingsPage() {
     }
   };
 
-  const busy = mutation.isPending || reverting;
+  const busy = mutation.isPending || reverting || profileActions.busy !== null;
   const isMod = (key: DevKey) => modified.includes(key);
   const name = device ? deviceName(device, info) : "";
 
   const toggle = (key: DevKey & keyof DevSettings) => (checked: boolean) =>
     apply({ key, value: checked } as DevChange);
+
+  if (view === "profiles" && device && serial) {
+    return (
+      <ProfilesView device={device} settings={settings} modified={modified} />
+    );
+  }
 
   return (
     <Page
@@ -159,15 +180,24 @@ export default function DeviceSettingsPage() {
       }
       parent={device ? { label: name } : undefined}
       actions={
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={modified.length === 0 || busy}
-          onClick={() => void revertAll()}
-        >
-          <RotateCcw />
-          {t("revertAll")}
-        </Button>
+        <>
+          <ProfilesMenu
+            settings={settings}
+            disabled={!settings || busy}
+            onApply={(profile) => void profileActions.apply(profile)}
+            onSave={() => setSavingProfile(true)}
+            onManage={() => navigate("device-settings", { view: "profiles" })}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={modified.length === 0 || busy}
+            onClick={() => void revertAll()}
+          >
+            <RotateCcw />
+            {t("revertAll")}
+          </Button>
+        </>
       }
       className="px-5 py-4"
     >
@@ -418,6 +448,12 @@ export default function DeviceSettingsPage() {
         </div>
       )}
 
+      <SaveProfileDialog
+        open={savingProfile}
+        settings={settings}
+        suggested={modified}
+        onClose={() => setSavingProfile(false)}
+      />
       <AlertDialog open={confirmWifiOff} onOpenChange={setConfirmWifiOff}>
         <AlertDialogContent>
           <AlertDialogHeader>

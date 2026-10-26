@@ -25,7 +25,7 @@ already works; this is the work that comes next.
       and see all screens side by side
 - [x] **Sideload OTA:** flash an OTA zip through `adb sideload` with progress
       and safety checks
-- [ ] **Developer profiles:** saved sets of toggles ("Store screenshots",
+- [x] **Developer profiles:** saved sets of toggles ("Store screenshots",
       "Performance test")
 
 ## 🖥️ Screen mirroring
