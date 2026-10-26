@@ -77,7 +77,7 @@ terminal keep working next to it.
 | | Feature | What you get |
 |---|---|---|
 | 📱 | **Devices** | Live device list over USB, Wi-Fi and emulators, with clear states (unauthorized, offline, no permissions…) |
-| 📦 | **adb setup** | Auto-detection of existing adb plus one-click platform-tools download with license consent |
+| 📦 | **adb setup** | Auto-detection of existing adb, one-click platform-tools download with license consent, and a notice when Google ships a newer one |
 | 📶 | **Wi-Fi pairing** | Pair Android 11+ devices with a QR code or pairing code, or connect by IP |
 | 🖥️ | **Screen mirroring** | Low-latency mirroring and control powered by scrcpy-server, MP4 recording and a pop-out window |
 | 📁 | **File manager** | Browse, preview and transfer with a queue; computer ⇄ device panes, drag files in and out |
@@ -91,6 +91,7 @@ terminal keep working next to it.
 | 🔔 | **Menu bar & notifications** | Device status in the menu bar or tray; alerts when devices connect or an app crashes |
 | 🔧 | **Power tools** | Port forwarding, intents & deep links, performance charts, bugreports, captures gallery |
 | 🩺 | **Diagnostics** | "Can't see your device?" checklist that explains and fixes common problems |
+| ⌨️ | **Keyboard-first** | Command palette, rebindable shortcuts, open at login straight into the menu bar |
 
 What comes next is in the [🗺️ roadmap](ROADMAP.md).
 

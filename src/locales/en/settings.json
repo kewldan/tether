@@ -32,6 +32,22 @@
       "system": "System",
       "on": "On",
       "off": "Off"
+    },
+    "login": {
+      "title": "Open at login",
+      "desc": "Start Tether when you log in to this computer.",
+      "failed": "Couldn't change the login item"
+    },
+    "hidden": {
+      "title": {
+        "menuBar": "Start hidden in the menu bar",
+        "tray": "Start hidden in the tray"
+      },
+      "desc": "When opened at login, wait in the background until you need it.",
+      "needsTray": {
+        "menuBar": "Turn on the menu bar icon in Notifications first.",
+        "tray": "Turn on the tray icon in Notifications first."
+      }
     }
   },
   "adb": {
@@ -84,6 +100,17 @@
       "consentText": "The official archive comes straight from dl.google.com into Tether's folder. Accept Google's license to continue.",
       "accept": "I accept the",
       "license": "Android SDK Platform-Tools license terms"
+    },
+    "latest": {
+      "available": "platform-tools <v>{{latest}}</v> is available (you have <v>{{current}}</v>).",
+      "notes": "What's new",
+      "dismiss": "Hide until the next release",
+      "copy": "Copy command",
+      "how": {
+        "commands": "This adb comes from a package manager. Update it there:",
+        "studio": "This adb is part of the Android SDK. Update “Android SDK Platform-Tools” in Android Studio › SDK Manager, or switch to Tether's copy.",
+        "manual": "Replace this adb with the latest from Google, or switch to Tether's copy, which updates in one click."
+      }
     }
   },
   "files": {
@@ -106,7 +133,28 @@
     "sidebar": "Collapse sidebar",
     "switch": "Switch device 1–9",
     "devices": "All devices",
-    "wifi": "Connect over Wi-Fi"
+    "wifi": "Connect over Wi-Fi",
+    "theme": "Toggle dark / light theme",
+    "settings": "Open settings",
+    "edit": "Change the shortcut for {{name}}",
+    "reset": "Reset {{name}} to default",
+    "resetOne": "Reset to default",
+    "press": "Press new shortcut…",
+    "hint": "Esc cancels, Backspace removes the shortcut.",
+    "hintDigits": "Press the modifiers with any digit, e.g. ⌥1 or Alt+1. Esc cancels.",
+    "none": "None",
+    "conflict": "{{keys}} is already used by “{{other}}”. Replace it?",
+    "replace": "Replace",
+    "problem": {
+      "needsModifier": "Add ⌘/Ctrl, Alt or Control so typing doesn't trigger it.",
+      "reserved": "That combination belongs to the system (copy, paste, undo, quit…).",
+      "needsDigit": "Use a digit 1–9 with modifiers; the digit picks the device."
+    },
+    "resetAll": {
+      "title": "Reset all shortcuts",
+      "desc": "Go back to the default keys.",
+      "action": "Reset all"
+    }
   },
   "about": {
     "title": "About",

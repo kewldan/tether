@@ -31,7 +31,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Kbd } from "@/components/ui/kbd";
 import {
   Select,
   SelectContent,
@@ -51,11 +50,15 @@ import {
 } from "@/features/onboarding/api";
 import { LICENSE_URL } from "@/features/onboarding/NotFoundScreen";
 import { tildify } from "@/features/onboarding/parts";
+import { useLoginRows } from "@/features/settings/login";
+import { PlatformToolsNotice } from "@/features/settings/PlatformToolsNotice";
 import { pickFile, pickFolder } from "@/features/settings/pickers";
+import { usePlatformToolsUpdate } from "@/features/settings/platformTools";
 import { Segmented } from "@/features/settings/Segmented";
+import { useShortcutRows } from "@/features/settings/ShortcutRows";
 import { useUpdater } from "@/features/updater/store";
 import { useAdb } from "@/lib/adb";
-import { isMac, modKey, os } from "@/lib/platform";
+import { isMac, os } from "@/lib/platform";
 import { type AdbMode, type Language, useSettings } from "@/lib/settings";
 import type { AppError } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
@@ -244,6 +247,7 @@ export default function SettingsPage() {
 function useGeneralRows(): Row[] {
   const { t } = useTranslation("settings");
   const s = useSettings();
+  const login = useLoginRows();
   const languages: { value: Language; label: string }[] = [
     { value: "system", label: t("general.language.system") },
     { value: "en", label: "English" },
@@ -325,6 +329,7 @@ function useGeneralRows(): Row[] {
         />
       ),
     },
+    ...login,
   ];
 }
 
@@ -539,6 +544,8 @@ function AdbBanner() {
   const [consent, setConsent] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [progress, setProgress] = useState<InstallProgress | null>(null);
+  // An available update replaces the generic banner for Tether's copy.
+  const notice = usePlatformToolsUpdate().unseen && bundled;
 
   const start = () => {
     setConsent(false);
@@ -567,28 +574,36 @@ function AdbBanner() {
       : null;
 
   return (
-    <div className="bg-info/13 mt-2 mb-1.5 flex items-center gap-2.5 rounded-md px-3 py-2.5">
-      <Download className="text-info size-4 flex-none" aria-hidden />
-      <span className="min-w-0 flex-1">
-        {progress
-          ? progress.type === "extracting"
-            ? t("adb.update.extracting")
-            : t("adb.update.downloading", { pct: pct ?? "…" })
-          : bundled
-            ? t("adb.update.bundled", {
-                version: adb.install.version?.split("-")[0] ?? "?",
-              })
-            : t("adb.update.notBundled")}
-      </span>
-      <Button
-        size="sm"
-        variant="outline"
-        disabled={progress !== null}
-        onClick={() => setConsent(true)}
-      >
-        {progress ? <Loader className="animate-spin" /> : null}
-        {bundled ? t("adb.update.update") : t("adb.update.download")}
-      </Button>
+    <>
+      <PlatformToolsNotice
+        onUpdate={() => setConsent(true)}
+        busy={progress !== null}
+      />
+      {(!notice || progress) && (
+        <div className="bg-info/13 mt-2 mb-1.5 flex items-center gap-2.5 rounded-md px-3 py-2.5">
+          <Download className="text-info size-4 flex-none" aria-hidden />
+          <span className="min-w-0 flex-1">
+            {progress
+              ? progress.type === "extracting"
+                ? t("adb.update.extracting")
+                : t("adb.update.downloading", { pct: pct ?? "…" })
+              : bundled
+                ? t("adb.update.bundled", {
+                    version: adb.install.version?.split("-")[0] ?? "?",
+                  })
+                : t("adb.update.notBundled")}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={progress !== null}
+            onClick={() => setConsent(true)}
+          >
+            {progress ? <Loader className="animate-spin" /> : null}
+            {bundled ? t("adb.update.update") : t("adb.update.download")}
+          </Button>
+        </div>
+      )}
       <AlertDialog open={consent} onOpenChange={setConsent}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -625,7 +640,7 @@ function AdbBanner() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }
 
@@ -701,33 +716,6 @@ function useFilesRows(): Row[] {
       ),
     },
   ];
-}
-
-function Keys({ keys }: { keys: string[] }) {
-  return (
-    <span className="flex gap-[3px]">
-      {keys.map((k) => (
-        <Kbd key={k}>{k}</Kbd>
-      ))}
-    </span>
-  );
-}
-
-function useShortcutRows(): Row[] {
-  const { t } = useTranslation("settings");
-  const list: [string, string[]][] = [
-    ["palette", [modKey, "K"]],
-    ["sidebar", [modKey, "B"]],
-    ["switch", [modKey, "1…9"]],
-    ["devices", [modKey, "D"]],
-    ["wifi", [modKey, "⇧", "W"]],
-  ];
-  return list.map(([id, keys]) => ({
-    id,
-    title: t(`shortcuts.${id}`),
-    keywords: keys.join(" "),
-    control: <Keys keys={keys} />,
-  }));
 }
 
 function useAboutRows(): Row[] {

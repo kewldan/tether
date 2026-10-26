@@ -39,6 +39,10 @@ interface SettingsState {
   trayIcon: boolean;
   /** Closing the window hides it to the tray instead of quitting. */
   closeToTray: boolean;
+  /** Opened at login: stay hidden in the tray (needs `trayIcon`). */
+  startHidden: boolean;
+  /** platform-tools version whose "update available" dot was dismissed. */
+  platformToolsDismissed: string | null;
   /** Patch any of the fields above. */
   update: (patch: Partial<SettingsValues>) => void;
 }
@@ -73,6 +77,8 @@ export const useSettings = create<SettingsState>()(
       systemNotifications: true,
       trayIcon: true,
       closeToTray: false,
+      startHidden: false,
+      platformToolsDismissed: null,
       update: (patch) => set(patch),
     }),
     { name: "tether.settings" },

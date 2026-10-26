@@ -12,8 +12,8 @@ import { DeviceGate } from "@/features/devices/DeviceGate";
 import { useDeviceShortcuts } from "@/features/devices/useDeviceShortcuts";
 import { NotificationsHost } from "@/features/notifications/NotificationsHost";
 import { usePortRulesAutoRestore } from "@/features/ports/queries";
-import { hasMod } from "@/lib/platform";
 import { useSettings } from "@/lib/settings";
+import { useShortcut } from "@/lib/shortcuts";
 
 /** Titlebar, sidebar, the active page and the status bar. */
 export function AppShell() {
@@ -29,21 +29,13 @@ export function AppShell() {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!hasMod(e)) return;
-      const key = e.key.toLowerCase();
-      if (key === "k") {
-        e.preventDefault();
-        setPaletteOpen((open) => !open);
-      } else if (key === "b") {
-        e.preventDefault();
-        useSettings.getState().toggleSidebar();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  useShortcut("palette", () => setPaletteOpen((open) => !open));
+  useShortcut("sidebar", () => useSettings.getState().toggleSidebar());
+  useShortcut("settings", () => useNavigation.getState().navigate("settings"));
+  useShortcut("theme", () => {
+    const dark = document.documentElement.classList.contains("dark");
+    useSettings.getState().setTheme(dark ? "light" : "dark");
+  });
 
   return (
     <div className="flex h-full flex-col">

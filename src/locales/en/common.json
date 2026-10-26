@@ -51,7 +51,8 @@
       "offline": "Offline",
       "no_permissions": "No permissions — set up udev",
       "connecting": "Connecting…"
-    }
+    },
+    "adbUpdate": "platform-tools update available"
   },
   "state": {
     "device": "Online",
@@ -82,7 +83,10 @@
     "preferences": "Preferences",
     "themeDark": "Use dark theme",
     "themeLight": "Use light theme",
-    "themeSystem": "Use system theme"
+    "themeSystem": "Use system theme",
+    "connectWifi": "Connect over Wi-Fi…",
+    "toggleSidebar": "Toggle sidebar",
+    "toggleTheme": "Toggle dark / light theme"
   },
   "actions": {
     "copy": "Copy",

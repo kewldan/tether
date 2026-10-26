@@ -7,6 +7,7 @@ import { useAutoReconnect } from "@/features/devices/useAutoReconnect";
 import { useDeviceTracking } from "@/features/devices/useDeviceTracking";
 import { scanAdb } from "@/features/onboarding/api";
 import { Onboarding } from "@/features/onboarding/Onboarding";
+import { useLoginLaunch } from "@/features/settings/login";
 import { useAdb } from "@/lib/adb";
 import { useSettings } from "@/lib/settings";
 import { useApplyTheme } from "@/lib/theme";
@@ -17,6 +18,7 @@ type Flow = "boot" | "onboarding" | "app";
 
 export function App() {
   useApplyTheme();
+  useLoginLaunch();
   const adb = useAdb((s) => s.adb);
   const setAdb = useAdb((s) => s.setAdb);
   const onboardingDone = useSettings((s) => s.onboardingDone);

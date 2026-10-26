@@ -53,7 +53,8 @@
       "offline": "Не в сети",
       "no_permissions": "Нет прав — настройте udev",
       "connecting": "Подключение…"
-    }
+    },
+    "adbUpdate": "доступно обновление platform-tools"
   },
   "state": {
     "device": "В сети",
@@ -84,7 +85,10 @@
     "preferences": "Настройки",
     "themeDark": "Тёмная тема",
     "themeLight": "Светлая тема",
-    "themeSystem": "Как в системе"
+    "themeSystem": "Как в системе",
+    "connectWifi": "Подключить по Wi-Fi…",
+    "toggleSidebar": "Свернуть или развернуть боковую панель",
+    "toggleTheme": "Переключить тёмную / светлую тему"
   },
   "actions": {
     "copy": "Копировать",

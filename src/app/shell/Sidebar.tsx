@@ -10,9 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDevices } from "@/features/devices/store";
 import { useLogcatSession } from "@/features/logcat/session";
+import { usePlatformToolsUpdate } from "@/features/settings/platformTools";
 import { useAdb } from "@/lib/adb";
 import { spring } from "@/lib/motion";
 import { useSettings } from "@/lib/settings";
+import { useShortcutTitle } from "@/lib/shortcuts";
 import { useTasks } from "@/lib/tasks";
 import { cn } from "@/lib/utils";
 
@@ -184,6 +186,10 @@ function AdbFooter({
   const serverDown = useDevices((s) => s.error !== null);
   const navigate = useNavigation((s) => s.navigate);
   const version = adb.status === "found" ? adb.install.version : null;
+  const toggleLabel = collapsed ? t("sidebar.expand") : t("sidebar.collapse");
+  const toggleTitle = useShortcutTitle(toggleLabel, "sidebar");
+  const settingsTitle = useShortcutTitle(t("sidebar.appSettings"), "settings");
+  const adbUpdate = usePlatformToolsUpdate().unseen;
 
   return (
     <div
@@ -210,7 +216,8 @@ function AdbFooter({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={collapsed ? t("sidebar.expand") : t("sidebar.collapse")}
+          aria-label={toggleLabel}
+          title={toggleTitle}
           onClick={onToggle}
         >
           <PanelLeft />
@@ -218,10 +225,22 @@ function AdbFooter({
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label={t("sidebar.appSettings")}
+          aria-label={
+            adbUpdate
+              ? `${t("sidebar.appSettings")} · ${t("sidebar.adbUpdate")}`
+              : t("sidebar.appSettings")
+          }
+          title={settingsTitle}
           onClick={() => navigate("settings")}
+          className="relative"
         >
           <Settings />
+          {adbUpdate && (
+            <span
+              aria-hidden
+              className="bg-info ring-sidebar absolute top-1 right-1 size-1.5 rounded-full ring-2"
+            />
+          )}
         </Button>
       </span>
     </div>

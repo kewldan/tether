@@ -48,7 +48,4 @@ already works; this is the work that comes next.
 
 ## ⚙️ App
 
-- [ ] Editable keyboard shortcuts
-- [ ] Open at login
-- [ ] "New platform-tools available" notice
 - [ ] Default mirroring settings

@@ -21,13 +21,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Kbd } from "@/components/ui/kbd";
 import { useKnownDevices } from "@/features/devices/known";
 import { deviceName, useDeviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useConnectSheet } from "@/features/devices/sheetStore";
 import { useDevices, useSelectedSnapshot } from "@/features/devices/store";
-import { modKey } from "@/lib/platform";
+import { ShortcutKbd } from "@/lib/shortcuts";
 import type { Device } from "@/lib/tauri";
 
 export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
@@ -153,7 +152,7 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
         <DropdownMenuItem onClick={() => navigate("devices")}>
           <Smartphone />
           {t("sidebar.allDevices")}
-          <Kbd className="ml-auto">{modKey}D</Kbd>
+          <ShortcutKbd id="devices" className="ml-auto" />
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("multi-device")}>
           <LayoutGrid />
@@ -205,12 +204,7 @@ function DeviceItem({
       ) : (
         <StatusDot tone={deviceTone(device.state)} />
       )}
-      {index < 9 && (
-        <Kbd>
-          {modKey}
-          {index + 1}
-        </Kbd>
-      )}
+      {index < 9 && <ShortcutKbd id="switch" digit={index + 1} />}
     </DropdownMenuItem>
   );
 }

@@ -3,9 +3,9 @@ import { Minus, Moon, Search, Square, Sun, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Logo } from "@/components/layout/Logo";
 import { Button } from "@/components/ui/button";
-import { Kbd } from "@/components/ui/kbd";
-import { isMac, modKey } from "@/lib/platform";
+import { isMac } from "@/lib/platform";
 import { useSettings } from "@/lib/settings";
+import { ShortcutKbd, useShortcutTitle } from "@/lib/shortcuts";
 import { useResolvedTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,7 @@ export function Titlebar({ onOpenPalette }: { onOpenPalette?: () => void }) {
   const { t } = useTranslation();
   const theme = useResolvedTheme();
   const setTheme = useSettings((s) => s.setTheme);
+  const themeTitle = useShortcutTitle(t("titlebar.theme"), "theme");
 
   return (
     <div
@@ -42,10 +43,7 @@ export function Titlebar({ onOpenPalette }: { onOpenPalette?: () => void }) {
         >
           <Search className="size-3.5 flex-none" aria-hidden />
           <span className="truncate">{t("titlebar.search")}</span>
-          <span className="ml-auto flex gap-[3px]">
-            <Kbd>{modKey}</Kbd>
-            <Kbd>K</Kbd>
-          </span>
+          <ShortcutKbd id="palette" split className="ml-auto" />
         </button>
       ) : (
         <div data-tauri-drag-region className="flex-1" />
@@ -59,6 +57,7 @@ export function Titlebar({ onOpenPalette }: { onOpenPalette?: () => void }) {
           variant="ghost"
           size="icon-sm"
           aria-label={t("titlebar.theme")}
+          title={themeTitle}
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className={isMac ? "mr-2" : undefined}
         >

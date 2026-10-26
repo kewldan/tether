@@ -1,4 +1,4 @@
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, PanelLeft, Sun, SunMoon, Wifi } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { useNavigation } from "@/app/navigation";
@@ -12,10 +12,27 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandShortcut,
 } from "@/components/ui/command";
 import { deviceName } from "@/features/devices/naming";
+import { useConnectSheet } from "@/features/devices/sheetStore";
 import { useDevices } from "@/features/devices/store";
 import { useSettings } from "@/lib/settings";
+import { type ShortcutId, ShortcutKbd } from "@/lib/shortcuts";
+
+/** Palette entries that also have a shortcut show its current keys. */
+const NAV_SHORTCUTS: Partial<Record<string, ShortcutId>> = {
+  devices: "devices",
+  settings: "settings",
+};
+
+function Hint({ id, digit }: { id: ShortcutId; digit?: number }) {
+  return (
+    <CommandShortcut className="tracking-normal">
+      <ShortcutKbd id={id} digit={digit} />
+    </CommandShortcut>
+  );
+}
 
 /** ⌘K / Ctrl+K palette: navigation, devices and preferences. */
 export function CommandPalette({
@@ -30,6 +47,7 @@ export function CommandPalette({
   const devices = useDevices((s) => s.devices);
   const select = useDevices((s) => s.select);
   const setTheme = useSettings((s) => s.setTheme);
+  const toggleSidebar = useSettings((s) => s.toggleSidebar);
 
   const run = (action: () => void) => () => {
     action();
@@ -58,13 +76,14 @@ export function CommandPalette({
                 >
                   <Icon />
                   {t(`nav.${id}`)}
+                  {NAV_SHORTCUTS[id] && <Hint id={NAV_SHORTCUTS[id]} />}
                 </CommandItem>
               );
             })}
           </CommandGroup>
           {devices.length > 0 && (
             <CommandGroup heading={t("palette.devices")}>
-              {devices.map((d) => (
+              {devices.map((d, i) => (
                 <CommandItem
                   key={d.serial}
                   value={`device ${d.serial} ${deviceName(d)}`}
@@ -75,11 +94,37 @@ export function CommandPalette({
                   <span className="text-caption text-muted-foreground ml-auto font-mono">
                     {d.serial}
                   </span>
+                  {i < 9 && <Hint id="switch" digit={i + 1} />}
                 </CommandItem>
               ))}
             </CommandGroup>
           )}
           <CommandGroup heading={t("palette.preferences")}>
+            <CommandItem
+              onSelect={run(() => useConnectSheet.getState().show())}
+            >
+              <Wifi />
+              {t("palette.connectWifi")}
+              <Hint id="wifi" />
+            </CommandItem>
+            <CommandItem onSelect={run(toggleSidebar)}>
+              <PanelLeft />
+              {t("palette.toggleSidebar")}
+              <Hint id="sidebar" />
+            </CommandItem>
+            <CommandItem
+              onSelect={run(() =>
+                setTheme(
+                  document.documentElement.classList.contains("dark")
+                    ? "light"
+                    : "dark",
+                ),
+              )}
+            >
+              <SunMoon />
+              {t("palette.toggleTheme")}
+              <Hint id="theme" />
+            </CommandItem>
             <CommandItem onSelect={run(() => setTheme("dark"))}>
               <Moon />
               {t("palette.themeDark")}
