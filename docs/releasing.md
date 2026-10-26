@@ -84,15 +84,15 @@ Publishing a release triggers `.github/workflows/publish.yml`:
 - **winget:** opens a pull request to `microsoft/winget-pkgs` for
   `kewldan.Tether` with the NSIS installer (`*_x64-setup.exe`).
 
-Each job skips itself (with a notice) until its secret exists:
+Each job skips itself (with a notice) until its secret exists. To publish
+an existing release again: `gh workflow run publish.yml -f tag=v0.1.0`.
 
 | Secret | Token |
 |---|---|
-| `HOMEBREW_TAP_TOKEN` | Fine-grained PAT with **Contents: read and write** on `kewldan/homebrew-tap` only |
+| `HOMEBREW_TAP_DEPLOY_KEY` | Private half of a deploy key with write access to `kewldan/homebrew-tap` (already set up) |
 | `WINGET_TOKEN` | Classic PAT with `public_repo`; the account needs a fork of `microsoft/winget-pkgs` |
 
 ```bash
-gh secret set HOMEBREW_TAP_TOKEN --repo kewldan/tether
 gh secret set WINGET_TOKEN --repo kewldan/tether
 ```
 
