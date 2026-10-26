@@ -107,3 +107,77 @@ async fn clears_a_buffer() {
             .is_err()
     );
 }
+
+/// The Android 6 dialect (`-v long` without uid and year): current logcat
+/// prints the same header when asked for plain `-v long`, so this checks
+/// the legacy parser against real output.
+#[tokio::test]
+#[ignore = "needs a running adb server with a device"]
+async fn streams_in_legacy_format() {
+    let server = AdbServer::default();
+    let serial = first_device(&server).await;
+    let dialect = logcat::LogDialect {
+        sdk: Some(23),
+        year: "2026".into(),
+    };
+    let opts = StreamOptions {
+        buffers: vec!["main".into(), "system".into()],
+        tail: Some(500),
+        since: None,
+    };
+    let command = logcat::stream_command(&opts, &dialect).unwrap();
+    let mut entries = Vec::new();
+    let _ = tokio::time::timeout(
+        Duration::from_secs(3),
+        logcat::stream_command_output(&server, &serial, &command, &dialect, |b| entries.extend(b)),
+    )
+    .await;
+    println!("{} legacy entries", entries.len());
+    assert!(entries.len() >= 400, "too few: {}", entries.len());
+    assert!(entries.iter().all(|e| e.uid.is_empty()
+        && e.date.starts_with("2026-")
+        && e.date.len() == 10
+        && e.pid > 0));
+}
+
+/// Starts the background crash watcher, crashes Settings with `am crash`
+/// and expects exactly that crash (nothing replayed from before).
+#[tokio::test]
+#[ignore = "needs a running adb server with a device"]
+async fn crash_watcher_sees_new_crash_only() {
+    let server = AdbServer::default();
+    let serial = first_device(&server).await;
+    let dialect = logcat::probe(&server, &serial).await;
+    let command = logcat::crash_watch_command(&dialect);
+    println!("{command}");
+
+    server
+        .exec_text(&serial, "am start -W -n com.android.settings/.Settings")
+        .await
+        .unwrap();
+    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let watch_serial = serial.clone();
+    let watcher = tokio::spawn(async move {
+        logcat::stream_command_output(&server, &watch_serial, &command, &dialect, |b| {
+            for e in b {
+                let _ = tx.send(e);
+            }
+        })
+        .await
+    });
+    tokio::time::sleep(Duration::from_secs(2)).await;
+    assert!(rx.try_recv().is_err(), "old entries were replayed");
+    server
+        .exec_text(&serial, "am crash com.android.settings")
+        .await
+        .unwrap();
+
+    let entry = tokio::time::timeout(Duration::from_secs(10), rx.recv())
+        .await
+        .expect("no crash seen")
+        .unwrap();
+    watcher.abort();
+    println!("{:?}", entry.crash);
+    let crash = entry.crash.expect("first entry is the crash");
+    assert_eq!(crash.process.as_deref(), Some("com.android.settings"));
+}

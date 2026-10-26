@@ -31,7 +31,7 @@ interface SettingsState {
   downloadsDir: string | null;
   /** Notify when a device connects or disconnects. */
   notifyDevices: boolean;
-  /** Notify when the Logcat stream catches an app crash or ANR. */
+  /** Notify when an app on a connected device crashes or hits an ANR. */
   notifyCrashes: boolean;
   /** Use system notifications while the window is in the background. */
   systemNotifications: boolean;

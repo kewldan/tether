@@ -1,4 +1,4 @@
-import type { CrashKind } from "@/features/logcat/api";
+import type { CrashKind, LogEntry } from "@/features/logcat/api";
 
 export interface CrashReport {
   serial: string;
@@ -20,6 +20,32 @@ export interface CrashGroup {
 export function packageOf(process: string | null): string | null {
   const name = process?.split(":")[0]?.trim();
   return name ? name : null;
+}
+
+/** Identifies one crash report across streams of the same device. */
+export function crashKey(serial: string, entry: LogEntry): string {
+  return `${serial}|${entry.date} ${entry.time}|${entry.pid}|${entry.crash?.kind ?? ""}`;
+}
+
+/**
+ * Crash reports already taken, so one caught by both the Logcat page's
+ * stream and the background watcher is announced once.
+ */
+export class SeenCrashes {
+  private keys = new Set<string>();
+
+  constructor(private readonly max = 500) {}
+
+  /** Records `key`; false when it was already there. */
+  add(key: string): boolean {
+    if (this.keys.has(key)) return false;
+    this.keys.add(key);
+    if (this.keys.size > this.max) {
+      const oldest = this.keys.values().next().value;
+      if (oldest !== undefined) this.keys.delete(oldest);
+    }
+    return true;
+  }
 }
 
 /**

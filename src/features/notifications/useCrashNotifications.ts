@@ -2,11 +2,20 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { useNavigation } from "@/app/navigation";
+import { useDevices } from "@/features/devices/store";
+import type { LogEntry } from "@/features/logcat/api";
 import { logBuffer, useLogcatSession } from "@/features/logcat/session";
 import i18n from "@/lib/i18n";
 import { useSettings } from "@/lib/settings";
+import { crashWatch } from "./api";
 import type { CrashReport } from "./crashes";
-import { type CrashGroup, CrashThrottle, packageOf } from "./crashes";
+import {
+  type CrashGroup,
+  CrashThrottle,
+  crashKey,
+  packageOf,
+  SeenCrashes,
+} from "./crashes";
 import { isWindowFocused } from "./focus";
 import { deliver, follow, type Route } from "./notify";
 import { showCrashToast } from "./toasts";
@@ -88,14 +97,36 @@ function announce(groups: CrashGroup[]) {
   });
 }
 
+/** Serials of the devices ready for adb, sorted. */
+function readySerials(): string[] {
+  return useDevices
+    .getState()
+    .devices.filter((d) => d.state.kind === "device")
+    .map((d) => d.serial)
+    .sort();
+}
+
+/** True while the Logcat page shows `serial` to the user. */
+function logcatShows(serial: string) {
+  return (
+    useNavigation.getState().section === "logcat" &&
+    isWindowFocused() &&
+    useLogcatSession.getState().serial === serial
+  );
+}
+
 /**
- * Watches the Logcat stream (it keeps running after leaving the page) and
- * announces new crashes and ANRs, grouped per burst and throttled per app.
- * Quiet while the Logcat page itself is in front of the user.
+ * Announces new crashes and ANRs, grouped per burst and throttled per app.
+ * Two sources feed it: a background crash watcher on every ready device
+ * (crash and ANR lines only, started and stopped with the device), and the
+ * Logcat page's stream (it keeps running after leaving the page). A crash
+ * both see is announced once. Quiet for the device the Logcat page itself
+ * shows while it's in front of the user.
  */
 export function useCrashNotifications() {
   useEffect(() => {
     const throttle = new CrashThrottle();
+    const seen = new SeenCrashes();
     let lastId = logBuffer.last?.id ?? -1;
     let armedAt = 0;
     let burst: CrashReport[] = [];
@@ -103,16 +134,27 @@ export function useCrashNotifications() {
 
     const flush = () => {
       timer = null;
-      const reports = burst;
+      const reports = burst.filter((r) => !logcatShows(r.serial));
       burst = [];
       if (!useSettings.getState().notifyCrashes) return;
-      if (useNavigation.getState().section === "logcat" && isWindowFocused())
-        return;
       const groups = throttle.take(reports, Date.now());
       if (groups.length > 0) announce(groups);
     };
 
-    const unsubscribe = useLogcatSession.subscribe((state, prev) => {
+    const take = (serial: string, entry: LogEntry) => {
+      const crash = entry.crash;
+      if (!crash || !seen.add(crashKey(serial, entry))) return;
+      burst.push({
+        serial,
+        app: packageOf(crash.process),
+        kind: crash.kind,
+        title: crash.title,
+        trace: entry.message,
+      });
+      if (timer === null) timer = setTimeout(flush, BURST_MS);
+    };
+
+    const stopSession = useLogcatSession.subscribe((state, prev) => {
       if (state.status === "connecting" && prev.status !== "connecting")
         armedAt = Date.now() + BACKLOG_GRACE_MS;
       if (state.version === prev.version) return;
@@ -121,25 +163,37 @@ export function useCrashNotifications() {
       const start = logBuffer.indexAfter(lastId);
       const last = logBuffer.last;
       if (last && last.id > lastId) lastId = last.id;
+      // Backlog crashes are not marked seen: a new one arriving meanwhile
+      // still comes through the watcher.
       if (Date.now() < armedAt || !state.serial) return;
 
-      for (let i = start; i < lines.length; i++) {
-        const crash = lines[i].crash;
-        if (!crash) continue;
-        burst.push({
-          serial: state.serial,
-          app: packageOf(crash.process),
-          kind: crash.kind,
-          title: crash.title,
-          trace: lines[i].message,
-        });
-      }
-      if (burst.length > 0 && timer === null)
-        timer = setTimeout(flush, BURST_MS);
+      for (let i = start; i < lines.length; i++) take(state.serial, lines[i]);
     });
 
+    // Watchers follow the ready devices and the setting; off means none run.
+    let watched = "";
+    const syncWatchers = () => {
+      const serials = useSettings.getState().notifyCrashes
+        ? readySerials()
+        : [];
+      const key = serials.join();
+      if (key === watched) return;
+      watched = key;
+      void crashWatch(serials, (alert) =>
+        take(alert.serial, alert.entry),
+      ).catch(() => {
+        watched = "";
+      });
+    };
+    syncWatchers();
+    const stopDevices = useDevices.subscribe(syncWatchers);
+    const stopSettings = useSettings.subscribe(syncWatchers);
+
     return () => {
-      unsubscribe();
+      stopSession();
+      stopDevices();
+      stopSettings();
+      void crashWatch([], () => {}).catch(() => {});
       if (timer !== null) clearTimeout(timer);
     };
   }, []);

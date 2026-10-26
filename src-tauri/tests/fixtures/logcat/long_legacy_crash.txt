@@ -1,0 +1,28 @@
+--------- beginning of main
+[ 10-25 23:44:02.346  4821: 4821 D/AndroidRuntime ]
+Shutting down VM
+
+--------- beginning of crash
+[ 10-25 23:44:02.347  4821: 4821 E/AndroidRuntime ]
+FATAL EXCEPTION: main
+Process: com.example.shop, PID: 4821
+java.lang.IllegalStateException: boom
+	at com.example.shop.MainActivity.onClick(MainActivity.java:42)
+	at android.view.View.performClick(View.java:5198)
+	at android.os.Handler.handleCallback(Handler.java:739)
+	at android.os.Looper.loop(Looper.java:148)
+	at android.app.ActivityThread.main(ActivityThread.java:5417)
+
+--------- beginning of system
+[ 10-25 23:44:02.352   771: 1288 W/ActivityManager  ]
+  Force finishing activity com.example.shop/.MainActivity
+
+[ 10-25 23:44:02.861   771:  793 I/ActivityManager  ]
+Process com.example.shop (pid 4821) has died
+
+[ 10-25 23:44:03.120   771:  786 I/ActivityManager  ]
+Start proc 4870:com.example.shop/u0a61 for activity com.example.shop/.MainActivity
+
+[ 10-25 23:44:03.233  4870: 4870 I/art      ]
+Late-enabling -Xcheck:jni
+

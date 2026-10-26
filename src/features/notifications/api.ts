@@ -1,5 +1,27 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 
+import type { LogEntry } from "@/features/logcat/api";
+
+/** A crash or ANR caught by a background crash watcher. */
+export interface CrashAlert {
+  serial: string;
+  /** The crash entry; `crash` is always set. */
+  entry: LogEntry;
+}
+
+/**
+ * Runs the background crash watchers (`commands/logcat.rs`) on exactly
+ * `serials`, replacing the previous set and subscription; `[]` stops all.
+ */
+export function crashWatch(
+  serials: string[],
+  onAlert: (alert: CrashAlert) => void,
+) {
+  const channel = new Channel<CrashAlert>();
+  channel.onmessage = onAlert;
+  return invoke<void>("crash_watch", { serials, onEvent: channel });
+}
+
 /** Localized tray menu texts (`src-tauri/src/tray/view.rs`). */
 export interface TrayLabels {
   open: string;

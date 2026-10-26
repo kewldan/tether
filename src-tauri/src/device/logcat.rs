@@ -12,6 +12,14 @@
 //!
 //! ```
 //!
+//! Android 6 and older know neither `-v uid` nor `-v year` (both came with
+//! Android 7), so there the stream runs plain `logcat -v long`: the header
+//! has no uid (left empty) and no year (taken from the device clock).
+//!
+//! ```text
+//! [ 10-25 23:44:02.346  6230: 6230 E/AndroidRuntime ]
+//! ```
+//!
 //! Entries are annotated with crash markers (Java `FATAL EXCEPTION`, ANR,
 //! native tombstones) and `ActivityManager` process start/death events so
 //! the UI can follow an app across restarts.
@@ -132,8 +140,10 @@ struct Header {
     tag: String,
 }
 
-/// Parses `[ 2026-10-25 23:44:02.346 10230: 6230: 6230 E/AndroidRuntime ]`.
-fn parse_header(line: &str) -> Option<Header> {
+/// Parses `[ 2026-10-25 23:44:02.346 10230: 6230: 6230 E/AndroidRuntime ]`
+/// and the Android 6 form `[ 10-25 23:44:02.346  6230: 6230 E/Tag ]`, whose
+/// date gets `year` in front.
+fn parse_header(line: &str, year: &str) -> Option<Header> {
     let inner = line.strip_prefix("[ ")?.trim_end().strip_suffix(']')?;
     let mut rest = inner.trim_start();
 
@@ -146,13 +156,26 @@ fn parse_header(line: &str) -> Option<Header> {
     };
     let date = next_token();
     let time = next_token();
-    if !is_date(date) || !is_time(time) {
+    let date = if is_date(date) {
+        date.to_owned()
+    } else if is_month_day(date) {
+        format!("{year}-{date}")
+    } else {
+        return None;
+    };
+    if !is_time(time) {
         return None;
     }
-    // `uid: pid: tid` with padding after each colon.
-    let uid = next_token().strip_suffix(':')?.to_owned();
-    let pid = next_token().strip_suffix(':')?.parse().ok()?;
-    let tid = next_token().parse().ok()?;
+    // `uid: pid: tid`, or `pid: tid` without `-v uid`; padded after each
+    // colon.
+    let first = next_token().strip_suffix(':')?;
+    let second = next_token();
+    let (uid, pid, tid) = match second.strip_suffix(':') {
+        Some(pid) => (first.to_owned(), pid, next_token()),
+        None => (String::new(), first, second),
+    };
+    let pid = pid.parse().ok()?;
+    let tid = tid.parse().ok()?;
 
     // `E/AndroidRuntime ` — the tag is padded and may contain spaces.
     let level_tag = rest.trim_start();
@@ -161,7 +184,7 @@ fn parse_header(line: &str) -> Option<Header> {
     let tag = chars.as_str().strip_prefix('/')?.trim_end().to_owned();
 
     Some(Header {
-        date: date.to_owned(),
+        date,
         time: time.to_owned(),
         uid,
         pid,
@@ -173,6 +196,12 @@ fn parse_header(line: &str) -> Option<Header> {
 
 fn is_date(s: &str) -> bool {
     s.len() == 10 && s.bytes().all(|b| b.is_ascii_digit() || b == b'-')
+}
+
+/// `MM-DD`: the date of logs printed without `-v year`.
+fn is_month_day(s: &str) -> bool {
+    let b = s.as_bytes();
+    b.len() == 5 && b[2] == b'-' && [0, 1, 3, 4].iter().all(|&i| b[i].is_ascii_digit())
 }
 
 fn is_time(s: &str) -> bool {
@@ -187,9 +216,19 @@ pub struct Parser {
     pending: Option<(Header, Vec<String>)>,
     grouper: Grouper,
     next_seq: u64,
+    /// Year for headers printed without one (Android 6 and older).
+    year: Option<String>,
 }
 
 impl Parser {
+    /// A parser for the output of a device speaking `dialect`.
+    pub fn new(dialect: &LogDialect) -> Self {
+        Self {
+            year: Some(dialect.year.clone()),
+            ..Self::default()
+        }
+    }
+
     /// Feeds one line (without the trailing newline). Returns entries that
     /// became complete.
     pub fn push_line(&mut self, line: &str, out: &mut Vec<LogEntry>) {
@@ -199,7 +238,7 @@ impl Parser {
             return;
         }
         if line.starts_with("[ ")
-            && let Some(header) = parse_header(line)
+            && let Some(header) = parse_header(line, self.year.get_or_insert_with(current_year))
         {
             self.finish_pending(out);
             self.pending = Some((header, Vec::new()));
@@ -450,15 +489,138 @@ pub struct StreamOptions {
     pub since: Option<String>,
 }
 
+/// What the device's `logcat`, `ps` and `pm` understand, by Android version.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct LogDialect {
+    /// `ro.build.version.sdk`; `None` (unknown) is treated as current.
+    pub sdk: Option<u32>,
+    /// Device year, for headers printed without one.
+    pub year: String,
+}
+
+impl Default for LogDialect {
+    fn default() -> Self {
+        Self {
+            sdk: None,
+            year: current_year(),
+        }
+    }
+}
+
+impl LogDialect {
+    fn at_least(&self, sdk: u32) -> bool {
+        self.sdk.is_none_or(|s| s >= sdk)
+    }
+
+    /// `-v uid` and `-v year` (Android 7).
+    pub fn modern(&self) -> bool {
+        self.at_least(24)
+    }
+
+    /// The `crash` buffer (Android 5).
+    fn has_crash_buffer(&self) -> bool {
+        self.at_least(21)
+    }
+
+    /// `-T <count>` (Android 4.4).
+    fn has_tail(&self) -> bool {
+        self.at_least(19)
+    }
+
+    /// `-T '<time>'` (Android 5).
+    fn has_since(&self) -> bool {
+        self.at_least(21)
+    }
+
+    /// The crash watcher can't start at the current time (no `-T '<time>'`)
+    /// and gets a backlog it has to skip.
+    pub fn watch_replays_backlog(&self) -> bool {
+        !self.has_since()
+    }
+
+    /// `-v` options for the `long` format.
+    fn format(&self) -> &'static str {
+        if self.modern() {
+            "-v long -v year -v uid"
+        } else {
+            "-v long"
+        }
+    }
+
+    /// `ps` listing every process with PID and NAME columns. Before
+    /// Android 8 `ps` was toolbox's, which lists everything by default and
+    /// knows neither `-A` nor `-o`.
+    fn ps_command(&self) -> &'static str {
+        if self.at_least(26) {
+            "ps -A -o PID,NAME"
+        } else {
+            "ps"
+        }
+    }
+
+    /// `pm list packages -U` (uids) exists since Android 8.
+    fn pm_has_uid(&self) -> bool {
+        self.at_least(26)
+    }
+}
+
+/// The current year by the host clock: the fallback when the device's is
+/// unknown.
+fn current_year() -> String {
+    let days = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs() / 86_400);
+    // Civil-from-days (Howard Hinnant), year part only.
+    let z = days as i64 + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let year = yoe + era * 400 + i64::from(mp >= 10);
+    year.to_string()
+}
+
+/// Parses the output of [`PROBE_COMMAND`]: the SDK level and the year.
+fn parse_probe(output: &str) -> LogDialect {
+    let mut lines = output.lines().map(str::trim);
+    let sdk = lines.next().and_then(|l| l.parse().ok());
+    let year = lines
+        .next()
+        .filter(|y| y.len() == 4 && y.bytes().all(|b| b.is_ascii_digit()))
+        .map_or_else(current_year, str::to_owned);
+    LogDialect { sdk, year }
+}
+
+const PROBE_COMMAND: &str = "getprop ro.build.version.sdk; date +%Y";
+
+/// Asks the device which logcat dialect it speaks. Never fails: an
+/// unreadable answer means a current Android.
+pub async fn probe(server: &AdbServer, serial: &str) -> LogDialect {
+    match server.exec_text(serial, PROBE_COMMAND).await {
+        Ok(out) => parse_probe(&out),
+        Err(_) => LogDialect::default(),
+    }
+}
+
+/// `-b a -b b`: the repeated form works on every version, the comma list
+/// only since Android 7.
+fn push_buffers(cmd: &mut String, buffers: &[&str]) {
+    for b in buffers {
+        cmd.push_str(" -b ");
+        cmd.push_str(b);
+    }
+}
+
 /// Builds the `logcat` command line, validating every user-supplied part
 /// because it goes through the device shell.
-pub fn stream_command(opts: &StreamOptions) -> AppResult<String> {
-    let mut cmd = String::from("logcat -v long -v year -v uid");
-    let buffers = validate_buffers(&opts.buffers)?;
-    if !buffers.is_empty() {
-        cmd.push_str(" -b ");
-        cmd.push_str(&buffers.join(","));
+pub fn stream_command(opts: &StreamOptions, dialect: &LogDialect) -> AppResult<String> {
+    let mut cmd = format!("logcat {}", dialect.format());
+    let mut buffers = validate_buffers(&opts.buffers)?;
+    if !dialect.has_crash_buffer() {
+        buffers.retain(|b| *b != "crash");
     }
+    push_buffers(&mut cmd, &buffers);
     if let Some(since) = &opts.since {
         let valid = since.len() <= 32
             && since
@@ -467,12 +629,50 @@ pub fn stream_command(opts: &StreamOptions) -> AppResult<String> {
         if !valid {
             return Err(AppError::InvalidInput(format!("bad logcat time {since:?}")));
         }
-        cmd.push_str(&format!(" -T '{since}'"));
-    } else if let Some(tail) = opts.tail {
+        if dialect.has_since() {
+            // Without `-v year` logcat wants `MM-DD hh:mm:ss.mmm`.
+            let since = match since.get(..10) {
+                Some(date) if !dialect.modern() && is_date(date) => &since[5..],
+                _ => since.as_str(),
+            };
+            cmd.push_str(&format!(" -T '{since}'"));
+        }
+    } else if let Some(tail) = opts.tail
+        && dialect.has_tail()
+    {
         // `-T 0` is rejected by logcat; 1 is the smallest backlog.
         cmd.push_str(&format!(" -T {}", tail.max(1)));
     }
     Ok(cmd)
+}
+
+/// The background crash watcher's `logcat`: only the lines that can start
+/// a crash report (Java crashes and native tombstones from the `crash`
+/// buffer, ANRs from `system`), filtered on the device so an idle watcher
+/// sends nothing, and starting at the device's current time so old
+/// crashes are not replayed.
+pub fn crash_watch_command(dialect: &LogDialect) -> String {
+    let mut cmd = format!("logcat {}", dialect.format());
+    if dialect.has_crash_buffer() {
+        push_buffers(&mut cmd, &["crash", "system"]);
+    } else {
+        // Crashes went to `main` before the crash buffer existed.
+        push_buffers(&mut cmd, &["main", "system"]);
+    }
+    if dialect.has_since() {
+        let format = if dialect.modern() {
+            "%Y-%m-%d %H:%M:%S"
+        } else {
+            "%m-%d %H:%M:%S"
+        };
+        cmd.push_str(&format!(" -T \"$(date '+{format}').000\""));
+    } else if dialect.has_tail() {
+        // The backlog line is skipped by the caller
+        // ([`LogDialect::watch_replays_backlog`]).
+        cmd.push_str(" -T 1");
+    }
+    cmd.push_str(" AndroidRuntime:E ActivityManager:E DEBUG:F '*:S'");
+    cmd
 }
 
 fn validate_buffers(buffers: &[String]) -> AppResult<Vec<&str>> {
@@ -495,15 +695,28 @@ pub async fn stream(
     server: &AdbServer,
     serial: &str,
     opts: &StreamOptions,
+    on_batch: impl FnMut(Vec<LogEntry>),
+) -> AppResult<()> {
+    let dialect = probe(server, serial).await;
+    let command = stream_command(opts, &dialect)?;
+    stream_command_output(server, serial, &command, &dialect, on_batch).await
+}
+
+/// Runs a `logcat` command line in [`LogDialect::format`] and streams its
+/// parsed entries like [`stream`].
+pub async fn stream_command_output(
+    server: &AdbServer,
+    serial: &str,
+    command: &str,
+    dialect: &LogDialect,
     mut on_batch: impl FnMut(Vec<LogEntry>),
 ) -> AppResult<()> {
-    let command = stream_command(opts)?;
     let socket = server
         .open_device(serial, &format!("exec:{command}"))
         .await?;
     let mut reader = BufReader::with_capacity(64 * 1024, socket);
 
-    let mut parser = Parser::default();
+    let mut parser = Parser::new(dialect);
     let mut batch = Vec::new();
     let mut buf = Vec::with_capacity(512);
     let mut ticker = tokio::time::interval(FLUSH_INTERVAL);
@@ -590,8 +803,14 @@ pub fn parse_pm_packages(output: &str) -> Vec<(String, Option<u32>)> {
 }
 
 pub async fn packages(server: &AdbServer, serial: &str) -> AppResult<Vec<Package>> {
+    let dialect = probe(server, serial).await;
+    let all_cmd = if dialect.pm_has_uid() {
+        "pm list packages -U"
+    } else {
+        "pm list packages"
+    };
     let (all, third) = tokio::join!(
-        server.exec_text(serial, "pm list packages -U"),
+        server.exec_text(serial, all_cmd),
         server.exec_text(serial, "pm list packages -3"),
     );
     let third: std::collections::HashSet<String> = parse_pm_packages(&third?)
@@ -625,16 +844,22 @@ pub struct RunningProcess {
     pub name: String,
 }
 
-/// Parses `ps -A -o PID,NAME` and keeps the processes of `package`
+/// Parses `ps -A -o PID,NAME`, or toolbox `ps` of Android 7 and older
+/// (`USER PID PPID VSIZE RSS WCHAN PC NAME`, with an unlabeled state
+/// column before NAME), and keeps the processes of `package`
 /// (`com.example.shop` and `com.example.shop:remote`).
 pub fn parse_ps_for_package(output: &str, package: &str) -> Vec<RunningProcess> {
-    output
-        .lines()
-        .skip(1)
+    let mut lines = output.lines();
+    let pid_col = lines
+        .next()
+        .and_then(|header| header.split_whitespace().position(|c| c == "PID"))
+        .unwrap_or(0);
+    lines
         .filter_map(|line| {
             let mut parts = line.split_whitespace();
-            let pid = parts.next()?.parse().ok()?;
-            let name = parts.next()?;
+            let pid = parts.clone().nth(pid_col)?.parse().ok()?;
+            // NAME is the last column in both layouts.
+            let name = parts.next_back()?;
             let ours = name == package
                 || name
                     .strip_prefix(package)
@@ -668,15 +893,26 @@ pub async fn package_processes(
     package: &str,
 ) -> AppResult<PackageProcesses> {
     validate_package(package)?;
-    let pm_cmd = format!("pm list packages -U {package}");
-    let (pm, ps) = tokio::join!(
-        server.exec_text(serial, &pm_cmd),
-        server.exec_text(serial, "ps -A -o PID,NAME"),
-    );
-    let uid = parse_pm_packages(&pm?)
-        .into_iter()
-        .find(|(name, _)| name == package)
-        .and_then(|(_, uid)| uid);
+    let dialect = probe(server, serial).await;
+    let ps = server.exec_text(serial, dialect.ps_command());
+    // Without `-v uid` (Android 6) lines carry no uid, so it isn't needed:
+    // the package is followed by its pids and process names.
+    let uid = async {
+        if !dialect.pm_has_uid() {
+            return Ok(None);
+        }
+        let pm = server
+            .exec_text(serial, &format!("pm list packages -U {package}"))
+            .await?;
+        Ok::<_, AppError>(
+            parse_pm_packages(&pm)
+                .into_iter()
+                .find(|(name, _)| name == package)
+                .and_then(|(_, uid)| uid),
+        )
+    };
+    let (uid, ps) = tokio::join!(uid, ps);
+    let uid = uid?;
     Ok(PackageProcesses {
         uid,
         processes: parse_ps_for_package(&ps?, package),
@@ -689,9 +925,27 @@ mod tests {
 
     const APP_CRASH: &str = include_str!("../../tests/fixtures/logcat/long_app_crash.txt");
     const NATIVE_CRASH: &str = include_str!("../../tests/fixtures/logcat/long_native_crash.txt");
+    /// Hand-written from the Android 6 `logcat -v long` format (no uid, no
+    /// year); no device that old was at hand.
+    const LEGACY_CRASH: &str = include_str!("../../tests/fixtures/logcat/long_legacy_crash.txt");
 
-    fn parse_all(text: &str) -> Vec<LogEntry> {
-        let mut parser = Parser::default();
+    fn header(line: &str) -> Option<Header> {
+        parse_header(line, "2026")
+    }
+
+    fn modern_command(opts: &StreamOptions) -> AppResult<String> {
+        stream_command(opts, &LogDialect::default())
+    }
+
+    fn legacy(sdk: u32) -> LogDialect {
+        LogDialect {
+            sdk: Some(sdk),
+            year: "2025".into(),
+        }
+    }
+
+    fn parse_with(text: &str, dialect: &LogDialect) -> Vec<LogEntry> {
+        let mut parser = Parser::new(dialect);
         let mut out = Vec::new();
         for line in text.lines() {
             parser.push_line(line, &mut out);
@@ -700,10 +954,161 @@ mod tests {
         out
     }
 
+    fn parse_all(text: &str) -> Vec<LogEntry> {
+        parse_with(text, &LogDialect::default())
+    }
+
+    #[test]
+    fn parses_legacy_headers() {
+        let h = header("[ 10-25 23:44:02.347  4821: 4821 E/AndroidRuntime ]").unwrap();
+        assert_eq!(
+            h,
+            Header {
+                date: "2026-10-25".into(),
+                time: "23:44:02.347".into(),
+                uid: String::new(),
+                pid: 4821,
+                tid: 4821,
+                level: Level::E,
+                tag: "AndroidRuntime".into(),
+            }
+        );
+        let h = header("[ 10-25 23:44:02.352   771: 1288 W/ActivityManager  ]").unwrap();
+        assert_eq!(
+            (h.pid, h.tid, h.tag.as_str()),
+            (771, 1288, "ActivityManager")
+        );
+        assert!(header("[ 1-25 23:44:02.352   771: 1288 W/Tag ]").is_none());
+        assert!(header("[ 10-25 23:44:02.352   771 W/Tag ]").is_none());
+    }
+
+    #[test]
+    fn parses_legacy_stream() {
+        let entries = parse_with(LEGACY_CRASH, &legacy(23));
+        assert_eq!(entries.len(), 6);
+        assert!(
+            entries
+                .iter()
+                .all(|e| e.date == "2025-10-25" && e.uid.is_empty())
+        );
+
+        let crash = entries.iter().find(|e| e.crash.is_some()).unwrap();
+        assert_eq!(
+            crash.crash,
+            Some(Crash {
+                kind: CrashKind::Java,
+                title: "java.lang.IllegalStateException: boom".into(),
+                process: Some("com.example.shop".into()),
+                pid: Some(4821),
+            })
+        );
+        // Without uids the package is followed by process events.
+        let events: Vec<_> = entries
+            .iter()
+            .filter_map(|e| e.process_event.clone())
+            .collect();
+        assert_eq!(
+            events,
+            [
+                ProcessEvent {
+                    kind: ProcessEventKind::Died,
+                    pid: 4821,
+                    process: "com.example.shop".into(),
+                },
+                ProcessEvent {
+                    kind: ProcessEventKind::Started,
+                    pid: 4870,
+                    process: "com.example.shop".into(),
+                },
+            ]
+        );
+        assert_eq!(entries[5].tag, "art");
+    }
+
+    #[test]
+    fn probes_dialect() {
+        assert_eq!(parse_probe("23\n2025\n"), legacy(23));
+        let d = parse_probe("36\r\n2026\r\n");
+        assert_eq!(d.sdk, Some(36));
+        assert!(d.modern());
+        // Garbage means a current Android with the host's year.
+        let d = parse_probe("sh: getprop: not found\n");
+        assert_eq!(d.sdk, None);
+        assert!(d.modern());
+        assert_eq!(d.year.len(), 4);
+        assert!(current_year().as_str() >= "2026");
+    }
+
+    #[test]
+    fn builds_legacy_commands() {
+        let opts = StreamOptions {
+            buffers: vec!["main".into(), "system".into(), "crash".into()],
+            tail: Some(5000),
+            since: None,
+        };
+        assert_eq!(
+            stream_command(&opts, &legacy(23)).unwrap(),
+            "logcat -v long -b main -b system -b crash -T 5000"
+        );
+        // No crash buffer before Android 5, no `-T` before 4.4.
+        assert_eq!(
+            stream_command(&opts, &legacy(18)).unwrap(),
+            "logcat -v long -b main -b system"
+        );
+        let resume = StreamOptions {
+            since: Some("2025-10-25 23:44:02.346".into()),
+            ..Default::default()
+        };
+        assert_eq!(
+            stream_command(&resume, &legacy(23)).unwrap(),
+            "logcat -v long -T '10-25 23:44:02.346'"
+        );
+    }
+
+    #[test]
+    fn builds_crash_watch_command() {
+        assert_eq!(
+            crash_watch_command(&LogDialect::default()),
+            "logcat -v long -v year -v uid -b crash -b system \
+             -T \"$(date '+%Y-%m-%d %H:%M:%S').000\" \
+             AndroidRuntime:E ActivityManager:E DEBUG:F '*:S'"
+        );
+        assert_eq!(
+            crash_watch_command(&legacy(23)),
+            "logcat -v long -b crash -b system -T \"$(date '+%m-%d %H:%M:%S').000\" \
+             AndroidRuntime:E ActivityManager:E DEBUG:F '*:S'"
+        );
+        let old = legacy(19);
+        assert!(crash_watch_command(&old).contains("-b main -b system -T 1 "));
+        assert!(old.watch_replays_backlog());
+        assert!(!LogDialect::default().watch_replays_backlog());
+    }
+
+    #[test]
+    fn finds_processes_in_toolbox_ps() {
+        let ps = "USER     PID   PPID  VSIZE  RSS     WCHAN    PC        NAME\n\
+                  root      1     0     8904   788   ffffffff 00000000 S /init\n\
+                  u0_a61    4870  346   1012632 54260 SyS_epoll_ 00000000 S com.example.shop\n\
+                  u0_a61    4891  346   998000 41000 SyS_epoll_ 00000000 S com.example.shop:sync\n";
+        let procs = parse_ps_for_package(ps, "com.example.shop");
+        assert_eq!(
+            procs,
+            [
+                RunningProcess {
+                    pid: 4870,
+                    name: "com.example.shop".into(),
+                },
+                RunningProcess {
+                    pid: 4891,
+                    name: "com.example.shop:sync".into(),
+                },
+            ]
+        );
+    }
+
     #[test]
     fn parses_header_fields() {
-        let h =
-            parse_header("[ 2026-10-25 23:44:02.346 10230: 6230: 6230 E/AndroidRuntime ]").unwrap();
+        let h = header("[ 2026-10-25 23:44:02.346 10230: 6230: 6230 E/AndroidRuntime ]").unwrap();
         assert_eq!(
             h,
             Header {
@@ -716,7 +1121,7 @@ mod tests {
                 tag: "AndroidRuntime".into(),
             }
         );
-        let h = parse_header("[ 2026-10-25 23:43:07.016  logd:  242:  242 I/logd     ]").unwrap();
+        let h = header("[ 2026-10-25 23:43:07.016  logd:  242:  242 I/logd     ]").unwrap();
         assert_eq!(
             (h.uid.as_str(), h.pid, h.tag.as_str()),
             ("logd", 242, "logd")
@@ -725,18 +1130,17 @@ mod tests {
 
     #[test]
     fn keeps_tags_with_spaces_and_slashes() {
-        let h =
-            parse_header("[ 2026-10-25 23:44:02.414 10193: 1145: 1145 D/b/417220811 ]").unwrap();
+        let h = header("[ 2026-10-25 23:44:02.414 10193: 1145: 1145 D/b/417220811 ]").unwrap();
         assert_eq!(h.tag, "b/417220811");
-        let h = parse_header("[ 2026-10-25 23:44:02.414  1000:  744:  904 D/Wifi Score ]").unwrap();
+        let h = header("[ 2026-10-25 23:44:02.414  1000:  744:  904 D/Wifi Score ]").unwrap();
         assert_eq!(h.tag, "Wifi Score");
     }
 
     #[test]
     fn rejects_non_headers() {
-        assert!(parse_header("[ not a header ]").is_none());
-        assert!(parse_header("[ 2026-10-25 23:44:02.346 10230: x: 6230 E/Tag ]").is_none());
-        assert!(parse_header("  at android.os.Looper.loop(Looper.java:367)").is_none());
+        assert!(header("[ not a header ]").is_none());
+        assert!(header("[ 2026-10-25 23:44:02.346 10230: x: 6230 E/Tag ]").is_none());
+        assert!(header("  at android.os.Looper.loop(Looper.java:367)").is_none());
     }
 
     #[test]
@@ -894,15 +1298,15 @@ Load: 2.14 / 1.87 / 1.42
 
     #[test]
     fn builds_stream_command() {
-        let cmd = stream_command(&StreamOptions {
+        let cmd = modern_command(&StreamOptions {
             buffers: vec!["main".into(), "crash".into()],
             tail: Some(500),
             since: None,
         })
         .unwrap();
-        assert_eq!(cmd, "logcat -v long -v year -v uid -b main,crash -T 500");
+        assert_eq!(cmd, "logcat -v long -v year -v uid -b main -b crash -T 500");
 
-        let cmd = stream_command(&StreamOptions {
+        let cmd = modern_command(&StreamOptions {
             since: Some("2026-10-25 23:44:02.346".into()),
             ..Default::default()
         })
@@ -913,14 +1317,14 @@ Load: 2.14 / 1.87 / 1.42
         );
 
         assert!(
-            stream_command(&StreamOptions {
+            modern_command(&StreamOptions {
                 buffers: vec!["main;reboot".into()],
                 ..Default::default()
             })
             .is_err()
         );
         assert!(
-            stream_command(&StreamOptions {
+            modern_command(&StreamOptions {
                 since: Some("'; reboot".into()),
                 ..Default::default()
             })

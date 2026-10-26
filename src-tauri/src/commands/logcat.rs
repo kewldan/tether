@@ -1,14 +1,16 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use serde::Serialize;
 use tauri::async_runtime::JoinHandle;
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
-use crate::device::logcat::{self, LogEntry, Package, PackageProcesses, StreamOptions};
+use crate::adb::server::AdbServer;
+use crate::device::logcat::{self, LogDialect, LogEntry, Package, PackageProcesses, StreamOptions};
 use crate::error::{AppError, AppResult};
 use crate::state::{AppState, lock};
 
@@ -44,7 +46,7 @@ pub async fn logcat_start(
     on_event: Channel<LogcatEvent>,
 ) -> AppResult<u32> {
     // Reject bad options before spawning, so the caller gets the error.
-    logcat::stream_command(&options)?;
+    logcat::stream_command(&options, &LogDialect::default())?;
     let server = state.server;
     let id = sessions.next_id.fetch_add(1, Ordering::Relaxed) + 1;
     let tasks = sessions.tasks.clone();
@@ -71,6 +73,101 @@ pub async fn logcat_start(
 pub fn logcat_stop(sessions: State<'_, LogcatSessions>, session: u32) {
     if let Some(handle) = lock(&sessions.tasks).remove(&session) {
         handle.abort();
+    }
+}
+
+/// Background crash watchers: one small `logcat` per ready device that
+/// sees only crash and ANR reports (see [`logcat::crash_watch_command`]),
+/// so crash notifications work without the Logcat page.
+#[derive(Default)]
+pub struct CrashWatchers {
+    sink: Arc<Mutex<Option<Channel<CrashAlert>>>>,
+    tasks: Mutex<HashMap<String, JoinHandle<()>>>,
+}
+
+/// A crash or ANR caught by a background watcher.
+#[derive(Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CrashAlert {
+    pub serial: String,
+    /// The crash entry, with `crash` set.
+    pub entry: LogEntry,
+}
+
+/// A watcher that stopped (logcat exited, adb hiccup) restarts after this,
+/// doubling up to [`WATCH_RETRY_MAX`] while it keeps failing.
+const WATCH_RETRY_MIN: Duration = Duration::from_secs(5);
+const WATCH_RETRY_MAX: Duration = Duration::from_secs(60);
+/// Lines arriving this soon after the start of a watcher that can't skip
+/// the backlog (Android 4.4 and older) are old.
+const WATCH_BACKLOG_GRACE: Duration = Duration::from_secs(3);
+
+/// Watches `serials` for crashes and sends them to `on_event`, replacing
+/// the previous set and channel: watchers of serials no longer listed stop,
+/// new ones start. An empty list stops everything.
+#[tauri::command]
+pub fn crash_watch(
+    state: State<'_, AppState>,
+    watchers: State<'_, CrashWatchers>,
+    serials: Vec<String>,
+    on_event: Channel<CrashAlert>,
+) {
+    *lock(&watchers.sink) = Some(on_event);
+    let wanted: HashSet<String> = serials.into_iter().collect();
+    let mut tasks = lock(&watchers.tasks);
+    tasks.retain(|serial, handle| {
+        let keep = wanted.contains(serial);
+        if !keep {
+            handle.abort();
+        }
+        keep
+    });
+    for serial in wanted {
+        if tasks.contains_key(&serial) {
+            continue;
+        }
+        let handle = tauri::async_runtime::spawn(watch_crashes(
+            state.server,
+            serial.clone(),
+            watchers.sink.clone(),
+        ));
+        tasks.insert(serial, handle);
+    }
+}
+
+async fn watch_crashes(
+    server: AdbServer,
+    serial: String,
+    sink: Arc<Mutex<Option<Channel<CrashAlert>>>>,
+) {
+    let mut delay = WATCH_RETRY_MIN;
+    loop {
+        let started = Instant::now();
+        let dialect = logcat::probe(&server, &serial).await;
+        let command = logcat::crash_watch_command(&dialect);
+        let skip_until = dialect
+            .watch_replays_backlog()
+            .then(|| started + WATCH_BACKLOG_GRACE);
+        let _ = logcat::stream_command_output(&server, &serial, &command, &dialect, |entries| {
+            if skip_until.is_some_and(|t| Instant::now() < t) {
+                return;
+            }
+            let Some(channel) = lock(&sink).clone() else {
+                return;
+            };
+            for entry in entries.into_iter().filter(|e| e.crash.is_some()) {
+                let _ = channel.send(CrashAlert {
+                    serial: serial.clone(),
+                    entry,
+                });
+            }
+        })
+        .await;
+        if started.elapsed() > WATCH_RETRY_MAX {
+            delay = WATCH_RETRY_MIN;
+        }
+        tokio::time::sleep(delay).await;
+        delay = (delay * 2).min(WATCH_RETRY_MAX);
     }
 }
 

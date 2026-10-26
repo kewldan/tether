@@ -42,7 +42,7 @@
     },
     "crashes": {
       "title": "App crashes",
-      "desc": "When Logcat catches a crash or ANR, on any page. Logcat keeps listening to the current device once you've opened it."
+      "desc": "When an app on any connected device crashes or stops responding (ANR). Works on every page, no need to open Logcat."
     },
     "system": {
       "title": "System notifications in the background",

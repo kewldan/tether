@@ -51,7 +51,8 @@ export function LineDetails({
   const facts: [string, string][] = [
     [t("details.time"), `${line.date} ${line.time}`],
     [t("details.pidTid"), `${line.pid} · ${line.tid}`],
-    [t("details.uid"), line.uid],
+    // Android 6 and older don't log the uid.
+    [t("details.uid"), line.uid || t("details.unknown")],
     [t("details.levelTag"), `${line.level} · ${line.tag}`],
     [t("details.process"), process ?? t("details.unknown")],
   ];
