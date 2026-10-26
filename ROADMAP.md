@@ -23,7 +23,7 @@ already works; this is the work that comes next.
 
 - [ ] **Multi-device grid:** run an action on every selected device at once
       and see all screens side by side
-- [ ] **Sideload OTA:** flash an OTA zip through `adb sideload` with progress
+- [x] **Sideload OTA:** flash an OTA zip through `adb sideload` with progress
       and safety checks
 - [ ] **Developer profiles:** saved sets of toggles ("Store screenshots",
       "Performance test")

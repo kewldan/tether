@@ -473,6 +473,11 @@ export function DeviceCard({
         badge={<StateBadge device={device} />}
       >
         <div className="flex flex-wrap items-center gap-2">
+          {(kind === "sideload" || kind === "recovery") && (
+            <Button size="sm" onClick={() => open("sideload")}>
+              {t("nav.sideload", { ns: "common" })}
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"

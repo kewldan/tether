@@ -1,0 +1,84 @@
+{
+  "title": "Sideload update",
+  "noDevice": "Connect a device to install an OTA update with adb sideload.",
+  "disconnected": "Disconnected",
+  "task": "Sideload {{name}}",
+  "install": "Install update",
+  "again": "Choose another update",
+  "warning": {
+    "title": "Don't unplug the cable or let the battery die.",
+    "body": "Interrupting a sideload can leave the phone unbootable.",
+    "batteryOk": "Battery is at <b>{{level}}%</b> — enough.",
+    "batteryLow": "Battery is at <b>{{level}}%</b> — charge it first.",
+    "batteryUnknown": "Check that the battery is charged: it can't be read in sideload mode."
+  },
+  "file": {
+    "drop": "Drop the OTA zip here or pick it",
+    "hint": "A full or incremental OTA package for this device (.zip)",
+    "pick": "Choose file…",
+    "change": "Change…",
+    "pickTitle": "Choose an OTA package",
+    "filter": "OTA package",
+    "failed": "Couldn't read the package",
+    "android": "Android {{version}} ({{build}})",
+    "signed": "signature block present",
+    "unsigned": "no signature"
+  },
+  "checks": {
+    "label": "Safety checks",
+    "stateOk": "The device is waiting in Apply update from ADB",
+    "stateWrong": "The device is not in sideload mode yet (now: {{state}})",
+    "gone": "The device is disconnected",
+    "batteryOk": "Battery {{level}}%",
+    "batteryMeh": "Battery {{level}}% — charging to 30% or more is safer",
+    "batteryLow": "Battery {{level}}% — below {{min}}%, recovery would refuse the update",
+    "batteryUnknown": "Battery level unknown: it was not read before the device entered recovery",
+    "batteryAck": "I checked that the battery is at least {{min}}% charged",
+    "notOta": "This zip is not an OTA package",
+    "otaAb": "A/B OTA package (payload.bin)",
+    "otaBlock": "Block-based OTA package",
+    "targetOk": "Made for this device ({{device}})",
+    "targetWrong": "Made for {{devices}}, but this device is {{device}}",
+    "targetUnknown": "The package doesn't say which device it is for",
+    "targetUnverified": "Made for {{devices}}; this device's codename is unknown",
+    "signed": "Signature block present — recovery verifies it",
+    "unsigned": "No signature block: stock recovery will reject it",
+    "incremental": "Incremental: only installs over build {{build}}",
+    "wipe": "Erases all data on the device",
+    "downgrade": "Downgrade: installs an older build"
+  },
+  "progress": {
+    "sending": "Sending to recovery…",
+    "done": "Update sent",
+    "failed": "Sideload failed",
+    "cancelled": "Sideload stopped",
+    "left": "{{eta}} left",
+    "doneLog": "Total xfer: {{ratio}}x",
+    "doneHint": "Recovery finishes installing on its own. Follow the phone's screen, then choose Reboot system now."
+  },
+  "cancel": {
+    "button": "Cancel (unsafe)",
+    "title": "Stop the sideload?",
+    "body": "If recovery has started writing the update, stopping now can leave the phone unbootable until you sideload again.",
+    "keep": "Keep sending",
+    "confirm": "Stop sideload"
+  },
+  "confirm": {
+    "title": "Install the update on {{name}}?",
+    "body": "{{file}} will be sent to recovery and installed. Keep the cable connected until the phone says it's done.",
+    "wipe": "This package erases all data on the device.",
+    "type": "Type <code>{{phrase}}</code> to confirm",
+    "button": "Install update"
+  },
+  "howto": {
+    "title": "How to start a sideload",
+    "step1": "Reboot to recovery from the device menu",
+    "step2": "On the phone choose <b>Apply update from ADB</b>",
+    "step3": "Drop the OTA zip here or pick it",
+    "reboot": "Reboot to sideload",
+    "rebooting": "{{name}} is rebooting to sideload mode",
+    "rebootFailed": "Couldn't reboot the device",
+    "confirmTitle": "Reboot {{name}} to sideload?",
+    "confirmBody": "The phone restarts into recovery and waits for an update over adb. Apps and the screen are unavailable until you reboot it again."
+  }
+}

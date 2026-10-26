@@ -32,6 +32,7 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(tray::on_window_event)
+        .manage(commands::sideload::SideloadState::default())
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -145,6 +146,9 @@ pub fn run() {
             commands::mirror::mirror_control,
             commands::tray::tray_sync,
             commands::tray::tray_watch,
+            commands::sideload::sideload_inspect,
+            commands::sideload::sideload_start,
+            commands::sideload::sideload_cancel,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

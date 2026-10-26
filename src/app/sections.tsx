@@ -2,6 +2,7 @@ import {
   Bug,
   FolderClosed,
   Gauge,
+  HardDriveDownload,
   Images,
   LayoutDashboard,
   type LucideIcon,
@@ -108,6 +109,11 @@ export const SECTIONS = {
     icon: Images,
     group: "app",
     page: lazyPage(() => import("@/features/gallery/GalleryPage")),
+  },
+  sideload: {
+    icon: HardDriveDownload,
+    group: "app",
+    page: lazyPage(() => import("@/features/sideload/SideloadPage")),
   },
   settings: {
     icon: Settings,

@@ -15,3 +15,4 @@ pub mod perf;
 pub mod ports;
 pub mod shell;
 pub mod tray;
+pub mod sideload;

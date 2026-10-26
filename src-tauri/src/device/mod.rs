@@ -6,6 +6,7 @@ pub mod dev_settings;
 pub mod files;
 pub mod intents;
 pub mod logcat;
+pub mod ota;
 pub mod overview;
 pub mod packages;
 pub mod perf;
