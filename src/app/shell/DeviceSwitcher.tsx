@@ -1,6 +1,7 @@
 import {
   Check,
   ChevronsUpDown,
+  LayoutGrid,
   Plus,
   Search,
   Smartphone,
@@ -153,6 +154,10 @@ export function DeviceSwitcher({ collapsed }: { collapsed: boolean }) {
           <Smartphone />
           {t("sidebar.allDevices")}
           <Kbd className="ml-auto">{modKey}D</Kbd>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate("multi-device")}>
+          <LayoutGrid />
+          {t("nav.multi-device")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate("diagnostics")}>
           <Stethoscope />

@@ -10,6 +10,7 @@ dependencies = [
  "drag",
  "getrandom 0.4.3",
  "md-5",
+ "png",
  "qrcode",
  "reqwest",
  "serde",

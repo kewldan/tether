@@ -1,0 +1,70 @@
+{
+  "title_one": "{{count}} device",
+  "title_other": "{{count}} devices",
+  "allDevices": "All devices",
+  "selectAll": "Select all devices",
+  "selected": "{{count}} of {{total}} selected",
+  "install": {
+    "button": "Install APK on all",
+    "pickTitle": "Choose an APK to install on every selected device",
+    "filterName": "Android packages"
+  },
+  "profile": {
+    "button": "Apply profile…",
+    "none": "No profiles yet — create one in Device settings"
+  },
+  "screenshot": {
+    "button": "Screenshot all",
+    "failed": "Couldn't take the screenshots",
+    "done_one": "Captured {{count}} screenshot in {{seconds}} s",
+    "done_other": "Captured {{count}} screenshots in {{seconds}} s",
+    "someFailed_one": "{{count}} failed",
+    "someFailed_other": "{{count}} failed",
+    "savedAs": "saved as",
+    "openFolder": "Open folder",
+    "compose": "Compose grid image",
+    "composed": "Grid image saved",
+    "composeFailed": "Couldn't compose the grid image",
+    "show": "Show"
+  },
+  "run": {
+    "label": "Shell command for every selected device",
+    "placeholder": "Run on all: getprop ro.build.version.release",
+    "button": "Run"
+  },
+  "status": {
+    "shot": "Screenshot saved",
+    "shotFailed": "Screenshot failed",
+    "applying": "Applying…",
+    "applied": "Applied",
+    "partly": "Applied partly",
+    "applyFailed": "Profile failed",
+    "running": "Running…",
+    "noOutput": "Done, no output",
+    "commandFailed": "Command failed"
+  },
+  "tile": {
+    "include": "Include {{name}} in grid actions",
+    "tap": "Screen of {{name}}: click to tap, drag to swipe, double-click to mirror",
+    "screen": "Screen of {{name}}",
+    "mirror": "Mirror {{name}}",
+    "skipped": "Skipped",
+    "installing": "Installing",
+    "installed": "Installed",
+    "cancelled": "Cancelled",
+    "failed": "Install failed"
+  },
+  "control": {
+    "title": "Control all",
+    "hint_one": "Keys and text go to {{count}} selected device. Click a screen to tap it.",
+    "hint_other": "Keys and text go to {{count}} selected devices. Click a screen to tap it.",
+    "back": "Back",
+    "home": "Home",
+    "recents": "Recents",
+    "type": "Type text…",
+    "send": "Send text",
+    "broadcast": "Broadcast taps",
+    "failed_one": "Input failed on {{count}} device",
+    "failed_other": "Input failed on {{count}} devices"
+  }
+}

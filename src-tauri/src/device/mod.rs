@@ -13,4 +13,5 @@ pub mod perf;
 pub mod props;
 pub mod sections;
 pub mod summary;
+pub mod thumbnail;
 pub mod transfer;

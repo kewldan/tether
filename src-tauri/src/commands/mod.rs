@@ -10,6 +10,7 @@ pub mod gallery;
 pub mod intents;
 pub mod logcat;
 pub mod mirror;
+pub mod multi;
 pub mod overview;
 pub mod perf;
 pub mod ports;

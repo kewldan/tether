@@ -5,6 +5,7 @@ import {
   HardDriveDownload,
   Images,
   LayoutDashboard,
+  LayoutGrid,
   type LucideIcon,
   MonitorSmartphone,
   Package,
@@ -109,6 +110,11 @@ export const SECTIONS = {
     icon: Images,
     group: "app",
     page: lazyPage(() => import("@/features/gallery/GalleryPage")),
+  },
+  "multi-device": {
+    icon: LayoutGrid,
+    group: "app",
+    page: lazyPage(() => import("@/features/multi-device/MultiDevicePage")),
   },
   sideload: {
     icon: HardDriveDownload,

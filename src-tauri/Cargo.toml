@@ -34,6 +34,7 @@ base64 = "0.23.1"
 getrandom = "0.4.3"
 tauri-plugin-notification = "2"
 drag = "2.1.1"
+png = "0.18.1"
 
 [dev-dependencies]
 tempfile = "3"

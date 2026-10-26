@@ -374,6 +374,18 @@ function SelectionBar({
         <Button size="sm" variant="outline" onClick={onRun}>
           {t("multi.run")}
         </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() =>
+            useNavigation
+              .getState()
+              .navigate("multi-device", { serials: serials.join(",") })
+          }
+        >
+          <LayoutGrid />
+          {t("nav.multi-device", { ns: "common" })}
+        </Button>
         <Button size="sm" variant="ghost" onClick={() => onSelectAll(false)}>
           {t("multi.clear")}
         </Button>
