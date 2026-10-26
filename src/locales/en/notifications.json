@@ -1,0 +1,69 @@
+{
+  "device": {
+    "connectedOver": "{{name}} connected over {{transport}}",
+    "connected": "{{name}} connected",
+    "disconnected": "{{name}} disconnected",
+    "manyConnected_one": "{{count}} device connected",
+    "manyConnected_other": "{{count}} devices connected",
+    "manyDisconnected_one": "{{count}} device disconnected",
+    "manyDisconnected_other": "{{count}} devices disconnected",
+    "reconnect": "Reconnect",
+    "reconnectFailed": "Couldn't reconnect {{name}}"
+  },
+  "crash": {
+    "crashed": "{{app}} crashed",
+    "crashedTimes_one": "{{app}} crashed",
+    "crashedTimes_other": "{{app}} crashed {{count}} times",
+    "anr": "{{app}} isn't responding",
+    "many": "{{count}} apps crashed",
+    "unknownApp": "An app",
+    "openLogcat": "Open in Logcat",
+    "copyTrace": "Copy trace",
+    "copied": "Trace copied"
+  },
+  "screenshot": {
+    "saved": "Screenshot saved",
+    "failed": "Couldn't take a screenshot",
+    "show": "Show"
+  },
+  "tray": {
+    "open": "Open Tether",
+    "quit": "Quit Tether",
+    "screenshot": "Take screenshot",
+    "screenshotOf": "Screenshot of {{name}}",
+    "noDevices": "No devices connected"
+  },
+  "settings": {
+    "titleTray": "Notifications & tray",
+    "titleMenuBar": "Notifications & menu bar",
+    "devices": {
+      "title": "Device connections",
+      "desc": "When a device connects or disconnects. Quick reconnects within a few seconds are ignored."
+    },
+    "crashes": {
+      "title": "App crashes",
+      "desc": "When Logcat catches a crash or ANR, on any page. Logcat keeps listening to the current device once you've opened it."
+    },
+    "system": {
+      "title": "System notifications in the background",
+      "desc": "While Tether isn't the active window, notify through the system instead of an in-app toast. Clicking one brings Tether back.",
+      "test": "Send test",
+      "testTitle": "Notifications work",
+      "testBody": "Tether will notify you here while it's in the background.",
+      "denied": "Notifications are turned off for Tether",
+      "deniedHint": "Allow them in the system notification settings, then try again."
+    },
+    "tray": {
+      "titleMac": "Menu bar icon",
+      "title": "Tray icon",
+      "desc": "Connected devices at a glance, a quick screenshot and Open / Quit."
+    },
+    "close": {
+      "titleMac": "Keep running in the menu bar",
+      "title": "Keep running in the tray",
+      "descMac": "Closing the window hides it instead of quitting. Quit from the menu bar icon or with ⌘Q.",
+      "desc": "Closing the window hides it instead of quitting. Quit from the tray icon.",
+      "needsIcon": "Turn on the icon first."
+    }
+  }
+}

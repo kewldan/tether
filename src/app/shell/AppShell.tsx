@@ -10,6 +10,7 @@ import { ApkInstallHost } from "@/features/apps";
 import { ConnectSheet } from "@/features/devices/ConnectSheet";
 import { DeviceGate } from "@/features/devices/DeviceGate";
 import { useDeviceShortcuts } from "@/features/devices/useDeviceShortcuts";
+import { NotificationsHost } from "@/features/notifications/NotificationsHost";
 import { usePortRulesAutoRestore } from "@/features/ports/queries";
 import { hasMod } from "@/lib/platform";
 import { useSettings } from "@/lib/settings";
@@ -61,6 +62,7 @@ export function AppShell() {
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <ConnectSheet />
       <ApkInstallHost />
+      <NotificationsHost />
     </div>
   );
 }

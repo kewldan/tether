@@ -9,6 +9,7 @@ use crate::commands::connection::ConnectionState;
 use crate::device::props::{self, DeviceInfo};
 use crate::error::{AppError, AppResult};
 use crate::state::{AppState, lock};
+use crate::tray;
 
 const RETRY_DELAY: Duration = Duration::from_secs(2);
 
@@ -43,6 +44,7 @@ pub fn watch_devices(
                 }
                 tracking = true;
                 devices::track(&server, |devices| {
+                    tray::set_devices(&app, &devices);
                     let _ = on_event.send(DevicesEvent::Devices { devices });
                 })
                 .await
@@ -55,6 +57,7 @@ pub fn watch_devices(
                 if tracking {
                     conn.server_dropped(&error);
                 }
+                tray::set_devices(&app, &[]);
                 let _ = on_event.send(DevicesEvent::ServerDown { error });
             }
             tokio::time::sleep(RETRY_DELAY).await;

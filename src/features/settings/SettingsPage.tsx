@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getVersion } from "@tauri-apps/api/app";
 import { openUrl, revealItemInDir } from "@tauri-apps/plugin-opener";
 import {
+  Bell,
   Download,
   FolderOpen,
   Info,
@@ -39,6 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { useNotificationSettings } from "@/features/notifications/useNotificationSettings";
 import {
   downloadPlatformTools,
   type InstallProgress,
@@ -58,12 +60,20 @@ import { type AdbMode, type Language, useSettings } from "@/lib/settings";
 import type { AppError } from "@/lib/tauri";
 import { cn } from "@/lib/utils";
 
-const SECTION_IDS = ["general", "adb", "files", "shortcuts", "about"] as const;
+const SECTION_IDS = [
+  "general",
+  "adb",
+  "files",
+  "notifications",
+  "shortcuts",
+  "about",
+] as const;
 type SectionKey = (typeof SECTION_IDS)[number];
 const ICONS: Record<SectionKey, typeof Settings2> = {
   general: Settings2,
   adb: TerminalSquare,
   files: FolderOpen,
+  notifications: Bell,
   shortcuts: Keyboard,
   about: Info,
 };
@@ -90,6 +100,7 @@ export default function SettingsPage() {
     general: { title: t("general.title"), rows: useGeneralRows() },
     adb: { title: t("adb.title"), rows: useAdbRows(), extra: <AdbBanner /> },
     files: { title: t("files.title"), rows: useFilesRows() },
+    notifications: useNotificationSettings(),
     shortcuts: { title: t("shortcuts.title"), rows: useShortcutRows() },
     about: { title: t("about.title"), rows: useAboutRows() },
   };

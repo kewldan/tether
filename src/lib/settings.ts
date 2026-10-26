@@ -29,6 +29,16 @@ interface SettingsState {
   capturesDir: string | null;
   /** Where pulled files go; null = the OS downloads folder. */
   downloadsDir: string | null;
+  /** Notify when a device connects or disconnects. */
+  notifyDevices: boolean;
+  /** Notify when the Logcat stream catches an app crash or ANR. */
+  notifyCrashes: boolean;
+  /** Use system notifications while the window is in the background. */
+  systemNotifications: boolean;
+  /** Menu bar (macOS) / tray icon with the device list. */
+  trayIcon: boolean;
+  /** Closing the window hides it to the tray instead of quitting. */
+  closeToTray: boolean;
   /** Patch any of the fields above. */
   update: (patch: Partial<SettingsValues>) => void;
 }
@@ -58,6 +68,11 @@ export const useSettings = create<SettingsState>()(
       autoReconnect: true,
       capturesDir: null,
       downloadsDir: null,
+      notifyDevices: true,
+      notifyCrashes: true,
+      systemNotifications: true,
+      trayIcon: true,
+      closeToTray: false,
       update: (patch) => set(patch),
     }),
     { name: "tether.settings" },

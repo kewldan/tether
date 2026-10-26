@@ -3,7 +3,9 @@ mod commands;
 pub mod device;
 pub mod error;
 pub mod mirror;
+mod notifications;
 mod state;
+mod tray;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -12,6 +14,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_notification::init())
         .manage(state::AppState::default())
         .manage(commands::files::FilesState::default())
         .manage(commands::logcat::LogcatSessions::default())
@@ -22,6 +25,12 @@ pub fn run() {
         .manage(commands::connection::ConnectionState::default())
         .manage(commands::apps::AppsState::default())
         .manage(mirror::MirrorState::default())
+        .manage(tray::TrayState::default())
+        .setup(|app| {
+            notifications::setup(app.handle());
+            Ok(())
+        })
+        .on_window_event(tray::on_window_event)
         .invoke_handler(tauri::generate_handler![
             commands::adb::locate_adb,
             commands::adb::install_platform_tools,
@@ -128,7 +137,10 @@ pub fn run() {
             commands::mirror::mirror_start,
             commands::mirror::mirror_stop,
             commands::mirror::mirror_control,
+            commands::tray::tray_sync,
+            commands::tray::tray_watch,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(tray::on_run_event);
 }

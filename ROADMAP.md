@@ -27,8 +27,6 @@ already works; this is the work that comes next.
       and safety checks
 - [ ] **Developer profiles:** saved sets of toggles ("Store screenshots",
       "Performance test")
-- [ ] **Background notifications:** device connected or disconnected, an app
-      crashed in the background with "Open in Logcat"
 
 ## 🖥️ Screen mirroring
 
@@ -60,8 +58,6 @@ already works; this is the work that comes next.
 
 ## ⚙️ App
 
-- [ ] System tray icon with device status (template images are ready in
-      `src-tauri/icons`)
 - [ ] Compact density mode in the stylesheet (the setting exists)
 - [ ] Editable keyboard shortcuts
 - [ ] Open at login
