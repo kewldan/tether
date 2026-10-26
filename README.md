@@ -79,7 +79,7 @@ terminal keep working next to it.
 | 📱 | **Devices** | Live device list over USB, Wi-Fi and emulators, with clear states (unauthorized, offline, no permissions…) |
 | 📦 | **adb setup** | Auto-detection of existing adb, one-click platform-tools download with license consent, and a notice when Google ships a newer one |
 | 📶 | **Wi-Fi pairing** | Pair Android 11+ devices with a QR code or pairing code, or connect by IP |
-| 🖥️ | **Screen mirroring** | Low-latency mirroring and control powered by scrcpy-server, MP4 recording and a pop-out window |
+| 🖥️ | **Screen mirroring** | Low-latency mirroring and control powered by scrcpy-server, device audio, MP4 recording with sound, a pop-out window and saved defaults |
 | 📁 | **File manager** | Browse, preview (with photo EXIF) and transfer with a queue, compressed when the device allows; computer ⇄ device panes, drag files in and out |
 | 🧩 | **Apps** | Install APK / split APKs on several devices at once, manage permissions, clear data, extract APKs |
 | 📜 | **Logcat** | A log viewer that keeps up: level, tag, package and regex filters, crash detection |

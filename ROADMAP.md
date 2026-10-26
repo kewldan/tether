@@ -20,12 +20,10 @@ already works; this is the work that comes next.
 - [ ] Linux arm64 builds (Google ships no platform-tools there, so adb comes
       from the package manager)
 
-## 🖥️ Screen mirroring
+## 📁 Files
 
-- [ ] Verify audio playback inside the app (H.265 and AV1 decoding verified
-      in WebKit on macOS)
-- [ ] Audio track in recordings (raw PCM is forwarded today; needs an AAC or
-      Opus stream from the server)
+- [ ] EXIF details in the image preview
+- [ ] Compressed transfers (adb `sendrecv_v2` with brotli/lz4/zstd)
 
 ## 📦 Apps
 
@@ -41,4 +39,6 @@ already works; this is the work that comes next.
 
 ## ⚙️ App
 
-- [ ] Default mirroring settings
+- [ ] Editable keyboard shortcuts
+- [ ] Open at login
+- [ ] "New platform-tools available" notice
