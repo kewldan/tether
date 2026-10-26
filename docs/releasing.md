@@ -80,7 +80,8 @@ Publishing a release triggers `.github/workflows/publish.yml`:
   `packaging/homebrew/tether.rb.tmpl` with the version and SHA-256 sums and
   pushes `Casks/tether.rb` to
   [kewldan/homebrew-tap](https://github.com/kewldan/homebrew-tap). Users
-  install with `brew install --cask kewldan/tap/tether`.
+  install with `brew trust kewldan/tap && brew install --cask kewldan/tap/tether`
+  (current Homebrew refuses casks from taps that aren't trusted).
 - **winget:** opens a pull request to `microsoft/winget-pkgs` for
   `kewldan.Tether` with the NSIS installer (`*_x64-setup.exe`).
 
@@ -96,8 +97,9 @@ an existing release again: `gh workflow run publish.yml -f tag=v0.1.0`.
 gh secret set WINGET_TOKEN --repo kewldan/tether
 ```
 
-winget only accepts *updates* from the workflow. Submit the very first
-version by hand once `v0.1.0` is published:
+winget only accepts *updates* from the workflow. The first version
+(`v0.1.0`) was submitted by hand as microsoft/winget-pkgs#462140; for a new
+package that would be:
 
 ```bash
 komac new kewldan.Tether --version 0.1.0 \
