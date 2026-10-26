@@ -31,6 +31,7 @@ import {
   useAppStorage,
 } from "../queries";
 import type { AppActions } from "../useAppActions";
+import { NetworkPanel } from "./NetworkPanel";
 import { Panel } from "./Panel";
 import { StoragePanel } from "./SidePanels";
 
@@ -106,7 +107,15 @@ const BUCKETS: { value: StandbyBucket; code: number }[] = [
   { value: "restricted", code: 45 },
 ];
 
-export function BatteryTab({ serial, pkg }: { serial: string; pkg: string }) {
+export function BatteryTab({
+  serial,
+  pkg,
+  uid,
+}: {
+  serial: string;
+  pkg: string;
+  uid: number | null;
+}) {
   const { t } = useTranslation("apps");
   const client = useQueryClient();
   const battery = useAppBattery(serial, pkg);
@@ -137,15 +146,27 @@ export function BatteryTab({ serial, pkg }: { serial: string; pkg: string }) {
     onSettled: refresh,
   });
 
+  const network = <NetworkPanel serial={serial} pkg={pkg} uid={uid} />;
   if (battery.isPending)
-    return <Skeleton className="h-40 max-w-[640px] rounded-[10px]" />;
+    return (
+      <div className="flex max-w-[640px] flex-col gap-3">
+        {network}
+        <Skeleton className="h-40 rounded-[10px]" />
+      </div>
+    );
   if (battery.error)
-    return <div className="text-error">{errorMessage(battery.error)}</div>;
+    return (
+      <div className="flex max-w-[640px] flex-col gap-3">
+        {network}
+        <div className="text-error">{errorMessage(battery.error)}</div>
+      </div>
+    );
   const b = battery.data;
   const current = BUCKETS.find((x) => x.code === b.standbyBucket)?.value;
 
   return (
     <div className="flex max-w-[640px] flex-col gap-3">
+      {network}
       <Panel title={t("battery.title")}>
         <Row
           label={t("battery.unrestricted")}
@@ -198,9 +219,6 @@ export function BatteryTab({ serial, pkg }: { serial: string; pkg: string }) {
           )}
         </Row>
       </Panel>
-      <p className="text-small text-muted-foreground m-0">
-        {t("battery.networkNote")}
-      </p>
     </div>
   );
 }

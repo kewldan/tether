@@ -12,6 +12,8 @@ pub mod axml;
 pub mod file;
 pub mod icon;
 pub mod manifest;
+pub mod signing;
+pub mod vector;
 
 mod strings;
 
@@ -182,6 +184,13 @@ pub(crate) mod fixtures {
     pub const PLAIN_APK: &[u8] = include_bytes!("../../../tests/fixtures/apps/fixture-plain.apk");
     /// Same sources linked with `--enable-sparse-encoding --enable-compact-entries`.
     pub const SPARSE_APK: &[u8] = include_bytes!("../../../tests/fixtures/apps/fixture-sparse.apk");
+    /// `aapt2 compile` + `link` of `tests/fixtures/apps/vector-src`: vector
+    /// drawable launcher icons (gradient, clip path, inset, shape).
+    pub const VECTOR_APK: &[u8] = include_bytes!("../../../tests/fixtures/apps/fixture-vector.apk");
+    /// A compiled `ic_launcher_background.xml` (Android Studio template)
+    /// from an app installed on an Android 16 emulator.
+    pub const LAUNCHER_BACKGROUND: &[u8] =
+        include_bytes!("../../../tests/fixtures/apps/ic-launcher-background.axml");
     /// AndroidManifest.xml of AOSP Camera2 pulled from an Android 16 emulator.
     pub const CAMERA2_MANIFEST: &[u8] =
         include_bytes!("../../../tests/fixtures/apps/camera2-manifest.axml");

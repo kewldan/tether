@@ -10,10 +10,13 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
 use crate::device::apk::file::{self, PackageFile};
+use crate::device::apk::signing::SigningInfo;
 use crate::device::packages::actions::{self, OpMode, StandbyBucket};
 use crate::device::packages::extract::{self, ExtractEvent};
 use crate::device::packages::install::{self, InstallEvent, InstallOptions, InstalledVersion};
 use crate::device::packages::meta::{self, AppMeta, MetaCache, MetaRequest};
+use crate::device::packages::network::{self, NetworkUsage};
+use crate::device::packages::signing;
 use crate::device::packages::{
     self, AppBattery, AppComponents, AppDetails, AppOps, AppStorage, AppSummary,
 };
@@ -95,6 +98,24 @@ pub async fn app_battery(
     package: String,
 ) -> AppResult<AppBattery> {
     packages::battery(&state.server, &serial, &package).await
+}
+
+#[tauri::command]
+pub async fn app_signing(
+    state: State<'_, AppState>,
+    serial: String,
+    package: String,
+) -> AppResult<SigningInfo> {
+    signing::signing(&state.server, &serial, &package).await
+}
+
+#[tauri::command]
+pub async fn app_network(
+    state: State<'_, AppState>,
+    serial: String,
+    uid: u32,
+) -> AppResult<NetworkUsage> {
+    network::network_usage(&state.server, &serial, uid).await
 }
 
 /// Streams labels and icons for `apps`. Cached entries arrive first; a new

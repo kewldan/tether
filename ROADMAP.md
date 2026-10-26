@@ -20,8 +20,29 @@ already works; this is the work that comes next.
 - [ ] Linux arm64 builds (Google ships no platform-tools there, so adb comes
       from the package manager)
 
-## 📦 Apps
+## 🖥️ Screen mirroring
 
-- [ ] Signing certificate SHA-256 and issuer in the app details
-- [ ] Launcher icons whose foreground is a vector drawable
-- [ ] Per-app network usage (needs root over adb)
+- [ ] Verify audio playback inside the app (H.265 and AV1 decoding verified
+      in WebKit on macOS)
+- [ ] Audio track in recordings (raw PCM is forwarded today; needs an AAC or
+      Opus stream from the server)
+
+## 📁 Files
+
+- [ ] EXIF details in the image preview
+- [ ] Compressed transfers (adb `sendrecv_v2` with brotli/lz4/zstd)
+
+## 🧰 Device and tools
+
+- [ ] Annotate captures (arrow, box, text, blur)
+- [ ] Change the system language from Developer toggles
+- [ ] Ports: connection count and the process holding a host port
+- [ ] Shell history that also records lines edited with arrows or Tab
+- [ ] Logcat on Android 6 and older (no `-v uid` there)
+
+## ⚙️ App
+
+- [ ] Editable keyboard shortcuts
+- [ ] Open at login
+- [ ] "New platform-tools available" notice
+- [ ] Default mirroring settings

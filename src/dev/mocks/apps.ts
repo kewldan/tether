@@ -3,16 +3,71 @@ import type {
   AppDetails,
   AppMeta,
   AppSummary,
+  Certificate,
   ExtractEvent,
   InstallEvent,
   InstallOptions,
+  NetworkUsage,
   PackageFile,
+  SigningInfo,
 } from "@/features/apps/api";
 
 // Sample apps from docs/design/project/Apps.dc.html.
 const MIN = 60_000;
 const DAY = 86_400_000;
 const now = Date.now();
+
+const cert = (
+  sha256: string,
+  cn: string,
+  o: string | null,
+  years: [number, number],
+  key = "RSA 2048",
+): Certificate => {
+  const name = [o && `O=${o}`, `CN=${cn}`].filter(Boolean).join(", ");
+  return {
+    sha256,
+    sha1: sha256.slice(0, 59),
+    subject: name,
+    issuer: name,
+    subjectCn: cn,
+    subjectO: o,
+    issuerCn: cn,
+    issuerO: o,
+    serial: "01",
+    notBefore: Date.UTC(years[0], 0, 1),
+    notAfter: Date.UTC(years[1], 0, 1),
+    key,
+    debug: cn === "Android Debug",
+  };
+};
+
+// Fingerprints of real certificates (debug key, AOSP platform key).
+const DEBUG_CERT = cert(
+  "AF:AF:CB:42:DF:D8:7D:A5:5D:C4:47:CC:64:BB:6A:5D:A5:23:BC:D1:2C:25:15:41:2F:48:28:59:C2:AB:42:E8",
+  "Android Debug",
+  "Android",
+  [2024, 2054],
+);
+const PLATFORM_CERT = cert(
+  "6C:EC:C5:0E:34:AE:31:BF:B5:67:89:86:D6:D6:D3:73:6C:57:1D:ED:2F:24:59:52:77:93:E1:F0:54:EB:0C:9B",
+  "Android",
+  "Android",
+  [2008, 2035],
+);
+const RELEASE_CERT = cert(
+  "3F:9A:12:5B:E0:77:41:C2:9D:08:6A:F3:21:B4:5E:90:CC:17:38:A2:64:DF:0B:59:E1:7A:83:2C:46:F5:C4:0B",
+  "Example Inc. release",
+  "Example Inc.",
+  [2019, 2049],
+);
+const ROTATED_CERT = cert(
+  "8A:92:2B:36:35:7D:2A:E2:D5:85:D7:15:29:7D:B6:14:46:20:26:75:03:C6:06:40:52:BA:AB:39:62:B9:11:5A",
+  "Example Inc. rotation 2024",
+  "Example Inc.",
+  [2024, 2054],
+  "RSA 4096",
+);
 
 type Seed = Partial<AppSummary> & {
   package: string;
@@ -452,6 +507,66 @@ const handlers: MockHandlers = {
   app_battery: async () => {
     await sleep(150);
     return { standbyBucket: 10, unrestricted: false, background: "allow" };
+  },
+  app_signing: async ({ package: pkg }): Promise<SigningInfo> => {
+    await sleep(180);
+    // The sample app is debug-signed (design board); system apps get the
+    // platform key, and Maps a rotated key with a v3.1 signer.
+    const debug = pkg === "com.example.shop";
+    const rotated = pkg === "com.google.android.apps.maps";
+    const platform = String(pkg).startsWith("com.android");
+    const signer = debug ? DEBUG_CERT : platform ? PLATFORM_CERT : RELEASE_CERT;
+    return {
+      schemes: rotated ? ["v2", "v3", "v3.1"] : ["v2", "v3"],
+      signers: rotated
+        ? [
+            {
+              certificate: ROTATED_CERT,
+              schemes: ["v3.1"],
+              minSdk: 33,
+              maxSdk: null,
+            },
+            {
+              certificate: RELEASE_CERT,
+              schemes: ["v3", "v2"],
+              minSdk: 24,
+              maxSdk: 32,
+            },
+          ]
+        : [
+            {
+              certificate: signer,
+              schemes: ["v3", "v2"],
+              minSdk: 24,
+              maxSdk: null,
+            },
+          ],
+      lineage: rotated ? [RELEASE_CERT, ROTATED_CERT] : [],
+    };
+  },
+  app_network: async ({ uid }): Promise<NetworkUsage> => {
+    await sleep(250);
+    const mb = 1_000_000;
+    const t = (rx: number, tx: number) => ({ rx: rx * mb, tx: tx * mb });
+    const zero = t(0, 0);
+    const period = (scale: number) => ({
+      wifi: t(41.3 * scale, 3.9 * scale),
+      mobile: t(12.8 * scale, 1.1 * scale),
+      ethernet: zero,
+      other: zero,
+      vpn: scale > 1 ? t(4.2, 0.6) : zero,
+      foreground: t(39 * scale, 3.4 * scale),
+    });
+    return {
+      supported: true,
+      uid: Number(uid),
+      now,
+      boot: now - 9 * 3_600_000,
+      today: period(0.12),
+      sinceBoot: period(0.31),
+      last30Days: period(4.6),
+      historyStart: now - 74 * DAY,
+    };
   },
   launch_app: () => null,
   start_activity: ({ component }) => {

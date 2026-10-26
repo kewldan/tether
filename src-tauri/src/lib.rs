@@ -135,6 +135,8 @@ pub fn run() {
             commands::apps::app_storage,
             commands::apps::app_ops,
             commands::apps::app_battery,
+            commands::apps::app_signing,
+            commands::apps::app_network,
             commands::apps::load_app_meta,
             commands::apps::launch_app,
             commands::apps::start_activity,

@@ -94,6 +94,68 @@ export interface AppBattery {
   background: string | null;
 }
 
+/** One X.509 signer certificate (`Certificate` in Rust). */
+export interface Certificate {
+  /** `AB:CD:…` as printed by keytool / apksigner. */
+  sha256: string;
+  sha1: string;
+  subject: string;
+  issuer: string;
+  subjectCn: string | null;
+  subjectO: string | null;
+  issuerCn: string | null;
+  issuerO: string | null;
+  serial: string;
+  notBefore: number;
+  notAfter: number;
+  /** `RSA 2048`, `EC 256`… */
+  key: string | null;
+  /** The SDK's auto-generated debug key (CN=Android Debug). */
+  debug: boolean;
+}
+
+export interface Signer {
+  certificate: Certificate;
+  /** `v1`, `v2`, `v3`, `v3.1`. */
+  schemes: string[];
+  minSdk: number | null;
+  maxSdk: number | null;
+}
+
+export interface SigningInfo {
+  schemes: string[];
+  /** Newest scheme first. */
+  signers: Signer[];
+  /** v3 key rotation, oldest first; empty without rotation. */
+  lineage: Certificate[];
+}
+
+export interface Traffic {
+  rx: number;
+  tx: number;
+}
+
+export interface NetworkPeriod {
+  wifi: Traffic;
+  mobile: Traffic;
+  ethernet: Traffic;
+  other: Traffic;
+  /** Through a VPN; also counted on the underlying network. */
+  vpn: Traffic;
+  foreground: Traffic;
+}
+
+export interface NetworkUsage {
+  supported: boolean;
+  uid: number;
+  now: number;
+  boot: number;
+  today: NetworkPeriod;
+  sinceBoot: NetworkPeriod;
+  last30Days: NetworkPeriod;
+  historyStart: number | null;
+}
+
 export type AppIcon =
   | { kind: "bitmap"; src: string }
   | {
@@ -198,6 +260,9 @@ export const appStorage = (a: Pkg) => invoke<AppStorage>("app_storage", a);
 export const appOps = (a: Pkg & { uid: number | null }) =>
   invoke<AppOps>("app_ops", a);
 export const appBattery = (a: Pkg) => invoke<AppBattery>("app_battery", a);
+export const appSigning = (a: Pkg) => invoke<SigningInfo>("app_signing", a);
+export const appNetwork = (a: { serial: string; uid: number }) =>
+  invoke<NetworkUsage>("app_network", a);
 
 /** Streams labels/icons in batches; a new call for the serial stops the old. */
 export function loadAppMeta(

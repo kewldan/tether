@@ -37,6 +37,7 @@ import { ComponentsTab } from "./ComponentsTab";
 import { AppOpsTab, BatteryTab, StorageTab } from "./OtherTabs";
 import { PermissionsTab } from "./PermissionsTab";
 import { LaunchablePanel, PackagePanel, StoragePanel } from "./SidePanels";
+import { SigningPanel } from "./SigningPanel";
 
 type Tab = "permissions" | "components" | "storage" | "battery" | "ops";
 
@@ -397,6 +398,7 @@ export function AppDetailView({
                 onShowAll={() => setTab("components")}
               />
               <PackagePanel details={d} />
+              <SigningPanel serial={serial} pkg={pkg} />
             </div>
           </div>
         ) : tab === "components" ? (
@@ -404,7 +406,7 @@ export function AppDetailView({
         ) : tab === "storage" ? (
           <StorageTab serial={serial} details={d} actions={actions} />
         ) : tab === "battery" ? (
-          <BatteryTab serial={serial} pkg={pkg} />
+          <BatteryTab serial={serial} pkg={pkg} uid={d.uid} />
         ) : (
           <AppOpsTab serial={serial} details={d} />
         )}

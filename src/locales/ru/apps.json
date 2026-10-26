@@ -301,7 +301,7 @@
     "permissions": "Разрешения",
     "components": "Активности и сервисы",
     "storage": "Хранилище",
-    "battery": "Батарея",
+    "battery": "Сеть и батарея",
     "ops": "App Ops"
   },
   "permissions": {
@@ -420,8 +420,6 @@
   },
   "package": {
     "title": "Пакет",
-    "signing": "Подпись",
-    "scheme": "APK Signature Scheme v{{version}}",
     "abi": "ABI",
     "uid": "UID",
     "sharedUser": "Общий UID",
@@ -442,8 +440,45 @@
       "frequent": "Частое",
       "rare": "Редкое",
       "restricted": "Ограниченное"
-    },
-    "networkNote": "Сетевой трафик по приложениям недоступен через adb без root, поэтому здесь его нет."
+    }
+  },
+  "signing": {
+    "title": "Подпись",
+    "scheme": "Схема",
+    "sha256": "SHA-256",
+    "copySha": "Скопировать отпечаток SHA-256",
+    "issuer": "Издатель",
+    "subject": "Владелец",
+    "validUntil": "Действует до",
+    "expired": "Истёк {{date}}",
+    "key": "Ключ",
+    "rotation": "Ротация",
+    "rotated_one": "{{count}} сертификат в цепочке",
+    "rotated_few": "Ключ сменён · {{count}} сертификата",
+    "rotated_many": "Ключ сменён · {{count}} сертификатов",
+    "rotated_other": "Ключ сменён · {{count}} сертификата",
+    "sdkFrom": "Android SDK {{min}}+",
+    "sdkRange": "Android SDK {{min}}–{{max}}",
+    "debug": "Отладочный сертификат",
+    "unavailable": "Не удалось прочитать сертификат подписи из APK."
+  },
+  "network": {
+    "title": "Трафик",
+    "refresh": "Обновить данные о трафике",
+    "today": "Сегодня",
+    "sinceBoot": "С загрузки",
+    "last30Days": "30 дней",
+    "wifi": "Wi-Fi",
+    "mobile": "Мобильная сеть",
+    "ethernet": "Ethernet",
+    "other": "Другое",
+    "total": "Всего",
+    "foreground": "{{share}}% трафика за 30 дней — в активном режиме.",
+    "vpn": "Ещё {{bytes}} через VPN за 30 дней (уже учтено в сети под ним).",
+    "source": "По сетевой статистике устройства (dumpsys netstats), история с {{date}}.",
+    "noHistory": "У устройства пока нет истории трафика этого приложения.",
+    "noUid": "У приложения нет UID, поэтому его трафик не найти.",
+    "unsupported": "Это устройство не выводит историю по приложениям в dumpsys netstats. Новые версии Android выводят; на старых нужен root для /proc/net/xt_qtaguid."
   },
   "ops": {
     "packageTitle": "App-ops пакета",

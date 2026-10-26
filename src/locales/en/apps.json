@@ -275,7 +275,7 @@
     "permissions": "Permissions",
     "components": "Activities & services",
     "storage": "Storage",
-    "battery": "Battery",
+    "battery": "Network & battery",
     "ops": "App Ops"
   },
   "permissions": {
@@ -392,8 +392,6 @@
   },
   "package": {
     "title": "Package",
-    "signing": "Signing",
-    "scheme": "APK Signature Scheme v{{version}}",
     "abi": "ABI",
     "uid": "UID",
     "sharedUser": "Shared UID",
@@ -414,8 +412,43 @@
       "frequent": "Frequent",
       "rare": "Rare",
       "restricted": "Restricted"
-    },
-    "networkNote": "Per-app network usage isn't exposed over adb without root, so it isn't shown here."
+    }
+  },
+  "signing": {
+    "title": "Signing",
+    "scheme": "Scheme",
+    "sha256": "SHA-256",
+    "copySha": "Copy SHA-256 fingerprint",
+    "issuer": "Issuer",
+    "subject": "Subject",
+    "validUntil": "Valid until",
+    "expired": "Expired {{date}}",
+    "key": "Key",
+    "rotation": "Rotation",
+    "rotated_one": "{{count}} certificate in lineage",
+    "rotated_other": "Key rotated · {{count}} certificates",
+    "sdkFrom": "Android SDK {{min}}+",
+    "sdkRange": "Android SDK {{min}}–{{max}}",
+    "debug": "Debug certificate",
+    "unavailable": "Couldn't read the signing certificate from the APK."
+  },
+  "network": {
+    "title": "Data usage",
+    "refresh": "Refresh data usage",
+    "today": "Today",
+    "sinceBoot": "Since boot",
+    "last30Days": "30 days",
+    "wifi": "Wi-Fi",
+    "mobile": "Mobile",
+    "ethernet": "Ethernet",
+    "other": "Other",
+    "total": "Total",
+    "foreground": "{{share}}% of the last 30 days was used in the foreground.",
+    "vpn": "Plus {{bytes}} through a VPN in 30 days (already counted on the network underneath).",
+    "source": "From the device's network stats (dumpsys netstats), kept since {{date}}.",
+    "noHistory": "The device has no network history for this app yet.",
+    "noUid": "The app has no UID, so its traffic can't be looked up.",
+    "unsupported": "This device doesn't print per-app history in dumpsys netstats. Newer Android versions do; older ones need root to read /proc/net/xt_qtaguid."
   },
   "ops": {
     "packageTitle": "Package app-ops",

@@ -152,12 +152,6 @@ export function PackagePanel({ details }: { details: AppDetails }) {
       <KeyValues
         items={[
           [
-            t("package.signing"),
-            details.signingVersion
-              ? t("package.scheme", { version: details.signingVersion })
-              : "—",
-          ],
-          [
             t("package.abi"),
             <span key="abi" className="font-mono">
               {details.primaryAbi ?? "—"}

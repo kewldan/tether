@@ -5,7 +5,9 @@ pub mod actions;
 pub mod extract;
 pub mod install;
 pub mod meta;
+pub mod network;
 pub mod parse;
+pub mod signing;
 
 use std::collections::HashMap;
 
@@ -418,6 +420,24 @@ pub async fn read_apk_entry(
         .await
 }
 
+/// The base APK among `pm path` lines.
+fn base_from_paths(package: &str, paths: &str) -> AppResult<String> {
+    paths
+        .lines()
+        .filter_map(|l| l.trim().strip_prefix("package:"))
+        .find(|p| !p.contains("/split_"))
+        .map(str::to_owned)
+        .ok_or_else(|| AppError::Device(format!("{package} is not installed")))
+}
+
+/// Path of an installed package's base APK.
+pub(crate) async fn base_apk(server: &AdbServer, serial: &str, package: &str) -> AppResult<String> {
+    base_from_paths(
+        package,
+        &sh(server, serial, format!("pm path {package}")).await?,
+    )
+}
+
 /// Declared components from the base APK's manifest.
 pub async fn components(
     server: &AdbServer,
@@ -436,13 +456,8 @@ pub async fn components(
             )
         ),
     );
-    let paths = paths?;
-    let base = paths
-        .lines()
-        .filter_map(|l| l.trim().strip_prefix("package:"))
-        .find(|p| !p.contains("/split_"))
-        .ok_or_else(|| AppError::Device(format!("{package} is not installed")))?;
-    let xml = read_apk_entry(server, serial, base, "AndroidManifest.xml").await?;
+    let base = base_from_paths(package, &paths?)?;
+    let xml = read_apk_entry(server, serial, &base, "AndroidManifest.xml").await?;
     let manifest = Manifest::parse(&xml).ok_or_else(|| {
         AppError::Device(
             "could not read the app manifest (is `unzip` available on the device?)".into(),

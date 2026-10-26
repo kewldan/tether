@@ -9,7 +9,9 @@ import {
   appBattery,
   appComponents,
   appDetails,
+  appNetwork,
   appOps,
+  appSigning,
   appStorage,
   listApps,
   loadAppMeta,
@@ -176,6 +178,28 @@ export function useAppBattery(serial: string | null, pkg: string) {
     queryKey: ["app", serial, pkg, "battery"],
     queryFn: () => appBattery(pkgArgs(serial, pkg)),
     enabled: serial !== null,
+  });
+}
+
+export function useAppSigning(serial: string | null, pkg: string) {
+  return useQuery({
+    queryKey: ["app", serial, pkg, "signing"],
+    queryFn: () => appSigning(pkgArgs(serial, pkg)),
+    enabled: serial !== null,
+    staleTime: 5 * 60_000,
+  });
+}
+
+export function useAppNetwork(
+  serial: string | null,
+  pkg: string,
+  uid: number | null,
+) {
+  return useQuery({
+    queryKey: ["app", serial, pkg, "network", uid],
+    queryFn: () => appNetwork({ serial: serial ?? "", uid: uid ?? 0 }),
+    enabled: serial !== null && uid !== null,
+    staleTime: 30_000,
   });
 }
 

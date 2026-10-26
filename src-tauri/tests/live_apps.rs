@@ -253,3 +253,90 @@ async fn reports_unsigned_apk_failure() {
         other => panic!("expected a failure, got {other:?}"),
     }
 }
+
+#[tokio::test]
+#[ignore]
+async fn reads_signing_certificates() {
+    let server = AdbServer::default();
+    for package in ["com.android.settings", "com.google.android.apps.restore"] {
+        let started = std::time::Instant::now();
+        let Ok(info) = packages::signing::signing(&server, &serial(), package).await else {
+            println!("{package}: not installed");
+            continue;
+        };
+        let s = &info.signers[0];
+        println!(
+            "{package}: {:?} {} {:?} lineage {} in {:?}",
+            info.schemes,
+            s.certificate.sha256,
+            s.certificate.subject_cn,
+            info.lineage.len(),
+            started.elapsed()
+        );
+        assert!(!info.schemes.is_empty());
+        assert_eq!(s.certificate.sha256.len(), 32 * 3 - 1);
+    }
+}
+
+#[tokio::test]
+#[ignore]
+async fn reads_network_usage() {
+    let server = AdbServer::default();
+    let apps = packages::list(&server, &serial()).await.unwrap();
+    let app = apps
+        .iter()
+        .find(|a| a.package == "com.android.chrome")
+        .or_else(|| apps.iter().find(|a| a.package == "com.android.settings"))
+        .unwrap();
+    let started = std::time::Instant::now();
+    let usage = packages::network::network_usage(&server, &serial(), app.uid.unwrap())
+        .await
+        .unwrap();
+    println!("{}: {usage:#?} in {:?}", app.package, started.elapsed());
+    assert!(usage.supported);
+    assert!(usage.boot < usage.now);
+}
+
+/// Renders every launchable app's icon; with `TETHER_ICON_DIR` set, the
+/// icons with SVG layers are written there as JSON for a visual check.
+#[tokio::test]
+#[ignore]
+async fn renders_vector_icons() {
+    use adb_gui_lib::device::apk::icon::AppIcon;
+    let server = AdbServer::default();
+    let apps = packages::list(&server, &serial()).await.unwrap();
+    let dir = std::env::var("TETHER_ICON_DIR").ok();
+    let (mut none, mut svg) = (Vec::new(), 0);
+    for app in apps.iter().filter(|a| a.launcher.is_some()) {
+        let req = MetaRequest {
+            package: app.package.clone(),
+            apk_path: app.apk_path.clone(),
+            version_code: app.version_code,
+            last_update: app.last_update,
+        };
+        let m = meta::load(&server, &serial(), &req, "en-US").await;
+        let urls: Vec<String> = match &m.icon {
+            Some(AppIcon::Bitmap { src }) => vec![src.clone()],
+            Some(AppIcon::Adaptive {
+                background,
+                foreground,
+            }) => [background, foreground]
+                .into_iter()
+                .flatten()
+                .cloned()
+                .collect(),
+            None => {
+                none.push(app.package.clone());
+                continue;
+            }
+        };
+        if urls.iter().any(|u| u.starts_with("data:image/svg+xml")) {
+            svg += 1;
+            if let Some(dir) = &dir {
+                let json = serde_json::to_string(&m.icon).unwrap();
+                std::fs::write(format!("{dir}/{}.json", app.package), json).unwrap();
+            }
+        }
+    }
+    println!("{svg} icons with SVG layers; no icon: {none:?}");
+}
