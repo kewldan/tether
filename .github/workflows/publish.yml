@@ -1,0 +1,88 @@
+name: Publish
+
+# Runs when a GitHub release is published (see docs/releasing.md): updates
+# the Homebrew cask in kewldan/homebrew-tap and submits the new version to
+# winget. Each job skips itself until its token secret is configured.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  homebrew:
+    name: Homebrew cask
+    runs-on: ubuntu-latest
+    env:
+      TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+      GH_TOKEN: ${{ github.token }}
+      TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - name: Check token
+        id: token
+        run: |
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::notice::HOMEBREW_TAP_TOKEN is not set, skipping the cask update"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.token.outputs.ok == 'true'
+
+      - name: Render cask
+        if: steps.token.outputs.ok == 'true'
+        run: |
+          version="${TAG#v}"
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern "Tether_${version}_*.dmg" --dir dmg
+          arm=$(sha256sum "dmg/Tether_${version}_aarch64.dmg" | cut -d' ' -f1)
+          intel=$(sha256sum "dmg/Tether_${version}_x64.dmg" | cut -d' ' -f1)
+          sed -e "s/@VERSION@/$version/" -e "s/@SHA256_ARM@/$arm/" -e "s/@SHA256_INTEL@/$intel/" \
+            packaging/homebrew/tether.rb.tmpl > tether.rb
+          cat tether.rb
+
+      - uses: actions/checkout@v7
+        if: steps.token.outputs.ok == 'true'
+        with:
+          repository: kewldan/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: tap
+
+      - name: Push cask
+        if: steps.token.outputs.ok == 'true'
+        run: |
+          mkdir -p tap/Casks
+          cp tether.rb tap/Casks/tether.rb
+          cd tap
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/tether.rb
+          git diff --cached --quiet && exit 0
+          git commit -m "tether ${TAG#v}"
+          git push
+
+  winget:
+    name: winget
+    runs-on: windows-latest
+    steps:
+      - name: Check token
+        id: token
+        shell: bash
+        env:
+          WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          if [ -z "$WINGET_TOKEN" ]; then
+            echo "::notice::WINGET_TOKEN is not set, skipping the winget submission"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: vedantmgoyal9/winget-releaser@v2
+        if: steps.token.outputs.ok == 'true'
+        with:
+          identifier: kewldan.Tether
+          installers-regex: '_x64-setup\.exe$'
+          token: ${{ secrets.WINGET_TOKEN }}

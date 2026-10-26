@@ -1,0 +1,30 @@
+cask "tether" do
+  arch arm: "aarch64", intel: "x64"
+
+  version "@VERSION@"
+  sha256 arm:   "@SHA256_ARM@",
+         intel: "@SHA256_INTEL@"
+
+  url "https://github.com/kewldan/tether/releases/download/v#{version}/Tether_#{version}_#{arch}.dmg"
+  name "Tether"
+  desc "Desktop GUI for Android Debug Bridge"
+  homepage "https://github.com/kewldan/tether"
+
+  livecheck do
+    url :url
+    strategy :github_latest
+  end
+
+  auto_updates true
+  depends_on macos: ">= :catalina"
+
+  app "Tether.app"
+
+  zap trash: [
+    "~/Library/Application Support/dev.kewldan.tether",
+    "~/Library/Caches/dev.kewldan.tether",
+    "~/Library/Preferences/dev.kewldan.tether.plist",
+    "~/Library/Saved Application State/dev.kewldan.tether.savedState",
+    "~/Library/WebKit/dev.kewldan.tether",
+  ]
+end

@@ -15,7 +15,8 @@ already works; this is the work that comes next.
 
 - [ ] macOS code signing and notarization (Developer ID)
 - [ ] Windows Authenticode signing (no SmartScreen warning)
-- [ ] Homebrew cask, winget and Flathub packages
+- [ ] First winget submission after `v0.1.0` (`komac new`, see docs/releasing.md)
+- [ ] Flathub package
 - [ ] Linux arm64 builds (Google ships no platform-tools there, so adb comes
       from the package manager)
 

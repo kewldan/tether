@@ -103,7 +103,12 @@ _Coming soon._
 
 ## 🚀 Getting started
 
-Download the installer for your OS from the
+```bash
+brew install --cask kewldan/tap/tether   # macOS
+winget install kewldan.Tether            # Windows
+```
+
+Or download the installer for your OS from the
 [latest release](https://github.com/kewldan/tether/releases/latest), or
 build from source (see below).
 

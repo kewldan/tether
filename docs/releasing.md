@@ -71,3 +71,39 @@ gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD --repo kewldan/tether < ~/.taur
 
 The updater signature above is independent of OS code signing and is
 always required.
+
+## Homebrew and winget
+
+Publishing a release triggers `.github/workflows/publish.yml`:
+
+- **Homebrew:** downloads both macOS `.dmg` files, fills
+  `packaging/homebrew/tether.rb.tmpl` with the version and SHA-256 sums and
+  pushes `Casks/tether.rb` to
+  [kewldan/homebrew-tap](https://github.com/kewldan/homebrew-tap). Users
+  install with `brew install --cask kewldan/tap/tether`.
+- **winget:** opens a pull request to `microsoft/winget-pkgs` for
+  `kewldan.Tether` with the NSIS installer (`*_x64-setup.exe`).
+
+Each job skips itself (with a notice) until its secret exists:
+
+| Secret | Token |
+|---|---|
+| `HOMEBREW_TAP_TOKEN` | Fine-grained PAT with **Contents: read and write** on `kewldan/homebrew-tap` only |
+| `WINGET_TOKEN` | Classic PAT with `public_repo`; the account needs a fork of `microsoft/winget-pkgs` |
+
+```bash
+gh secret set HOMEBREW_TAP_TOKEN --repo kewldan/tether
+gh secret set WINGET_TOKEN --repo kewldan/tether
+```
+
+winget only accepts *updates* from the workflow. Submit the very first
+version by hand once `v0.1.0` is published:
+
+```bash
+komac new kewldan.Tether --version 0.1.0 \
+  --urls https://github.com/kewldan/tether/releases/download/v0.1.0/Tether_0.1.0_x64-setup.exe \
+  --submit
+```
+
+Until the macOS build is signed and notarized, Gatekeeper still asks on
+first launch after a Homebrew install.
