@@ -1,4 +1,5 @@
 import { channel, type MockHandlers, sleep } from "@/dev/mockBackend";
+import { addLocalFile } from "@/dev/mocks/files-local";
 import type {
   DirListing,
   FileEntry,
@@ -444,11 +445,15 @@ const handlers: MockHandlers = {
       (i) => nameOf(files[i] ?? ""),
       send,
     );
+    // Land in the fake computer so the two-pane view shows the copy.
+    const destinations = sources.map((s, i) =>
+      addLocalFile(`${localDir}/${nameOf(s)}`, all[i]?.bytes ?? 0, isDir(s)),
+    );
     return {
       bytes,
       files: files.length,
       skipped: 0,
-      destinations: sources.map((s) => `${localDir}/${nameOf(s)}`),
+      destinations,
     } satisfies TransferSummary;
   },
   files_push: async ({ id, paths, remoteDir, onEvent }) => {

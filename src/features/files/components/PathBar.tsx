@@ -25,8 +25,14 @@ import { Segmented } from "./Segmented";
 /** Back / up, breadcrumb that turns into an input, search, hidden, view. */
 export function PathBar({
   searchRef,
+  active = true,
+  compact = false,
 }: {
   searchRef: React.RefObject<HTMLInputElement | null>;
+  /** Takes ⌘L (two-pane mode: only the active pane does). */
+  active?: boolean;
+  /** Half-width pane: narrower search, icon-only "Hidden". */
+  compact?: boolean;
 }) {
   const { t } = useTranslation("files");
   const path = useBrowser((s) => s.path);
@@ -43,6 +49,7 @@ export function PathBar({
 
   // ⌘L edits the path, like a browser address bar.
   useEffect(() => {
+    if (!active) return;
     const onKey = (e: KeyboardEvent) => {
       if (hasMod(e) && e.key.toLowerCase() === "l") {
         e.preventDefault();
@@ -51,7 +58,7 @@ export function PathBar({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [active]);
 
   return (
     <div className="flex flex-none items-center gap-2 border-b px-3.5 py-2.5">
@@ -91,7 +98,12 @@ export function PathBar({
         <Breadcrumb path={path} onGo={go} onEdit={() => setEditing(true)} />
       )}
 
-      <label className="border-input bg-background focus-within:border-ring text-muted-foreground flex h-7 w-[200px] flex-none items-center gap-2 rounded-[7px] border px-2.5">
+      <label
+        className={cn(
+          "border-input bg-background focus-within:border-ring text-muted-foreground flex h-7 flex-none items-center gap-2 rounded-[7px] border px-2.5",
+          compact ? "max-w-[200px] min-w-24 flex-[2_1_0%]" : "w-[200px]",
+        )}
+      >
         <Search className="size-3.5 flex-none" aria-hidden />
         <input
           ref={searchRef}
@@ -103,7 +115,11 @@ export function PathBar({
               e.currentTarget.blur();
             }
           }}
-          placeholder={t("toolbar.searchIn", { name: basename(path) })}
+          placeholder={
+            compact
+              ? t("toolbar.search")
+              : t("toolbar.searchIn", { name: basename(path) })
+          }
           aria-label={t("toolbar.search")}
           className="text-foreground placeholder:text-muted-foreground text-body min-w-0 flex-1 bg-transparent outline-none"
         />
@@ -121,13 +137,19 @@ export function PathBar({
 
       <Button
         variant="ghost"
-        size="sm"
+        size={compact ? "icon-sm" : "sm"}
         aria-pressed={showHidden}
+        aria-label={compact ? t("toolbar.hidden") : undefined}
+        title={compact ? t("toolbar.hidden") : undefined}
         onClick={toggleHidden}
-        className={cn(showHidden && "bg-selected text-foreground")}
+        className={cn(
+          showHidden && "bg-selected text-foreground",
+          // Narrow pane: the ⋯ menu and ⌘⇧. still toggle it.
+          compact && "hidden @min-[600px]:inline-flex",
+        )}
       >
         <Eye />
-        {t("toolbar.hidden")}
+        {!compact && t("toolbar.hidden")}
       </Button>
 
       <Segmented
@@ -187,7 +209,7 @@ function Breadcrumb({
   return (
     <nav
       aria-label={t("toolbar.path")}
-      className="bg-sidebar text-small flex h-7 min-w-0 flex-1 items-center gap-0.5 overflow-hidden rounded-[7px] border px-1.5 font-mono"
+      className="bg-sidebar text-small flex h-7 min-w-0 flex-[3_1_0%] items-center justify-end gap-0.5 overflow-hidden rounded-[7px] border px-1.5 font-mono"
     >
       {parts.map((part, i) => {
         const last = i === parts.length - 1;
@@ -206,7 +228,7 @@ function Breadcrumb({
               className={cn(
                 "hover:bg-accent hover:text-foreground focus-visible:outline-ring min-w-[3ch] truncate rounded-xs px-1 py-0.5 outline-none focus-visible:outline-2",
                 last
-                  ? "text-foreground flex-none"
+                  ? "text-foreground min-w-[4ch] shrink-[0.05]"
                   : "text-secondary-foreground shrink",
               )}
             >
@@ -254,7 +276,7 @@ function PathInput({
         if (e.key === "Enter") onSubmit(resolve(path, value));
         if (e.key === "Escape") onCancel();
       }}
-      className="bg-background border-ring text-foreground text-small h-7 min-w-0 flex-1 rounded-[7px] border px-2.5 font-mono outline-none"
+      className="bg-background border-ring text-foreground text-small h-7 min-w-0 flex-[3_1_0%] rounded-[7px] border px-2.5 font-mono outline-none"
     />
   );
 }

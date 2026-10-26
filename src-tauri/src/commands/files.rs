@@ -13,6 +13,7 @@ use tauri::{AppHandle, Manager, State};
 use crate::device::files::{self, DirListing, StorageInfo};
 use crate::device::transfer::{self, TransferControl, TransferEvent, TransferSummary};
 use crate::error::{AppError, AppResult};
+use crate::localfs::{self, LocalListing, LocalPlace};
 use crate::state::{AppState, lock};
 
 /// Largest preview the UI may request (images); text asks for less.
@@ -238,4 +239,157 @@ pub fn files_transfer_control(
             TransferAction::Resume => control.pause.store(false, Ordering::Relaxed),
         }
     }
+}
+
+// ------------------------------------------------- computer side (two-pane) --
+
+async fn blocking<T: Send + 'static>(
+    f: impl FnOnce() -> AppResult<T> + Send + 'static,
+) -> AppResult<T> {
+    tauri::async_runtime::spawn_blocking(f)
+        .await
+        .map_err(|e| AppError::InvalidInput(e.to_string()))?
+}
+
+/// Lists a folder on the computer.
+#[tauri::command]
+pub async fn files_local_list(path: String) -> AppResult<LocalListing> {
+    blocking(move || localfs::list(&PathBuf::from(path))).await
+}
+
+/// Resolves a typed local path (`~`, relative to `base`).
+#[tauri::command]
+pub fn files_local_resolve(app: AppHandle, base: String, input: String) -> String {
+    let home = app.path().home_dir().ok();
+    localfs::resolve(&PathBuf::from(base), &input, home.as_deref())
+        .to_string_lossy()
+        .into_owned()
+}
+
+/// Home and the usual user folders that exist, then disks and volumes.
+#[tauri::command]
+pub async fn files_local_places(app: AppHandle) -> AppResult<Vec<LocalPlace>> {
+    let resolver = app.path();
+    let known: Vec<(&'static str, PathBuf)> = [
+        ("home", resolver.home_dir()),
+        ("desktop", resolver.desktop_dir()),
+        ("documents", resolver.document_dir()),
+        ("downloads", resolver.download_dir()),
+        ("pictures", resolver.picture_dir()),
+        ("videos", resolver.video_dir()),
+        ("music", resolver.audio_dir()),
+    ]
+    .into_iter()
+    .filter_map(|(key, dir)| dir.ok().map(|d| (key, d)))
+    .collect();
+    blocking(move || {
+        let mut places: Vec<LocalPlace> = Vec::new();
+        for (key, dir) in known {
+            let path = dir.to_string_lossy().into_owned();
+            if dir.is_dir() && !places.iter().any(|p| p.path == path) {
+                places.push(LocalPlace {
+                    key: key.into(),
+                    label: dir
+                        .file_name()
+                        .map(|n| n.to_string_lossy().into_owned())
+                        .unwrap_or_else(|| path.clone()),
+                    path,
+                });
+            }
+        }
+        places.extend(localfs::volumes());
+        Ok(places)
+    })
+    .await
+}
+
+/// A fresh, empty staging folder for one drag-out. The pull itself goes
+/// through `files_pull` like any other download.
+#[tauri::command]
+pub async fn files_drag_stage(id: String) -> AppResult<String> {
+    blocking(move || {
+        localfs::create_stage(&localfs::stage_root(), &id, localfs::STAGE_MAX_AGE)
+            .map(|p| p.to_string_lossy().into_owned())
+    })
+    .await
+}
+
+#[derive(Debug, Clone, Copy, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DragOutcome {
+    pub dropped: bool,
+}
+
+/// Fallback drag image when the UI sends none.
+const DRAG_ICON: &[u8] = include_bytes!("../../icons/32x32.png");
+
+/// Starts a native (OS) drag of local files, so they can be dropped onto
+/// Finder, Explorer, the desktop or another app. Must be called while the
+/// mouse button is still held; `on_event` reports how it ended.
+#[tauri::command]
+pub async fn files_start_drag(
+    app: AppHandle,
+    window: tauri::Window,
+    paths: Vec<String>,
+    icon: Option<String>,
+    on_event: Channel<DragOutcome>,
+) -> AppResult<()> {
+    use base64::Engine;
+
+    let files: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
+    if files.is_empty() {
+        return Err(AppError::InvalidInput("nothing to drag".into()));
+    }
+    if let Some(bad) = files.iter().find(|p| !p.is_absolute() || !p.exists()) {
+        return Err(AppError::InvalidInput(format!(
+            "{} does not exist",
+            bad.display()
+        )));
+    }
+    let image = icon
+        .as_deref()
+        .and_then(|data| data.strip_prefix("data:image/png;base64,"))
+        .and_then(|b64| base64::engine::general_purpose::STANDARD.decode(b64).ok())
+        .unwrap_or_else(|| DRAG_ICON.to_vec());
+
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    app.run_on_main_thread(move || {
+        let failed =
+            |e: &dyn std::fmt::Display| AppError::Device(format!("could not start the drag: {e}"));
+        #[cfg(any(
+            target_os = "linux",
+            target_os = "dragonfly",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd"
+        ))]
+        let handle = window.gtk_window();
+        #[cfg(not(any(
+            target_os = "linux",
+            target_os = "dragonfly",
+            target_os = "freebsd",
+            target_os = "openbsd",
+            target_os = "netbsd"
+        )))]
+        let handle = tauri::Result::Ok(window);
+        let result = match handle {
+            Ok(handle) => drag::start_drag(
+                &handle,
+                drag::DragItem::Files(files),
+                drag::Image::Raw(image),
+                move |result, _cursor| {
+                    let _ = on_event.send(DragOutcome {
+                        dropped: matches!(result, drag::DragResult::Dropped),
+                    });
+                },
+                drag::Options::default(),
+            )
+            .map_err(|e| failed(&e)),
+            Err(e) => Err(failed(&e)),
+        };
+        let _ = tx.send(result);
+    })
+    .map_err(|e| AppError::Device(e.to_string()))?;
+    rx.await
+        .map_err(|_| AppError::Device("the drag did not start".into()))?
 }

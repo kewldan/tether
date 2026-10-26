@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 import { type FileEntry, isDirLike } from "../api";
 import {
@@ -27,7 +28,10 @@ export function PreviewPanel({
   actions,
   onOpen,
   onDelete,
+  split = false,
 }: {
+  /** Two-pane mode: the panes need the room, so it shows only when wide. */
+  split?: boolean;
   serial: string;
   folderName: string;
   /** All entries of the folder (for the summary). */
@@ -40,7 +44,10 @@ export function PreviewPanel({
   return (
     <aside
       aria-label="Preview"
-      className="hidden w-[300px] flex-none flex-col overflow-y-auto border-l p-3.5 min-[1200px]:flex"
+      className={cn(
+        "hidden w-[300px] flex-none flex-col overflow-y-auto border-l p-3.5",
+        split ? "min-[1680px]:flex" : "min-[1200px]:flex",
+      )}
     >
       {selection.length === 1 ? (
         <Single

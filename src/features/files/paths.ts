@@ -57,6 +57,13 @@ export function localBasename(path: string): string {
   return parts[parts.length - 1] ?? path;
 }
 
+/** True for a local path inside `dir` (or equal), either separator. */
+export function isWithinLocal(path: string, dir: string): boolean {
+  if (path === dir) return true;
+  const sep = dir.includes("\\") ? "\\" : "/";
+  return path.startsWith(dir.endsWith(sep) ? dir : `${dir}${sep}`);
+}
+
 /** Characters a device file name cannot contain. */
 export function invalidName(name: string): boolean {
   return (

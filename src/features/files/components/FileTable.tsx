@@ -17,6 +17,10 @@ import { FileIcon } from "./FileIcon";
 import type { ListProps } from "./listProps";
 
 const COLUMNS = "grid-cols-[36px_minmax(0,1fr)_96px_150px_120px]";
+// Half-width panes (two-pane mode): no permissions, and the date only when
+// the pane is wide enough (the list is an `@container`).
+const COMPACT_COLUMNS =
+  "grid-cols-[36px_minmax(0,1fr)_92px] @md:grid-cols-[36px_minmax(0,1fr)_92px_136px]";
 
 /** Dense, virtualized table: name, size, modified, permissions. */
 export function FileTable({
@@ -28,7 +32,10 @@ export function FileTable({
   onToggle,
   onToggleAll,
   onOpen,
-}: ListProps) {
+  dropDir,
+  compact: narrow = false,
+}: ListProps & { compact?: boolean }) {
+  const columns = narrow ? COMPACT_COLUMNS : COLUMNS;
   const { t, i18n } = useTranslation("files");
   const compact = useCompact();
   const rowHeight = compact ? 28 : 32;
@@ -64,7 +71,7 @@ export function FileTable({
         role="row"
         className={cn(
           "bg-background text-muted-foreground text-small sticky top-0 z-10 grid items-center border-b font-medium",
-          COLUMNS,
+          columns,
         )}
         style={{ height: rowHeight }}
       >
@@ -79,13 +86,23 @@ export function FileTable({
         <SortHeader sortKey="size" align="right">
           {t("table.size")}
         </SortHeader>
-        <SortHeader sortKey="mtime">{t("table.modified")}</SortHeader>
-        <SortHeader sortKey="permissions">{t("table.permissions")}</SortHeader>
+        <SortHeader
+          sortKey="mtime"
+          className={narrow ? "hidden @md:block" : undefined}
+        >
+          {t("table.modified")}
+        </SortHeader>
+        {!narrow && (
+          <SortHeader sortKey="permissions">
+            {t("table.permissions")}
+          </SortHeader>
+        )}
       </div>
 
       {virtualizer.getVirtualItems().map((row) => {
         const entry = entries[row.index] as FileEntry;
         const isSelected = selected.has(entry.path);
+        const dir = isDirLike(entry);
         return (
           <div
             key={entry.path}
@@ -93,12 +110,17 @@ export function FileTable({
             aria-selected={isSelected}
             aria-rowindex={row.index + 2}
             data-path={entry.path}
+            data-dir={dir || undefined}
+            data-name={entry.name}
             onClick={(e) => onRowClick(entry, e)}
             onDoubleClick={() => onOpen(entry)}
             className={cn(
               "absolute inset-x-0 top-0 grid items-center border-b",
-              COLUMNS,
+              columns,
               isSelected ? "bg-brand/15" : "hover:bg-accent",
+              dir &&
+                dropDir === entry.path &&
+                "bg-brand/15 outline-brand outline-1 -outline-offset-1",
               focused === entry.path &&
                 "outline-ring outline-1 -outline-offset-2",
               entry.unreadable && "opacity-60",
@@ -148,16 +170,21 @@ export function FileTable({
             </div>
             <div
               role="gridcell"
-              className="text-muted-foreground num truncate px-3"
+              className={cn(
+                "text-muted-foreground num truncate px-3",
+                narrow && "hidden @md:block",
+              )}
             >
               {formatDate(entry.mtime, i18n.language, t)}
             </div>
-            <div
-              role="gridcell"
-              className="text-muted-foreground text-small truncate px-3 font-mono"
-            >
-              {entry.permissions}
-            </div>
+            {!narrow && (
+              <div
+                role="gridcell"
+                className="text-muted-foreground text-small truncate px-3 font-mono"
+              >
+                {entry.permissions}
+              </div>
+            )}
           </div>
         );
       })}
@@ -168,10 +195,12 @@ export function FileTable({
 function SortHeader({
   sortKey,
   align,
+  className,
   children,
 }: {
   sortKey: SortKey;
   align?: "right";
+  className?: string;
   children: React.ReactNode;
 }) {
   const sort = useFilesPrefs((s) => s.sort);
@@ -182,7 +211,11 @@ function SortHeader({
     <div
       role="columnheader"
       aria-sort={active ? (sort.desc ? "descending" : "ascending") : "none"}
-      className={cn("min-w-0 px-3", align === "right" && "text-right")}
+      className={cn(
+        "min-w-0 px-3",
+        align === "right" && "text-right",
+        className,
+      )}
     >
       <button
         type="button"

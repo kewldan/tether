@@ -36,11 +36,11 @@ already works; this is the work that comes next.
 
 ## 📁 Files
 
-- [ ] Two-pane mode: computer ⇄ device
-- [ ] Drag files out of the app onto the desktop
+- [x] Two-pane mode: computer ⇄ device
+- [x] Drag files out of the app onto the desktop
 - [ ] EXIF details in the image preview
 - [ ] Compressed transfers (adb `sendrecv_v2` with brotli/lz4/zstd)
-- [ ] One queue row per file for multi-file transfers
+- [x] One queue row per file for multi-file transfers
 
 ## 📦 Apps
 

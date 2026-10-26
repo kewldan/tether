@@ -28,23 +28,35 @@ import { useReadySerial, useSelectedDevice } from "@/features/devices/store";
 import { hasMod } from "@/lib/platform";
 
 import { type FileEntry, isDirLike } from "./api";
+import { DragGhost } from "./components/DragGhost";
 import { DropOverlay } from "./components/DropOverlay";
 import { type FileDialog, FileDialogs } from "./components/FileDialogs";
 import { FileGrid } from "./components/FileGrid";
 import { FileMenu } from "./components/FileMenu";
 import { FileTable } from "./components/FileTable";
 import { ListState } from "./components/ListState";
+import { CopyButton, LocalPane, PaneDropHint } from "./components/LocalPane";
+import { PaneHeader } from "./components/PaneHeader";
 import { PathBar } from "./components/PathBar";
 import { Places } from "./components/Places";
 import { PreviewPanel } from "./components/PreviewPanel";
+import { Segmented } from "./components/Segmented";
 import { TransferQueue } from "./components/TransferQueue";
+import { type PaneKind, trackRowDrag, useDrag } from "./dragging";
 import { visibleEntries } from "./model";
-import { basename, parent } from "./paths";
+import { basename, localBasename, parent } from "./paths";
 import { useListing } from "./queries";
-import { HOME, useBrowser, useFilesPrefs } from "./store";
+import {
+  HOME,
+  type Layout,
+  useBrowser,
+  useFilesPrefs,
+  useLocalBrowser,
+} from "./store";
 import { onTransferFinished } from "./transfers";
 import { useDropUpload } from "./useDropUpload";
 import { useFileActions } from "./useFileActions";
+import { useSelection } from "./useSelection";
 
 export default function FilesPage() {
   const { t } = useTranslation("files");
@@ -67,6 +79,10 @@ export default function FilesPage() {
   return <FilesBrowser key={serial} serial={serial} />;
 }
 
+/** Drops from the OS upload to the device, except over the computer pane. */
+const overDevicePane = (x: number, y: number) =>
+  !document.elementFromPoint(x, y)?.closest('[data-drop-pane="local"]');
+
 function FilesBrowser({ serial }: { serial: string }) {
   const { t } = useTranslation("files");
   const device = useSelectedDevice();
@@ -76,18 +92,20 @@ function FilesBrowser({ serial }: { serial: string }) {
 
   const path = useBrowser((s) => s.path);
   const go = useBrowser((s) => s.go);
-  const selected = useBrowser((s) => s.selected);
-  const anchor = useBrowser((s) => s.anchor);
-  const setSelected = useBrowser((s) => s.setSelected);
   const query = useBrowser((s) => s.query);
   const showHidden = useFilesPrefs((s) => s.showHidden);
   const sort = useFilesPrefs((s) => s.sort);
   const view = useFilesPrefs((s) => s.view);
   const downloadDir = useFilesPrefs((s) => s.downloadDir);
+  const layout = useFilesPrefs((s) => s.layout);
+  const split = layout === "split";
+  const localPath = useLocalBrowser((s) => s.path);
 
   const actions = useFileActions(serial);
   const [dialog, setDialog] = useState<FileDialog | null>(null);
   const [menuTarget, setMenuTarget] = useState<FileEntry[]>([]);
+  const [activePane, setActivePane] = useState<PaneKind>("device");
+  const deviceActive = !split || activePane === "device";
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -114,10 +132,8 @@ function FilesBrowser({ serial }: { serial: string }) {
     () => visibleEntries(all, { showHidden, query, sort }),
     [all, showHidden, query, sort],
   );
-  const selection = useMemo(
-    () => entries.filter((e) => selected.has(e.path)),
-    [entries, selected],
-  );
+  const sel = useSelection(entries, useBrowser);
+  const { selected, anchor, selection, select, navKey, dragEntries } = sel;
   const existing = useMemo(() => new Set(all.map((e) => e.name)), [all]);
 
   // Refresh after uploads into this device finish.
@@ -130,72 +146,31 @@ function FilesBrowser({ serial }: { serial: string }) {
     [serial, refresh],
   );
 
-  const drop = useDropUpload(dialog === null, (paths) =>
-    actions.upload(paths, path),
+  const drop = useDropUpload(
+    dialog === null,
+    (paths) => actions.upload(paths, path),
+    split ? overDevicePane : undefined,
   );
+
+  /** In two-pane mode "download" goes to the computer pane's folder. */
+  const copyToComputer = useCallback(
+    (list: FileEntry[]) => void actions.download(list, localPath || undefined),
+    [actions, localPath],
+  );
+  const download = split && localPath ? copyToComputer : actions.download;
 
   const open = useCallback(
     (entry: FileEntry) => {
       if (isDirLike(entry)) go(entry.path);
-      else void actions.download([entry]);
+      else void download([entry]);
     },
-    [go, actions],
+    [go, download],
   );
-
-  const select = useCallback(
-    (paths: string[], cursor: string | null) =>
-      setSelected(new Set(paths), cursor),
-    [setSelected],
-  );
-
-  const onRowClick = useCallback(
-    (entry: FileEntry, e: MouseEvent) => {
-      if (e.shiftKey && anchor) {
-        const a = entries.findIndex((x) => x.path === anchor);
-        const b = entries.findIndex((x) => x.path === entry.path);
-        if (a >= 0 && b >= 0) {
-          const [from, to] = a < b ? [a, b] : [b, a];
-          setSelected(
-            new Set(entries.slice(from, to + 1).map((x) => x.path)),
-            anchor,
-          );
-          return;
-        }
-      }
-      if (e.metaKey || e.ctrlKey) {
-        const next = new Set(selected);
-        if (next.has(entry.path)) next.delete(entry.path);
-        else next.add(entry.path);
-        setSelected(next, entry.path);
-        return;
-      }
-      select([entry.path], entry.path);
-    },
-    [anchor, entries, selected, select, setSelected],
-  );
-
-  const onToggle = useCallback(
-    (entry: FileEntry) => {
-      const next = new Set(selected);
-      if (next.has(entry.path)) next.delete(entry.path);
-      else next.add(entry.path);
-      setSelected(next, entry.path);
-    },
-    [selected, setSelected],
-  );
-
-  const onToggleAll = useCallback(() => {
-    if (selection.length === entries.length) select([], null);
-    else
-      select(
-        entries.map((e) => e.path),
-        anchor,
-      );
-  }, [selection.length, entries, select, anchor]);
 
   // Shortcuts that work anywhere on the page (not while typing or in a
-  // dialog).
+  // dialog). In two-pane mode only while the device pane is active.
   useEffect(() => {
+    if (!deviceActive) return;
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (dialog) return;
       const el = e.target as HTMLElement | null;
@@ -205,6 +180,7 @@ function FilesBrowser({ serial }: { serial: string }) {
       const target = selection;
       if (mod && !e.shiftKey && key === "s") {
         e.preventDefault();
+        // Like the menu item: to the downloads folder, in either layout.
         if (target.length > 0) void actions.download(target);
       } else if (mod && e.shiftKey && key === "c") {
         e.preventDefault();
@@ -236,52 +212,17 @@ function FilesBrowser({ serial }: { serial: string }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [dialog, selection, actions, path, go]);
+  }, [deviceActive, dialog, selection, actions, path, go]);
 
   // List navigation, only while the list has focus.
   const onListKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (hasMod(e) && e.key.toLowerCase() === "a") {
-      e.preventDefault();
-      select(
-        entries.map((x) => x.path),
-        anchor,
-      );
-      return;
-    }
-    const index = anchor ? entries.findIndex((x) => x.path === anchor) : -1;
-    const moveTo = (i: number) => {
-      const next = entries[Math.max(0, Math.min(entries.length - 1, i))];
-      if (!next) return;
-      e.preventDefault();
-      if (e.shiftKey && anchor) {
-        const sel = new Set(selected);
-        sel.add(next.path);
-        setSelected(sel, next.path);
-      } else {
-        select([next.path], next.path);
-      }
-    };
+    if (navKey(e, view)) return;
     switch (e.key) {
       case "ArrowDown":
         if (hasMod(e) && selection[0]) {
           e.preventDefault();
           open(selection[0]);
-        } else moveTo(index + 1);
-        break;
-      case "ArrowUp":
-        if (!hasMod(e) && !e.altKey) moveTo(index < 0 ? 0 : index - 1);
-        break;
-      case "ArrowRight":
-        if (view === "grid") moveTo(index + 1);
-        break;
-      case "ArrowLeft":
-        if (view === "grid") moveTo(index - 1);
-        break;
-      case "Home":
-        moveTo(0);
-        break;
-      case "End":
-        moveTo(entries.length - 1);
+        }
         break;
       case "Enter":
         if (selection.length === 1 && selection[0]) {
@@ -289,7 +230,7 @@ function FilesBrowser({ serial }: { serial: string }) {
           open(selection[0]);
         } else if (selection.length > 1) {
           e.preventDefault();
-          void actions.download(selection);
+          void download(selection);
         }
         break;
       case "Backspace":
@@ -303,12 +244,6 @@ function FilesBrowser({ serial }: { serial: string }) {
         if (selection.length === 1 && selection[0]) {
           e.preventDefault();
           setDialog({ type: "rename", entry: selection[0] });
-        }
-        break;
-      case "Escape":
-        if (selected.size > 0) {
-          e.preventDefault();
-          select([], null);
         }
         break;
     }
@@ -331,15 +266,20 @@ function FilesBrowser({ serial }: { serial: string }) {
     }
   };
 
+  const dropTarget = useDrag((s) =>
+    s.target?.pane === "device" ? s.target : null,
+  );
+
   const listProps = {
     entries,
     selected,
     focused: anchor,
     scrollRef,
-    onRowClick,
-    onToggle,
-    onToggleAll,
+    onRowClick: sel.onRowClick,
+    onToggle: sel.onToggle,
+    onToggleAll: sel.onToggleAll,
     onOpen: open,
+    dropDir: dropTarget?.dir,
   };
 
   const body = listing.isPending ? (
@@ -371,7 +311,83 @@ function FilesBrowser({ serial }: { serial: string }) {
   ) : view === "grid" ? (
     <FileGrid {...listProps} serial={serial} />
   ) : (
-    <FileTable {...listProps} />
+    <FileTable {...listProps} compact={split} />
+  );
+
+  const localName = localBasename(localPath) || localPath;
+  const devicePane = (
+    <section
+      aria-label={name}
+      data-drop-pane="device"
+      data-drop-dir={path}
+      data-drop-name={basename(path)}
+      onPointerDownCapture={() => setActivePane("device")}
+      onFocusCapture={() => setActivePane("device")}
+      className="@container relative flex min-w-0 flex-1 flex-col"
+    >
+      {split && (
+        <PaneHeader
+          icon={Smartphone}
+          title={name}
+          detail={path}
+          active={deviceActive}
+          actionSide="left"
+          action={
+            <CopyButton
+              label={t("twoPane.copyToComputer")}
+              tip={t("twoPane.copyToTip", { path: localPath })}
+              count={selection.length}
+              onClick={() => copyToComputer(selection)}
+              direction="left"
+            />
+          }
+        />
+      )}
+      <PathBar searchRef={searchRef} active={deviceActive} compact={split} />
+      <div className="relative min-h-0 flex-1">
+        <ContextMenu>
+          <ContextMenuTrigger
+            ref={scrollRef}
+            tabIndex={0}
+            aria-label={t("list.label", { name: basename(path) })}
+            onKeyDown={onListKey}
+            onContextMenuCapture={onContextMenuCapture}
+            onPointerDown={(e) =>
+              trackRowDrag(e, (rowPath) => ({
+                from: "device",
+                serial,
+                entries: dragEntries(rowPath),
+              }))
+            }
+            onClick={(e: MouseEvent<HTMLDivElement>) => {
+              if (!(e.target as HTMLElement).closest("[data-path]"))
+                select([], null);
+            }}
+            className="focus-visible:outline-ring @container absolute inset-0 overflow-auto outline-none focus-visible:outline-1 focus-visible:-outline-offset-1"
+          >
+            {body}
+          </ContextMenuTrigger>
+          <FileMenu
+            target={menuTarget}
+            path={path}
+            actions={actions}
+            onOpen={open}
+            onDialog={setDialog}
+            copyTo={
+              split && localPath
+                ? { name: localName, run: copyToComputer }
+                : undefined
+            }
+          />
+        </ContextMenu>
+        <DropOverlay drop={drop} path={path} />
+        <PaneDropHint
+          show={dropTarget !== null && dropTarget.dir === path}
+          label={t("dragOut.copyTo", { name: basename(path) })}
+        />
+      </div>
+      {!split && <TransferQueue serial={serial} onShowFolder={go} />}
+    </section>
   );
 
   return (
@@ -381,6 +397,15 @@ function FilesBrowser({ serial }: { serial: string }) {
       body="fill"
       actions={
         <>
+          <Segmented<Layout>
+            label={t("layout.label")}
+            value={layout}
+            onChange={(next) => useFilesPrefs.getState().setLayout(next)}
+            options={[
+              { value: "single", label: t("layout.single") },
+              { value: "split", label: t("layout.split") },
+            ]}
+          />
           <Button
             variant="outline"
             size="sm"
@@ -444,40 +469,27 @@ function FilesBrowser({ serial }: { serial: string }) {
       }
     >
       <div className="flex min-h-0 flex-1">
-        <Places serial={serial} />
+        <Places serial={serial} split={split} deviceName={name} />
 
-        <div className="relative flex min-w-0 flex-1 flex-col">
-          <PathBar searchRef={searchRef} />
-          <div className="relative min-h-0 flex-1">
-            <ContextMenu>
-              <ContextMenuTrigger
-                ref={scrollRef}
-                tabIndex={0}
-                aria-label={t("list.label", { name: basename(path) })}
-                onKeyDown={onListKey}
-                onContextMenuCapture={onContextMenuCapture}
-                onClick={(e: MouseEvent<HTMLDivElement>) => {
-                  if (!(e.target as HTMLElement).closest("[data-path]"))
-                    select([], null);
-                }}
-                className="focus-visible:outline-ring absolute inset-0 overflow-auto outline-none focus-visible:outline-1 focus-visible:-outline-offset-1"
-              >
-                {body}
-              </ContextMenuTrigger>
-              <FileMenu
-                target={menuTarget}
-                path={path}
-                actions={actions}
-                onOpen={open}
-                onDialog={setDialog}
+        {split ? (
+          <div className="flex min-w-0 flex-1 flex-col">
+            <div className="flex min-h-0 flex-1">
+              <LocalPane
+                serial={serial}
+                devicePath={path}
+                active={activePane === "local"}
+                onActivate={() => setActivePane("local")}
               />
-            </ContextMenu>
-            <DropOverlay drop={drop} path={path} />
+              {devicePane}
+            </div>
+            <TransferQueue serial={serial} onShowFolder={go} />
           </div>
-          <TransferQueue serial={serial} onShowFolder={go} />
-        </div>
+        ) : (
+          devicePane
+        )}
 
         <PreviewPanel
+          split={split}
           serial={serial}
           folderName={basename(path)}
           entries={all}
@@ -496,6 +508,7 @@ function FilesBrowser({ serial }: { serial: string }) {
         existing={existing}
         actions={actions}
       />
+      <DragGhost />
     </Page>
   );
 }

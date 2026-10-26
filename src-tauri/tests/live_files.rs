@@ -84,6 +84,96 @@ async fn v1_protocol_matches_v2() {
     conn.quit().await.unwrap();
 }
 
+/// Two-pane mode and drag-out: a device file is pulled into a staging
+/// folder, shows up in the local listing, and goes back to the device from
+/// there; a second stage sweeps the first.
+#[tokio::test]
+#[ignore = "needs a device"]
+async fn two_pane_staging_and_local_listing() {
+    use adb_gui_lib::localfs;
+    use std::time::Duration;
+
+    let dir = format!("{SDCARD}/two-pane");
+    let server = AdbServer::default();
+    let serial = serial(&server).await;
+    files::delete(&server, &serial, std::slice::from_ref(&dir))
+        .await
+        .unwrap();
+    files::mkdirs(&server, &serial, std::slice::from_ref(&dir))
+        .await
+        .unwrap();
+
+    // Put a file on the device.
+    let local = tempfile::tempdir().unwrap();
+    let source = local.path().join("снимок экрана.png");
+    let data: Vec<u8> = (0..300_000u32).map(|i| (i % 253) as u8).collect();
+    std::fs::write(&source, &data).unwrap();
+    let control = TransferControl::default();
+    transfer::push(
+        &server,
+        &serial,
+        std::slice::from_ref(&source),
+        &dir,
+        &control,
+        |_| {},
+    )
+    .await
+    .unwrap();
+    let remote = format!("{dir}/снимок экрана.png");
+
+    // Drag-out: stage it like `files_drag_stage` + `files_pull` do.
+    let root = tempfile::tempdir().unwrap();
+    let stage = localfs::create_stage(root.path(), "drag-live-1", localfs::STAGE_MAX_AGE).unwrap();
+    let mut progress = Vec::new();
+    let pulled = transfer::pull(
+        &server,
+        &serial,
+        std::slice::from_ref(&remote),
+        &stage,
+        &control,
+        |e| progress.push(e),
+    )
+    .await
+    .unwrap();
+    assert!(matches!(progress.first(), Some(TransferEvent::Scanning)));
+    let staged = std::path::PathBuf::from(&pulled.destinations[0]);
+    assert_eq!(staged.parent().unwrap(), stage);
+    assert_eq!(std::fs::read(&staged).unwrap(), data);
+
+    // The computer pane lists the staged file like any other folder.
+    let listing = localfs::list(&stage).unwrap();
+    assert_eq!(listing.entries.len(), 1);
+    let entry = &listing.entries[0].entry;
+    assert_eq!(entry.name, "снимок экрана.png");
+    assert_eq!(entry.size, data.len() as u64);
+    assert_eq!(entry.kind, EntryKind::File);
+    println!("staged {} ({} bytes)", entry.path, entry.size);
+
+    // "Copy →" from the computer pane: push the listed entry back.
+    let back = transfer::push(
+        &server,
+        &serial,
+        &[std::path::PathBuf::from(&entry.path)],
+        &dir,
+        &control,
+        |_| {},
+    )
+    .await
+    .unwrap();
+    assert_eq!(back.destinations, [format!("{dir}/снимок экрана (1).png")]);
+    let device = files::list_dir(&server, &serial, &dir).await.unwrap();
+    assert_eq!(device.entries.len(), 2);
+
+    // The next drag sweeps stale stages.
+    let next = localfs::create_stage(root.path(), "drag-live-2", Duration::ZERO).unwrap();
+    assert!(!stage.exists());
+    assert!(next.is_dir());
+
+    files::delete(&server, &serial, std::slice::from_ref(&dir))
+        .await
+        .unwrap();
+}
+
 #[tokio::test]
 #[ignore = "needs a device"]
 async fn push_pull_and_file_operations() {

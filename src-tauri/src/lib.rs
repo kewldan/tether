@@ -2,6 +2,7 @@ pub mod adb;
 mod commands;
 pub mod device;
 pub mod error;
+pub mod localfs;
 pub mod mirror;
 mod notifications;
 mod state;
@@ -49,6 +50,11 @@ pub fn run() {
             commands::files::files_pull,
             commands::files::files_push,
             commands::files::files_transfer_control,
+            commands::files::files_local_list,
+            commands::files::files_local_resolve,
+            commands::files::files_local_places,
+            commands::files::files_drag_stage,
+            commands::files::files_start_drag,
             commands::logcat::logcat_start,
             commands::logcat::logcat_stop,
             commands::logcat::logcat_clear,

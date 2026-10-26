@@ -13,4 +13,6 @@ export interface ListProps {
   onToggle: (entry: FileEntry) => void;
   onToggleAll: () => void;
   onOpen: (entry: FileEntry) => void;
+  /** Folder row under a drag from the other pane. */
+  dropDir?: string | null;
 }

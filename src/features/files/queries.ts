@@ -6,7 +6,11 @@ import type { AppError } from "@/lib/tauri";
 import {
   type DirListing,
   type FileEntry,
+  type LocalListing,
+  type LocalPlace,
   listDir,
+  listLocal,
+  localPlaces,
   readPreview,
   storageInfo,
 } from "./api";
@@ -27,6 +31,40 @@ export const filesKeys = {
   preview: (serial: string, path: string, mtime: number, kind: string) =>
     ["files", serial, "preview", kind, path, mtime] as const,
 };
+
+export const localKeys = {
+  all: ["files-local"] as const,
+  listing: (path: string) => ["files-local", "list", path] as const,
+  places: ["files-local", "places"] as const,
+};
+
+/** A folder on the computer (two-pane mode). */
+export function useLocalListing(path: string | null) {
+  return useQuery<LocalListing, AppError>({
+    queryKey: localKeys.listing(path ?? ""),
+    queryFn: () => listLocal(path as string),
+    enabled: !!path,
+    staleTime: 5_000,
+    retry: false,
+  });
+}
+
+export function useLocalPlaces() {
+  return useQuery<LocalPlace[], AppError>({
+    queryKey: localKeys.places,
+    queryFn: localPlaces,
+    staleTime: 60_000,
+    retry: false,
+  });
+}
+
+export function useRefreshLocal() {
+  const client = useQueryClient();
+  return useCallback(
+    () => void client.invalidateQueries({ queryKey: localKeys.all }),
+    [client],
+  );
+}
 
 export function useListing(serial: string | null, path: string) {
   return useQuery<DirListing, AppError>({

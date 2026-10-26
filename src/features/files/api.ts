@@ -134,3 +134,66 @@ export function pushPaths(
 
 export const controlTransfer = (id: string, action: TransferAction) =>
   invoke<void>("files_transfer_control", { id, action });
+
+// ---- computer side (two-pane mode, drag-out) ---------------------------------
+
+/** A local entry: device entry shape plus the platform's hidden flag. */
+export interface LocalEntry extends FileEntry {
+  hidden: boolean;
+}
+
+export interface LocalListing {
+  path: string;
+  /** null at a file system root. */
+  parent: string | null;
+  /** From the root down to `path`. */
+  crumbs: { name: string; path: string }[];
+  entries: LocalEntry[];
+  denied: boolean;
+}
+
+export type LocalPlaceKey =
+  | "home"
+  | "desktop"
+  | "documents"
+  | "downloads"
+  | "pictures"
+  | "videos"
+  | "music"
+  | "volume";
+
+export interface LocalPlace {
+  key: LocalPlaceKey;
+  label: string;
+  path: string;
+}
+
+export const listLocal = (path: string) =>
+  invoke<LocalListing>("files_local_list", { path });
+
+export const resolveLocal = (base: string, input: string) =>
+  invoke<string>("files_local_resolve", { base, input });
+
+export const localPlaces = () => invoke<LocalPlace[]>("files_local_places");
+
+/** Staging folders live in `<temp>/tether-drag/drag-…`. */
+export const isStagedPath = (path: string) =>
+  /[\\/]tether-drag[\\/]drag-[\w-]+[\\/]/.test(path);
+
+/** A fresh staging folder for one drag-out. */
+export const dragStage = (id: string) =>
+  invoke<string>("files_drag_stage", { id });
+
+/**
+ * Starts the OS drag of local files (while the mouse button is held).
+ * `onEnd` fires once the user drops or cancels.
+ */
+export function startNativeDrag(
+  paths: string[],
+  icon: string | null,
+  onEnd: (outcome: { dropped: boolean }) => void,
+) {
+  const channel = new Channel<{ dropped: boolean }>();
+  channel.onmessage = onEnd;
+  return invoke<void>("files_start_drag", { paths, icon, onEvent: channel });
+}

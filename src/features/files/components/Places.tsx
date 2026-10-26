@@ -14,9 +14,14 @@ import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 
 import { formatBytes } from "../format";
-import { basename, isWithin } from "../paths";
-import { useStorage } from "../queries";
-import { useBrowser, useFilesPrefs } from "../store";
+import { basename, isWithin, isWithinLocal } from "../paths";
+import { useLocalPlaces, useStorage } from "../queries";
+import { useBrowser, useFilesPrefs, useLocalBrowser } from "../store";
+import {
+  LOCAL_PLACE_ICONS,
+  useComputerTitle,
+  useLocalPlaceLabel,
+} from "./LocalPane";
 
 const FAVORITES: {
   key: string;
@@ -42,8 +47,17 @@ function activePlace(path: string, places: string[]): string | null {
   return best;
 }
 
-/** 196 px column: favourites, user bookmarks and storage usage. */
-export function Places({ serial }: { serial: string }) {
+/** 196 px column: favourites, user bookmarks and storage usage; in
+ * two-pane mode the computer's places come first. */
+export function Places({
+  serial,
+  split = false,
+  deviceName,
+}: {
+  serial: string;
+  split?: boolean;
+  deviceName?: string;
+}) {
   const { t } = useTranslation("files");
   const path = useBrowser((s) => s.path);
   const go = useBrowser((s) => s.go);
@@ -63,7 +77,10 @@ export function Places({ serial }: { serial: string }) {
       aria-label={t("places.favorites")}
       className="hidden w-[196px] flex-none flex-col gap-px overflow-y-auto border-r px-2 py-2.5 min-[1080px]:flex"
     >
-      <SectionLabel>{t("places.favorites")}</SectionLabel>
+      {split && <ComputerPlaces />}
+      <SectionLabel className={split ? "pt-3.5" : undefined}>
+        {split && deviceName ? deviceName : t("places.favorites")}
+      </SectionLabel>
       {FAVORITES.map((f) => (
         <PlaceItem
           key={f.key}
@@ -121,6 +138,38 @@ export function Places({ serial }: { serial: string }) {
         </div>
       )}
     </nav>
+  );
+}
+
+function ComputerPlaces() {
+  const { data: places = [] } = useLocalPlaces();
+  const path = useLocalBrowser((s) => s.path);
+  const go = useLocalBrowser((s) => s.go);
+  const label = useLocalPlaceLabel();
+  const computer = useComputerTitle();
+  let active: string | null = null;
+  for (const p of places)
+    if (
+      path &&
+      isWithinLocal(path, p.path) &&
+      (active === null || p.path.length > active.length)
+    )
+      active = p.path;
+  return (
+    <>
+      <SectionLabel>{computer}</SectionLabel>
+      {places.map((p) => (
+        <PlaceItem
+          key={p.path}
+          icon={LOCAL_PLACE_ICONS[p.key]}
+          active={active === p.path}
+          onClick={() => go(p.path)}
+          title={p.path}
+        >
+          {label(p)}
+        </PlaceItem>
+      ))}
+    </>
   );
 }
 

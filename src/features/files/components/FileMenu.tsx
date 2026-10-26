@@ -39,7 +39,10 @@ export function FileMenu({
   actions,
   onOpen,
   onDialog,
+  copyTo,
 }: {
+  /** Two-pane mode: copy into the computer pane's folder. */
+  copyTo?: { name: string; run: (entries: FileEntry[]) => void };
   /** Entries the menu acts on; empty → the current folder. */
   target: FileEntry[];
   path: string;
@@ -101,6 +104,14 @@ export function FileMenu({
           <FolderOpen />
           {t("actions.open")}
           <Kbd className="ml-auto">↵</Kbd>
+        </ContextMenuItem>
+      )}
+      {copyTo && (
+        <ContextMenuItem onClick={() => copyTo.run(target)}>
+          <Download />
+          <span className="truncate">
+            {t("twoPane.copyToFolder", { name: copyTo.name })}
+          </span>
         </ContextMenuItem>
       )}
       <ContextMenuItem onClick={() => void actions.download(target)}>

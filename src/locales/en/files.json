@@ -228,5 +228,40 @@
     "uploaded": "Uploaded {{name}} to {{path}}",
     "downloadFailed": "Couldn't download {{name}}",
     "uploadFailed": "Couldn't upload {{name}}"
+  },
+  "layout": {
+    "label": "Layout",
+    "single": "Single",
+    "split": "Computer ⇄ Device"
+  },
+  "twoPane": {
+    "copyToDevice": "Copy",
+    "copyToComputer": "Copy",
+    "copyToTip": "Copy the selection to {{path}}",
+    "copyToFolder": "Copy to “{{name}}”",
+    "places": "Places",
+    "reveal": {
+      "macos": "Show in Finder",
+      "windows": "Show in Explorer",
+      "linux": "Show in file manager"
+    },
+    "deniedBody": "Tether may not read {{path}}. On macOS, allow it under System Settings → Privacy & Security → Files and Folders.",
+    "emptyBody": "Drag files here from the device to copy them."
+  },
+  "localPlaces": {
+    "home": "Home",
+    "desktop": "Desktop",
+    "documents": "Documents",
+    "downloads": "Downloads",
+    "pictures": "Pictures",
+    "videos": "Videos",
+    "music": "Music"
+  },
+  "dragOut": {
+    "copyTo": "Copy to {{name}}",
+    "preparing": "Preparing…",
+    "preparingPercent": "Preparing… {{percent}}%",
+    "release": "Release to copy",
+    "failed": "Couldn't prepare {{name}} for dragging"
   }
 }

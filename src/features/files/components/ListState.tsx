@@ -22,9 +22,10 @@ type Props =
       error: AppError;
       onRetry: () => void;
       onHome: () => void;
+      homeLabel?: string;
     }
-  | { kind: "denied"; path: string; onUp: () => void }
-  | { kind: "empty"; onUpload: () => void }
+  | { kind: "denied"; path: string; onUp: () => void; body?: string }
+  | { kind: "empty"; onUpload?: () => void; body?: string }
   | {
       kind: "noMatches";
       query: string;
@@ -72,7 +73,7 @@ export function ListState(props: Props) {
         </Button>
         <Button variant="ghost" size="sm" onClick={props.onHome}>
           <Home />
-          {t("state.goHome")}
+          {props.homeLabel ?? t("state.goHome")}
         </Button>
       </Centered>
     );
@@ -83,7 +84,7 @@ export function ListState(props: Props) {
       <Centered
         icon={<Lock className="text-warning size-8" aria-hidden />}
         title={t("state.deniedTitle")}
-        body={t("state.deniedBody", { path: props.path })}
+        body={props.body ?? t("state.deniedBody", { path: props.path })}
       >
         <Button variant="outline" size="sm" onClick={props.onUp}>
           <ChevronUp />
@@ -100,12 +101,14 @@ export function ListState(props: Props) {
           <FolderOpen className="text-muted-foreground size-8" aria-hidden />
         }
         title={t("state.emptyTitle")}
-        body={t("state.emptyBody")}
+        body={props.body ?? t("state.emptyBody")}
       >
-        <Button variant="outline" size="sm" onClick={props.onUpload}>
-          <Upload />
-          {t("actions.upload")}
-        </Button>
+        {props.onUpload && (
+          <Button variant="outline" size="sm" onClick={props.onUpload}>
+            <Upload />
+            {t("actions.upload")}
+          </Button>
+        )}
       </Centered>
     );
   }

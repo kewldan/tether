@@ -2,7 +2,7 @@ import { isTauri } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useEffect, useRef, useState } from "react";
 
-import { type LocalSummary, localSummary } from "./api";
+import { isStagedPath, type LocalSummary, localSummary } from "./api";
 
 export interface DropState {
   count: number;
@@ -13,14 +13,22 @@ export interface DropState {
  * Files dragged from the OS onto the window. In Tauri the webview reports
  * real paths (`onDragDropEvent`); in the browser preview HTML5 drag events
  * stand in, with file names as fake paths for the mock backend.
+ *
+ * `accepts(x, y)` (CSS pixels) limits where a drop uploads, e.g. not over
+ * the computer pane. Our own drag-out (staged device files) coming back
+ * into the window is ignored.
  */
 export function useDropUpload(
   enabled: boolean,
   onDrop: (paths: string[]) => void,
+  accepts?: (x: number, y: number) => boolean,
 ): DropState | null {
   const [state, setState] = useState<DropState | null>(null);
+  const [inside, setInside] = useState(true);
   const onDropRef = useRef(onDrop);
   onDropRef.current = onDrop;
+  const acceptsRef = useRef(accepts);
+  acceptsRef.current = accepts;
 
   useEffect(() => {
     if (!enabled) {
@@ -46,17 +54,32 @@ export function useDropUpload(
       setState(null);
     };
 
+    const at = (x: number, y: number) => acceptsRef.current?.(x, y) ?? true;
+
     if (isTauri()) {
       let unlisten: (() => void) | undefined;
+      let ignore = false;
+      const css = (p: { x: number; y: number }) =>
+        at(p.x / window.devicePixelRatio, p.y / window.devicePixelRatio);
       getCurrentWebview()
         .onDragDropEvent(({ payload }) => {
           if (payload.type === "enter") {
-            if (payload.paths.length > 0) enter(payload.paths);
+            ignore =
+              payload.paths.length === 0 || payload.paths.every(isStagedPath);
+            if (ignore) return;
+            enter(payload.paths);
+            setInside(css(payload.position));
+          } else if (payload.type === "over") {
+            if (!ignore) setInside(css(payload.position));
           } else if (payload.type === "drop") {
             leave();
-            if (payload.paths.length > 0) onDropRef.current(payload.paths);
+            const paths = payload.paths.filter((p) => !isStagedPath(p));
+            if (!ignore && paths.length > 0 && css(payload.position))
+              onDropRef.current(paths);
+            ignore = false;
           } else if (payload.type === "leave") {
             leave();
+            ignore = false;
           }
         })
         .then((fn) => {
@@ -90,7 +113,9 @@ export function useDropUpload(
       }
     };
     const onOver = (e: DragEvent) => {
-      if (hasFiles(e)) e.preventDefault();
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      setInside(at(e.clientX, e.clientY));
     };
     const onLeave = (e: DragEvent) => {
       if (!hasFiles(e)) return;
@@ -104,6 +129,7 @@ export function useDropUpload(
       e.preventDefault();
       depth = 0;
       leave();
+      if (!at(e.clientX, e.clientY)) return;
       const files = Array.from(e.dataTransfer?.files ?? []);
       onDropRef.current(files.map((f) => `/Users/me/Desktop/${f.name}`));
     };
@@ -120,5 +146,5 @@ export function useDropUpload(
     };
   }, [enabled]);
 
-  return state;
+  return inside ? state : null;
 }

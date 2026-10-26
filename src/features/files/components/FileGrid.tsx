@@ -29,6 +29,7 @@ export function FileGrid({
   onRowClick,
   onToggle,
   onOpen,
+  dropDir,
 }: ListProps & { serial: string }) {
   const [width, setWidth] = useState(800);
   useEffect(() => {
@@ -92,6 +93,7 @@ export function FileGrid({
                 entry={entry}
                 selected={selected.has(entry.path)}
                 focused={focused === entry.path}
+                dropping={dropDir === entry.path}
                 onClick={(e) => onRowClick(entry, e)}
                 onToggle={() => onToggle(entry)}
                 onOpen={() => onOpen(entry)}
@@ -108,6 +110,7 @@ function Tile({
   entry,
   selected,
   focused,
+  dropping,
   onClick,
   onToggle,
   onOpen,
@@ -116,6 +119,7 @@ function Tile({
   entry: FileEntry;
   selected: boolean;
   focused: boolean;
+  dropping: boolean;
   onClick: (e: React.MouseEvent) => void;
   onToggle: () => void;
   onOpen: () => void;
@@ -127,11 +131,14 @@ function Tile({
       role="gridcell"
       aria-selected={selected}
       data-path={entry.path}
+      data-dir={isDirLike(entry) || undefined}
+      data-name={entry.name}
       onClick={onClick}
       onDoubleClick={onOpen}
       className={cn(
         "group/tile relative flex flex-col gap-1.5 rounded-lg border border-transparent p-1.5",
         selected ? "bg-brand/15 border-brand/30" : "hover:bg-accent",
+        dropping && isDirLike(entry) && "bg-brand/15 border-brand",
         focused && "outline-ring outline-1",
         entry.unreadable && "opacity-60",
       )}
