@@ -222,6 +222,74 @@ pub async fn delete(root: &Path, path: &Path) -> AppResult<()> {
     Ok(())
 }
 
+/// Reads one screenshot inside `root` (for the annotation editor, which
+/// needs same-origin pixels).
+pub async fn read(root: &Path, path: &Path) -> AppResult<Vec<u8>> {
+    let path = contained(root, path)?;
+    if kind_of(&path) != Some(CaptureKind::Screenshot) {
+        return Err(AppError::InvalidInput("not a screenshot".into()));
+    }
+    Ok(tokio::fs::read(path).await?)
+}
+
+/// Saves an annotated copy of `original` (a screenshot inside `root`):
+/// `<stem>_annotated.png` next to it, or the original itself when
+/// `overwrite` is set (PNG originals only, so the extension stays honest).
+pub async fn save_annotated(
+    root: &Path,
+    original: &Path,
+    png: &[u8],
+    overwrite: bool,
+) -> AppResult<Capture> {
+    if !is_png(png) {
+        return Err(AppError::InvalidInput(
+            "annotated image is not a PNG".into(),
+        ));
+    }
+    let original = contained(root, original)?;
+    if kind_of(&original) != Some(CaptureKind::Screenshot) {
+        return Err(AppError::InvalidInput("not a screenshot".into()));
+    }
+    let dir = original
+        .parent()
+        .ok_or_else(|| AppError::InvalidInput("no parent folder".into()))?;
+    let target = if overwrite {
+        let png_ext = original
+            .extension()
+            .is_some_and(|e| e.eq_ignore_ascii_case("png"));
+        if !png_ext {
+            return Err(AppError::InvalidInput(
+                "only PNG screenshots can be overwritten; save a copy instead".into(),
+            ));
+        }
+        original.clone()
+    } else {
+        let stem = original
+            .file_stem()
+            .map(|s| s.to_string_lossy().into_owned())
+            .unwrap_or_else(|| "Screenshot".into());
+        unique_path(dir, &format!("{stem}_annotated"), "png")
+    };
+    // Write next to the target, then rename: a failed write never leaves a
+    // half-written original behind.
+    let partial = dir.join(format!(
+        ".{}.partial",
+        target.file_name().unwrap_or_default().to_string_lossy()
+    ));
+    tokio::fs::write(&partial, png).await?;
+    if let Err(e) = tokio::fs::rename(&partial, &target).await {
+        let _ = tokio::fs::remove_file(&partial).await;
+        return Err(e.into());
+    }
+    let root = std::fs::canonicalize(root)?;
+    let device = (dir != root)
+        .then(|| dir.file_name().map(|n| n.to_string_lossy().into_owned()))
+        .flatten();
+    describe(&target, device)
+        .await
+        .ok_or_else(|| AppError::Device("annotated capture was not saved".into()))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -292,6 +360,54 @@ mod tests {
         assert!(delete(root.path(), other.path()).await.is_err());
         let sneaky = root.path().join("..").join("x.png");
         assert!(delete(root.path(), &sneaky).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn saves_annotated_copies_and_overwrites() {
+        let root = tempfile::tempdir().unwrap();
+        let mut png = PNG_HEADER.to_vec();
+        png.extend_from_slice(&[0; 16]);
+        let shot = save(root.path(), "Pixel 8 Pro", "Screenshot_1", "png", &png)
+            .await
+            .unwrap();
+        let original = Path::new(&shot.path);
+
+        let mut edited = PNG_HEADER.to_vec();
+        edited.extend_from_slice(&[7; 32]);
+        let copy = save_annotated(root.path(), original, &edited, false)
+            .await
+            .unwrap();
+        assert_eq!(copy.name, "Screenshot_1_annotated.png");
+        assert_eq!(copy.device.as_deref(), Some("Pixel 8 Pro"));
+        let again = save_annotated(root.path(), original, &edited, false)
+            .await
+            .unwrap();
+        assert_eq!(again.name, "Screenshot_1_annotated-2.png");
+        assert_eq!(std::fs::read(original).unwrap(), png);
+
+        let over = save_annotated(root.path(), original, &edited, true)
+            .await
+            .unwrap();
+        assert_eq!(over.name, "Screenshot_1.png");
+        assert_eq!(std::fs::read(original).unwrap(), edited);
+        assert_eq!(read(root.path(), original).await.unwrap(), edited);
+        // No partial files are left behind.
+        assert_eq!(list(root.path()).await.unwrap().len(), 3);
+
+        assert!(
+            save_annotated(root.path(), original, b"not a png", false)
+                .await
+                .is_err()
+        );
+        let jpg = root.path().join("photo.jpg");
+        std::fs::write(&jpg, b"jpeg").unwrap();
+        assert!(
+            save_annotated(root.path(), &jpg, &edited, true)
+                .await
+                .is_err()
+        );
+        let outside = tempfile::NamedTempFile::new().unwrap();
+        assert!(read(root.path(), outside.path()).await.is_err());
     }
 
     #[tokio::test]

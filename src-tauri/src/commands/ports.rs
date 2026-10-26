@@ -2,7 +2,8 @@ use serde::Serialize;
 use tauri::State;
 
 use crate::adb::forward::{self, Direction, PortRule};
-use crate::error::AppResult;
+use crate::adb::host_ports::{self, HostPortUsage};
+use crate::error::{AppError, AppResult};
 use crate::state::AppState;
 
 #[derive(Serialize)]
@@ -58,6 +59,14 @@ pub async fn ports_remove(
 #[tauri::command]
 pub async fn ports_remove_all(state: State<'_, AppState>, serial: String) -> AppResult<()> {
     forward::kill_all(&state.server, &serial).await
+}
+
+/// Connections on each host port and the process listening on it.
+#[tauri::command]
+pub async fn ports_host_usage(ports: Vec<u16>) -> AppResult<Vec<HostPortUsage>> {
+    tokio::task::spawn_blocking(move || host_ports::usage(&ports))
+        .await
+        .map_err(|e| AppError::Io(std::io::Error::other(e.to_string())))
 }
 
 /// First free port on this computer at or after `start`.

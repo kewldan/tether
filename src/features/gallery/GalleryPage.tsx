@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { revealItemInDir } from "@tauri-apps/plugin-opener";
 import { Camera, ChevronDown, Copy, Images, Play, Trash2 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Page } from "@/components/layout/Page";
@@ -29,6 +29,7 @@ import { Segmented } from "@/features/device-settings/Segmented";
 import { deviceName } from "@/features/devices/naming";
 import { useDeviceInfo } from "@/features/devices/queries";
 import { useSelectedDevice } from "@/features/devices/store";
+import { Annotator, type AnnotatorHandle } from "@/features/gallery/Annotator";
 import {
   type Capture,
   type CaptureKind,
@@ -243,6 +244,10 @@ export default function GalleryPage() {
           <Detail
             capture={selected}
             onDelete={() => setConfirmDelete(selected)}
+            onSaved={(saved) => {
+              setSelectedPath(saved.path);
+              void queryClient.invalidateQueries({ queryKey: CAPTURES_QUERY });
+            }}
           />
         )}
       </div>
@@ -292,7 +297,7 @@ function Thumb({
   className?: string;
 }) {
   const [failed, setFailed] = useState(false);
-  const src = captureSrc(capture.path);
+  const src = captureSrc(capture.path, capture.modified);
   if (failed) {
     return <div className={cn("bg-selected", className)} />;
   }
@@ -358,8 +363,10 @@ function Tile({
   );
 }
 
-async function copyImage(capture: Capture) {
-  const blob = await fetch(captureSrc(capture.path)).then((r) => r.blob());
+async function copyImage(capture: Capture, annotator: AnnotatorHandle | null) {
+  const blob = annotator
+    ? await annotator.exportPng()
+    : await fetch(captureSrc(capture.path)).then((r) => r.blob());
   const type = blob.type.startsWith("image/") ? blob.type : "image/png";
   await navigator.clipboard.write([new ClipboardItem({ [type]: blob })]);
 }
@@ -367,17 +374,20 @@ async function copyImage(capture: Capture) {
 function Detail({
   capture,
   onDelete,
+  onSaved,
 }: {
   capture: Capture;
   onDelete: () => void;
+  onSaved: (saved: Capture) => void;
 }) {
   const { t, i18n } = useTranslation("gallery");
   const isVideo = capture.kind === "recording";
+  const annotator = useRef<AnnotatorHandle>(null);
 
   const copy = () => {
     const done = isVideo
       ? navigator.clipboard.writeText(capture.path)
-      : copyImage(capture);
+      : copyImage(capture, annotator.current);
     void done
       .then(() => toast.success(isVideo ? t("pathCopied") : t("imageCopied")))
       .catch((e) => toast.error(t("copyFailed"), { description: String(e) }));
@@ -422,25 +432,24 @@ function Detail({
           <Trash2 />
         </Button>
       </div>
-      <div className="bg-sidebar flex min-h-0 flex-1 items-center justify-center p-4">
-        {isVideo ? (
-          // biome-ignore lint/a11y/useMediaCaption: screenrecord has no audio track
+      {isVideo ? (
+        <div className="bg-sidebar flex min-h-0 flex-1 items-center justify-center p-4">
+          {/* biome-ignore lint/a11y/useMediaCaption: screenrecord has no audio track */}
           <video
             key={capture.path}
             src={captureSrc(capture.path)}
             controls
             className="ring-input max-h-full max-w-full rounded-[14px] bg-black ring-1"
           />
-        ) : (
-          <img
-            key={capture.path}
-            src={captureSrc(capture.path)}
-            alt={capture.name}
-            draggable={false}
-            className="ring-input max-h-full max-w-full rounded-[14px] object-contain ring-1"
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <Annotator
+          key={`${capture.path}|${capture.modified}`}
+          ref={annotator}
+          capture={capture}
+          onSaved={onSaved}
+        />
+      )}
       <div className="text-small text-muted-foreground flex items-center gap-3 border-t px-3.5 py-2">
         {capture.width && capture.height && (
           <span className="tabular-nums">

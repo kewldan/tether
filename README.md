@@ -85,11 +85,11 @@ terminal keep working next to it.
 | 📜 | **Logcat** | A log viewer that keeps up: level, tag, package and regex filters, crash detection |
 | 💻 | **Shell** | Multi-tab terminal with snippets and run-on-all-devices |
 | 📊 | **Device overview** | Battery, storage, memory, CPU, display and network at a glance |
-| 🎛️ | **Developer toggles** | Dark mode, animation scales, DPI, layout bounds, demo mode, saved profiles and one-click revert |
+| 🎛️ | **Developer toggles** | Dark mode, animation scales, DPI, layout bounds, demo mode, system and per-app language, saved profiles and one-click revert |
 | 🧮 | **Multi-device grid** | Every connected screen side by side; install, run, tap and screenshot on all of them at once |
 | 📲 | **Sideload OTA** | Flash an OTA zip from recovery with progress and safety checks |
 | 🔔 | **Menu bar & notifications** | Device status in the menu bar or tray; alerts when devices connect or an app crashes |
-| 🔧 | **Power tools** | Port forwarding, intents & deep links, performance charts, bugreports, captures gallery |
+| 🔧 | **Power tools** | Port forwarding with live connections, intents & deep links, performance charts, bugreports, captures gallery with annotations |
 | 🩺 | **Diagnostics** | "Can't see your device?" checklist that explains and fixes common problems |
 | ⌨️ | **Keyboard-first** | Command palette, rebindable shortcuts, open at login straight into the menu bar |
 

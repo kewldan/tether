@@ -33,9 +33,8 @@ already works; this is the work that comes next.
 
 ## 🧰 Device and tools
 
-- [ ] Annotate captures (arrow, box, text, blur)
-- [ ] Change the system language from Developer toggles
-- [ ] Ports: connection count and the process holding a host port
+- [ ] Shell history that also records lines edited with arrows or Tab
+- [ ] Logcat on Android 6 and older (no `-v uid` there)
 
 ## ⚙️ App
 

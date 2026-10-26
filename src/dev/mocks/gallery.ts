@@ -8,7 +8,7 @@ function phoneSvg(bg: string, label: string): string {
   const dark = bg.charAt(1) < "5";
   const fg = dark ? "#ECEEF2" : "#1A1A1A";
   const block = dark ? "rgba(255,255,255,.10)" : "rgba(0,0,0,.08)";
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 780"><rect width="360" height="780" fill="${bg}"/><text x="28" y="88" font-family="Inter,sans-serif" font-weight="700" font-size="34" fill="${fg}">${label}</text><rect x="28" y="130" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="270" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="410" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="680" width="304" height="64" rx="32" fill="${fg}"/></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 780" width="720" height="1560"><rect width="360" height="780" fill="${bg}"/><text x="28" y="88" font-family="Inter,sans-serif" font-weight="700" font-size="34" fill="${fg}">${label}</text><rect x="28" y="130" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="270" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="410" width="304" height="120" rx="20" fill="${block}"/><rect x="28" y="680" width="304" height="64" rx="32" fill="${fg}"/></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
@@ -71,6 +71,25 @@ const handlers: MockHandlers = {
     return null;
   },
   "plugin:opener|reveal_item_in_dir": () => null,
+  // The PNG arrives as the raw body; the original's path travels in
+  // headers, which the mock IPC drops, so it is always a new copy here.
+  save_annotated: (body) => {
+    const bytes = body as unknown as Uint8Array;
+    let binary = "";
+    for (const b of bytes) binary += String.fromCharCode(b);
+    const capture: Capture = {
+      path: `data:image/png;base64,${btoa(binary)}`,
+      name: `Screenshot_${mockCaptures.length}_annotated.png`,
+      device: "Pixel 8 Pro",
+      kind: "screenshot",
+      sizeBytes: bytes.length,
+      modified: Date.now(),
+      width: null,
+      height: null,
+    };
+    mockCaptures.unshift(capture);
+    return capture;
+  },
 };
 
 export default handlers;

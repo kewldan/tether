@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   BatteryCharging,
-  Globe,
   Hand,
   LayoutGrid,
   type LucideIcon,
@@ -42,7 +41,12 @@ import {
   type DevKey,
   type DevSettings,
   readDevSettings,
+  setAppLocales,
 } from "@/features/device-settings/api";
+import {
+  LocaleCard,
+  useAppLocaleOriginals,
+} from "@/features/device-settings/LocaleCard";
 import {
   modifiedKeys,
   sameValue,
@@ -100,6 +104,10 @@ export default function DeviceSettingsPage() {
   const remember = useOriginals((s) => s.remember);
   const forget = useOriginals((s) => s.forget);
   const modified = modifiedKeys(settings, originals);
+  const appLocaleOriginals = useAppLocaleOriginals(serial);
+  const changedApps = Object.keys(appLocaleOriginals);
+  const changedCount = modified.length + changedApps.length;
+  const forgetAppLocales = useOriginals((s) => s.forgetAppLocales);
 
   const mutation = useMutation({
     mutationFn: (change: DevChange) => {
@@ -128,12 +136,19 @@ export default function DeviceSettingsPage() {
   );
 
   const revertAll = async () => {
-    if (!serial || !settings || !originals) return;
+    if (!serial || !settings) return;
     setReverting(true);
     let latest = settings;
     try {
-      for (const key of Object.keys(originals) as DevKey[]) {
-        const original = originals[key];
+      for (const [pkg, tags] of Object.entries(appLocaleOriginals)) {
+        await setAppLocales(serial, pkg, tags);
+        forgetAppLocales(serial, pkg);
+        void queryClient.invalidateQueries({
+          queryKey: ["app-locales", serial, pkg],
+        });
+      }
+      for (const key of Object.keys(originals ?? {}) as DevKey[]) {
+        const original = originals?.[key];
         if (sameValue(latest[key], original)) continue;
         const nullable = key === "screenSize" || key === "density";
         if (original === null && !nullable) continue;
@@ -171,9 +186,9 @@ export default function DeviceSettingsPage() {
       title={
         <span className="flex items-center gap-1.5">
           {tc("nav.device-settings")}
-          {modified.length > 0 && (
+          {changedCount > 0 && (
             <Badge variant="warning" className="ml-1.5">
-              {t("changedCount", { count: modified.length })}
+              {t("changedCount", { count: changedCount })}
             </Badge>
           )}
         </span>
@@ -191,7 +206,7 @@ export default function DeviceSettingsPage() {
           <Button
             variant="outline"
             size="sm"
-            disabled={modified.length === 0 || busy}
+            disabled={changedCount === 0 || busy}
             onClick={() => void revertAll()}
           >
             <RotateCcw />
@@ -387,13 +402,12 @@ export default function DeviceSettingsPage() {
 
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
             <Section label={t("sections.locale")}>
-              <SettingCard
-                icon={Globe}
-                title={t("locale.title")}
-                hint={t("locale.hint")}
-                aside={
-                  <Badge className="font-mono">{settings.locale ?? "—"}</Badge>
-                }
+              <LocaleCard
+                serial={serial}
+                settings={settings}
+                busy={busy}
+                modified={isMod("locale")}
+                onApplySystem={(tag) => apply({ key: "locale", value: tag })}
               />
             </Section>
             <Section label={t("sections.connectivity")}>

@@ -29,5 +29,43 @@
   "deleteTitle": "Delete {{name}}?",
   "deleteBody": "The file is removed from your computer. This can't be undone.",
   "deleted": "{{name}} deleted",
-  "deleteFailed": "Couldn't delete the file"
+  "deleteFailed": "Couldn't delete the file",
+  "annotate": {
+    "toolbar": "Annotate",
+    "tools": {
+      "arrow": "Arrow",
+      "rect": "Rectangle",
+      "text": "Text",
+      "blur": "Blur (pixelate)",
+      "crop": "Crop"
+    },
+    "color": "Color: {{name}}",
+    "colorLabel": "Annotation color",
+    "colors": {
+      "red": "Red",
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "black": "Black",
+      "white": "White",
+      "brand": "Iris"
+    },
+    "undo": "Undo",
+    "redo": "Redo",
+    "saveCopy": "Save copy",
+    "more": "More save options",
+    "overwrite": "Overwrite original…",
+    "overwritePngOnly": "Overwrite original (PNG only)",
+    "discard": "Discard annotations",
+    "canvas": "{{name}} with annotations",
+    "textLabel": "Label text",
+    "textPlaceholder": "Type, then Enter",
+    "overwriteTitle": "Overwrite {{name}}?",
+    "overwriteBody": "The annotated image replaces the original file. Blurred areas are pixelated for good, and the original can't be recovered.",
+    "overwriteConfirm": "Overwrite",
+    "saved": "Saved as {{name}}",
+    "overwritten": "{{name}} updated",
+    "saveFailed": "Couldn't save the annotated image",
+    "notLoaded": "The screenshot hasn't loaded yet"
+  }
 }

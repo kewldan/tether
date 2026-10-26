@@ -37,6 +37,24 @@ export const removePort = (
 export const removeAllPorts = (serial: string) =>
   invoke<void>("ports_remove_all", { serial });
 
+export interface PortOwner {
+  pid: number;
+  /** null when the process belongs to another user. */
+  name: string | null;
+}
+
+/** What is happening on one TCP port of this computer. */
+export interface HostPortUsage {
+  port: number;
+  /** Established connections accepted on the port. */
+  connections: number;
+  /** Process listening on the port. */
+  listener: PortOwner | null;
+}
+
+export const hostPortUsage = (ports: number[]) =>
+  invoke<HostPortUsage[]>("ports_host_usage", { ports });
+
 export const freeHostPort = (start: number) =>
   invoke<number | null>("ports_free_host_port", { start });
 

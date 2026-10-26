@@ -9,7 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { type FormEvent, useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Page } from "@/components/layout/Page";
 import { StatusDot } from "@/components/status/StatusDot";
@@ -27,8 +27,10 @@ import {
   addPort,
   type Direction,
   freeHostPort,
+  type HostPortUsage,
   isAddressInUse,
   knownLabel,
+  type PortOwner,
   parseSpec,
   removeAllPorts,
   removePort,
@@ -39,6 +41,7 @@ import {
 } from "@/features/ports/api";
 import {
   portsKey,
+  useHostPortUsage,
   usePortRules,
   usePortRulesAutoRestore,
 } from "@/features/ports/queries";
@@ -191,6 +194,11 @@ function PortsBody({
     void refresh();
   };
 
+  const forwardRows = rows("forward");
+  const usage = useHostPortUsage(
+    forwardRows.flatMap((r) => tcpPort(r.local) ?? []),
+  );
+
   const total =
     (data?.forward.length ?? 0) + (data?.reverse.length ?? 0) + saved.length;
 
@@ -220,7 +228,8 @@ function PortsBody({
           />
           <RulesCard
             direction="forward"
-            rows={rows("forward")}
+            rows={forwardRows}
+            usage={usage}
             loading={isLoading}
             serial={serial}
             onRemove={remove}
@@ -405,6 +414,7 @@ function AddRule({
 function RulesCard({
   direction,
   rows,
+  usage,
   loading,
   serial,
   onRemove,
@@ -412,6 +422,8 @@ function RulesCard({
 }: {
   direction: Direction;
   rows: Row[];
+  /** Host-port usage by port (forward rules only). */
+  usage?: Map<number, HostPortUsage>;
   loading: boolean;
   serial: string;
   onRemove: (row: Row) => void;
@@ -419,6 +431,10 @@ function RulesCard({
 }) {
   const { t } = useTranslation("ports");
   const host = useHostName();
+  const portUsage = (row: Row) => {
+    const port = tcpPort(row.local);
+    return port === null ? undefined : usage?.get(port);
+  };
   const forward = direction === "forward";
   const inUse = rows.filter((r) => r.error && isAddressInUse(r.error));
 
@@ -452,6 +468,7 @@ function RulesCard({
               <RuleRow
                 key={row.local}
                 row={row}
+                usage={portUsage(row)}
                 serial={serial}
                 onRemove={() => onRemove(row)}
                 onApply={() => onApply(row)}
@@ -474,6 +491,7 @@ function RulesCard({
         <PortInUse
           key={row.local}
           row={row}
+          owner={portUsage(row)?.listener ?? null}
           onUse={(local) => {
             onRemove(row);
             onApply({ ...row, local });
@@ -505,11 +523,13 @@ function Th({
 
 function RuleRow({
   row,
+  usage,
   serial,
   onRemove,
   onApply,
 }: {
   row: Row;
+  usage?: HostPortUsage;
   serial: string;
   onRemove: () => void;
   onApply: () => void;
@@ -535,10 +555,17 @@ function RuleRow({
         <LabelCell serial={serial} row={row} />
       </td>
       <td className={cn(cell, "font-sans")}>
-        {row.active ? (
+        {row.active && usage?.connections === 0 ? (
+          <Badge title={t("idleHint")}>
+            <StatusDot tone="neutral" />
+            {t("idle")}
+          </Badge>
+        ) : row.active ? (
           <Badge variant="success">
             <StatusDot tone="success" />
-            {t("active")}
+            {usage
+              ? t("activeConns", { count: usage.connections })
+              : t("active")}
           </Badge>
         ) : row.error ? (
           <Badge variant="error" title={row.error}>
@@ -637,9 +664,11 @@ function LabelCell({ serial, row }: { serial: string; row: Row }) {
 
 function PortInUse({
   row,
+  owner,
   onUse,
 }: {
   row: Row;
+  owner: PortOwner | null;
   onUse: (local: string) => void;
 }) {
   const { t } = useTranslation("ports");
@@ -656,9 +685,18 @@ function PortInUse({
   return (
     <div className="bg-error/12 text-small flex items-center gap-2 border-t px-3.5 py-2">
       <span>
-        {forward
-          ? t("inUseHost", { port, host })
-          : t("inUseDevice", { port: shortSpec(row.local) })}
+        {!forward ? (
+          t("inUseDevice", { port: shortSpec(row.local) })
+        ) : owner ? (
+          <Trans
+            t={t}
+            i18nKey={owner.name ? "inUseHostBy" : "inUseHostByPid"}
+            values={{ port, host, name: owner.name, pid: owner.pid }}
+            components={{ b: <b className="font-semibold" /> }}
+          />
+        ) : (
+          t("inUseHost", { port, host })
+        )}
       </span>
       {forward && suggestion != null && (
         <Button

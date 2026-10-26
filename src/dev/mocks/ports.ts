@@ -1,5 +1,10 @@
 import type { MockHandlers } from "@/dev/mockBackend";
-import type { Direction, PortRule, PortRules } from "@/features/ports/api";
+import type {
+  Direction,
+  HostPortUsage,
+  PortRule,
+  PortRules,
+} from "@/features/ports/api";
 
 // Rules on the sample Pixel 8 Pro, as on the Ports board.
 const rules: Record<string, PortRules> = {
@@ -68,6 +73,14 @@ const handlers: MockHandlers = {
     rules[serial as string] = { forward: [], reverse: [] };
     return null;
   },
+  ports_host_usage: ({ ports }): HostPortUsage[] =>
+    (ports as number[]).map((port) => ({
+      port,
+      connections: port === 9222 ? 2 : 0,
+      listener: BUSY_HOST_PORTS.has(`tcp:${port}`)
+        ? { pid: 31877, name: "node" }
+        : { pid: 85118, name: "adb" },
+    })),
   ports_free_host_port: ({ start }) => {
     let port = start as number;
     while (BUSY_HOST_PORTS.has(`tcp:${port}`)) port++;

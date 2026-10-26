@@ -10,6 +10,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::adb::server::AdbServer;
+use crate::device::logcat::validate_package;
 use crate::device::overview::{Size, parse_wm_density, parse_wm_size};
 use crate::device::props::parse_getprop;
 use crate::device::sections;
@@ -36,9 +37,11 @@ pub struct DevSettings {
     pub wifi: Option<bool>,
     pub mobile_data: Option<bool>,
     pub airplane: Option<bool>,
-    /// System locale (read only: there is no supported shell command to
-    /// change it live).
+    /// Primary system locale as a BCP 47 tag.
     pub locale: Option<String>,
+    /// Whether `cmd locale set-device-locale` exists (Android 16+): the
+    /// only way to switch the system language live without root.
+    pub locale_settable: bool,
 }
 
 /// One change requested by the UI, e.g. `{ "key": "darkTheme", "value": true }`.
@@ -61,6 +64,55 @@ pub enum DevChange {
     Wifi(bool),
     MobileData(bool),
     Airplane(bool),
+    /// System language, a BCP 47 tag like `fr-FR`.
+    Locale(String),
+}
+
+/// A BCP 47 language tag as Android prints them (`en-US`, `sr-Latn-RS`,
+/// `ar-EG-u-nu-latn`). Strict enough to be passed to a shell unquoted.
+pub fn is_locale_tag(tag: &str) -> bool {
+    let mut parts = tag.split('-');
+    let lang = parts.next().unwrap_or_default();
+    tag.len() <= 64
+        && (2..=8).contains(&lang.len())
+        && lang.chars().all(|c| c.is_ascii_alphabetic())
+        && parts.all(|p| (1..=8).contains(&p.len()) && p.chars().all(|c| c.is_ascii_alphanumeric()))
+}
+
+/// Output of `cmd locale get-device-locale`, `None` when the command is
+/// missing (Android 15 and older).
+pub fn parse_device_locale(output: &str) -> Option<String> {
+    let tag = output.trim();
+    is_locale_tag(tag).then(|| tag.to_owned())
+}
+
+/// `cmd locale list-device-locales`: one tag per line.
+pub fn parse_locale_list(output: &str) -> Vec<String> {
+    let mut tags: Vec<String> = output
+        .lines()
+        .map(str::trim)
+        .filter(|l| is_locale_tag(l))
+        .map(str::to_owned)
+        .collect();
+    tags.sort();
+    tags.dedup();
+    tags
+}
+
+/// `Locales for com.example for user 0 are [ru-RU,en]` → `["ru-RU", "en"]`.
+pub fn parse_app_locales(output: &str) -> Option<Vec<String>> {
+    let line = output.lines().find(|l| l.starts_with("Locales for "))?;
+    let start = line.rfind('[')?;
+    let end = line.rfind(']')?;
+    let inner = line.get(start + 1..end)?;
+    Some(
+        inner
+            .split(',')
+            .map(str::trim)
+            .filter(|t| !t.is_empty())
+            .map(str::to_owned)
+            .collect(),
+    )
 }
 
 /// `key=value` lines of `settings list <namespace>`.
@@ -121,7 +173,9 @@ pub fn from_sections(out: &HashMap<String, String>) -> DevSettings {
         .and_then(|v| v.parse::<i64>().ok())
         .map(|v| v == 1 || v == 2);
 
+    let device_locale = parse_device_locale(section("locale"));
     DevSettings {
+        locale_settable: device_locale.is_some(),
         dark_theme: parse_night_mode(section("night")),
         animation_scale: scale(&global, "window_animation_scale"),
         font_scale: scale(&system, "font_scale"),
@@ -138,10 +192,12 @@ pub fn from_sections(out: &HashMap<String, String>) -> DevSettings {
         wifi,
         mobile_data: flag(&global, "mobile_data", false),
         airplane: flag(&global, "airplane_mode_on", false),
-        locale: ["persist.sys.locale", "ro.product.locale"]
-            .iter()
-            .find_map(|k| props.get(*k).filter(|v| !v.is_empty()))
-            .cloned(),
+        locale: device_locale.or_else(|| {
+            ["persist.sys.locale", "ro.product.locale"]
+                .iter()
+                .find_map(|k| props.get(*k).filter(|v| !v.is_empty()))
+                .cloned()
+        }),
     }
 }
 
@@ -151,6 +207,7 @@ const READ_SECTIONS: &[(&str, &str)] = &[
     ("system", "settings list system"),
     ("wmsize", "wm size"),
     ("wmdensity", "wm density"),
+    ("locale", "cmd locale get-device-locale"),
     (
         "props",
         "for p in debug.layout debug.hwui.profile persist.sys.locale ro.product.locale; \
@@ -251,6 +308,12 @@ pub fn commands(change: &DevChange) -> AppResult<Vec<String>> {
             "cmd connectivity airplane-mode {}",
             if v { "enable" } else { "disable" }
         )],
+        DevChange::Locale(ref tag) => {
+            if !is_locale_tag(tag) {
+                return Err(AppError::InvalidInput(format!("locale {tag:?}")));
+            }
+            vec![format!("cmd locale set-device-locale {tag}")]
+        }
     })
 }
 
@@ -262,6 +325,7 @@ pub fn failure(output: &str) -> Option<String> {
         || text.contains("Unknown command")
         || text.contains("not found")
         || text.contains("Permission denial")
+        || text.starts_with("Unknown package")
         || text.contains("Can't find service");
     failed.then(|| text.lines().take(3).collect::<Vec<_>>().join("\n"))
 }
@@ -279,6 +343,62 @@ pub async fn apply(server: &AdbServer, serial: &str, change: &DevChange) -> AppR
     read(server, serial).await
 }
 
+/// Locales the device can switch to (Android 16+; empty before).
+pub async fn device_locales(server: &AdbServer, serial: &str) -> AppResult<Vec<String>> {
+    let out = server
+        .exec_text(serial, "cmd locale list-device-locales 2>/dev/null")
+        .await?;
+    Ok(parse_locale_list(&out))
+}
+
+/// Per-app language (Android 13+). Empty means "follow the system".
+pub async fn app_locales(
+    server: &AdbServer,
+    serial: &str,
+    package: &str,
+) -> AppResult<Vec<String>> {
+    validate_package(package)?;
+    let out = server
+        .exec_text(
+            serial,
+            &format!("cmd locale get-app-locales {package} 2>&1"),
+        )
+        .await?;
+    if let Some(message) = failure(&out) {
+        return Err(AppError::Device(message));
+    }
+    parse_app_locales(&out).ok_or_else(|| {
+        AppError::Device(format!(
+            "per-app languages need Android 13 or newer\n{}",
+            out.trim()
+        ))
+    })
+}
+
+/// Sets an app's languages (empty = follow the system) and returns what
+/// the device reports afterwards.
+pub async fn set_app_locales(
+    server: &AdbServer,
+    serial: &str,
+    package: &str,
+    locales: &[String],
+) -> AppResult<Vec<String>> {
+    validate_package(package)?;
+    if let Some(bad) = locales.iter().find(|t| !is_locale_tag(t)) {
+        return Err(AppError::InvalidInput(format!("locale {bad:?}")));
+    }
+    let mut command = format!("cmd locale set-app-locales {package}");
+    if !locales.is_empty() {
+        command.push_str(" --locales ");
+        command.push_str(&locales.join(","));
+    }
+    let out = server.exec_text(serial, &format!("{command} 2>&1")).await?;
+    if let Some(message) = failure(&out) {
+        return Err(AppError::Device(message));
+    }
+    app_locales(server, serial, package).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -293,6 +413,7 @@ mod tests {
             ("global", GLOBAL),
             ("system", SYSTEM),
             ("wmsize", "Physical size: 1280x2856\n"),
+            ("locale", "en-US\n"),
             (
                 "wmdensity",
                 "Physical density: 480\nOverride density: 420\n",
@@ -327,6 +448,61 @@ mod tests {
         assert_eq!(s.density, Some(420));
         assert_eq!(s.physical_density, Some(480));
         assert_eq!(s.locale.as_deref(), Some("en-US"));
+        assert!(s.locale_settable);
+    }
+
+    #[test]
+    fn locale_falls_back_to_props_before_android_16() {
+        let mut out = sections_from_emulator();
+        out.insert(
+            "locale".into(),
+            "Unknown command: get-device-locale\n".into(),
+        );
+        let s = from_sections(&out);
+        assert_eq!(s.locale.as_deref(), Some("en-US"));
+        assert!(!s.locale_settable);
+    }
+
+    #[test]
+    fn locale_tags() {
+        for ok in ["en", "en-US", "sr-Latn-RS", "ar-EG-u-nu-latn", "es-419"] {
+            assert!(is_locale_tag(ok), "{ok}");
+        }
+        for bad in ["", "e", "en_US", "en-US;reboot", "en US", "-en", "en-"] {
+            assert!(!is_locale_tag(bad), "{bad}");
+        }
+        assert_eq!(
+            commands(&DevChange::Locale("fr-FR".into())).unwrap(),
+            vec!["cmd locale set-device-locale fr-FR"]
+        );
+        assert!(commands(&DevChange::Locale("fr;id".into())).is_err());
+        let c: DevChange = serde_json::from_str(r#"{"key":"locale","value":"ru-RU"}"#).unwrap();
+        assert_eq!(c, DevChange::Locale("ru-RU".into()));
+    }
+
+    #[test]
+    fn parses_locale_outputs() {
+        // Android 16 emulator.
+        assert_eq!(
+            parse_locale_list("en-US\nar-JO\nam-ET\nfr-DZ\nen-US\n"),
+            vec!["am-ET", "ar-JO", "en-US", "fr-DZ"]
+        );
+        let app = |s: &str| parse_app_locales(s);
+        assert_eq!(
+            app("Locales for com.android.settings for user 0 are [ru-RU]\n"),
+            Some(vec!["ru-RU".to_owned()])
+        );
+        assert_eq!(
+            app("Locales for com.android.settings for user 0 are [ru-RU,en]\n"),
+            Some(vec!["ru-RU".to_owned(), "en".to_owned()])
+        );
+        assert_eq!(
+            app("Locales for com.android.settings for user 0 are []\n"),
+            Some(vec![])
+        );
+        assert_eq!(app("cmd: Can't find service: locale\n"), None);
+        assert!(failure("Unknown package no.such.pkg for userId 0").is_some());
+        assert!(failure("Error: Invalid locale tag: zz").is_some());
     }
 
     #[test]

@@ -158,6 +158,8 @@ export function describeChange(change: DevChange, t: TFunction): string {
       return change.value === null
         ? p("sizeReset")
         : p("size", { w: change.value.width, h: change.value.height });
+    case "locale":
+      return p("locale", { value: change.value ?? "" });
     default:
       return `${p(change.key)} ${onOff(change.value)}`;
   }

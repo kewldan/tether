@@ -7,7 +7,12 @@ import { useEffect, useRef } from "react";
 
 import { useDevices, useReadySerial } from "@/features/devices/store";
 import { errorMessage } from "@/features/performance/common";
-import { addPort, listPorts, type PortRule } from "@/features/ports/api";
+import {
+  addPort,
+  hostPortUsage,
+  listPorts,
+  type PortRule,
+} from "@/features/ports/api";
 import { usePortsStore } from "@/features/ports/store";
 
 export const portsKey = (serial: string | null) => ["ports", serial] as const;
@@ -20,6 +25,21 @@ export function usePortRules(serial: string | null) {
     enabled: serial !== null,
     refetchInterval: 5000,
   });
+}
+
+/**
+ * Connections and listening process of host ports, by port. Polled every
+ * 3 s while the Ports page shows them.
+ */
+export function useHostPortUsage(ports: number[]) {
+  const sorted = [...new Set(ports)].sort((a, b) => a - b);
+  const { data } = useQuery({
+    queryKey: ["ports-host-usage", sorted.join(",")],
+    queryFn: () => hostPortUsage(sorted),
+    enabled: sorted.length > 0,
+    refetchInterval: 3000,
+  });
+  return new Map((data ?? []).map((u) => [u.port, u] as const));
 }
 
 /**

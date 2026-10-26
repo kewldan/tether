@@ -45,8 +45,24 @@
     "stayAwake": "Stay awake on charge"
   },
   "locale": {
-    "title": "System language",
-    "hint": "Shown for reference: Android has no shell command to switch the system language live. Change it in the device's Settings."
+    "system": "System language",
+    "systemHint": "Changes the whole device at once, like Settings → Languages. Open apps reload their screens.",
+    "systemReadOnly": "Android 15 and older can switch the system language only in the device's Settings or with root. The app language below works from Android 13.",
+    "scopeSystem": "whole device",
+    "app": "App language",
+    "appHint": "Only the chosen app, like Settings → App languages (Android 13+). Its open screens reload.",
+    "scopeApp": "one app",
+    "systemDefault": "System default",
+    "useSystem": "Follow the system language",
+    "pickApp": "Choose an app",
+    "searchApps": "Search packages…",
+    "loadingApps": "Loading apps…",
+    "noApps": "No matching apps.",
+    "userApps": "Installed apps",
+    "systemApps": "System apps",
+    "search": "Search languages…",
+    "none": "No matching languages.",
+    "custom": "Use “{{tag}}”"
   },
   "connectivity": {
     "wifi": "Wi-Fi",
@@ -112,7 +128,8 @@
       "stayAwake": "stay awake",
       "wifi": "Wi-Fi",
       "mobileData": "mobile data",
-      "airplane": "airplane mode"
+      "airplane": "airplane mode",
+      "locale": "language {{value}}"
     }
   },
   "about": {

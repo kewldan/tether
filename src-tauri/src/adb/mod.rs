@@ -3,6 +3,7 @@ pub mod compression;
 pub mod devices;
 pub mod diagnostics;
 pub mod forward;
+pub mod host_ports;
 pub mod hostkey;
 pub mod installer;
 pub mod latest;

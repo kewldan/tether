@@ -15,10 +15,14 @@ interface OriginalsState {
     value: DevSettings[K],
   ) => void;
   forget: (serial: string, key?: DevKey) => void;
+  /** Per-app languages before Tether changed them: serial → package → tags. */
+  appLocales: Record<string, Record<string, string[]>>;
+  rememberAppLocales: (serial: string, pkg: string, tags: string[]) => void;
+  forgetAppLocales: (serial: string, pkg?: string) => void;
 }
 
 /**
- * Original values of developer toggles, kept in localStorage so "Restore
+ * Original values of developer toggles and per-app languages, kept in localStorage so "Restore
  * all original values" works across app restarts.
  */
 export const useOriginals = create<OriginalsState>()(
@@ -44,6 +48,30 @@ export const useOriginals = create<OriginalsState>()(
             bySerial[serial] = next;
           }
           return { bySerial };
+        }),
+      appLocales: {},
+      rememberAppLocales: (serial, pkg, tags) =>
+        set((s) => {
+          const current = s.appLocales[serial] ?? {};
+          if (pkg in current) return s;
+          return {
+            appLocales: {
+              ...s.appLocales,
+              [serial]: { ...current, [pkg]: tags },
+            },
+          };
+        }),
+      forgetAppLocales: (serial, pkg) =>
+        set((s) => {
+          const appLocales = { ...s.appLocales };
+          if (pkg === undefined) {
+            delete appLocales[serial];
+          } else {
+            const next = { ...appLocales[serial] };
+            delete next[pkg];
+            appLocales[serial] = next;
+          }
+          return { appLocales };
         }),
     }),
     { name: "tether.dev-settings.originals" },
