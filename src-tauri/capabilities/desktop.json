@@ -10,7 +10,10 @@
   ],
   "permissions": [
     "updater:default",
-    "process:allow-restart"
+    "process:allow-restart",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled"
   ],
-  "description": "Desktop-only plugins: OTA updates and relaunch after install"
+  "description": "Desktop-only plugins: OTA updates, relaunch after install and open at login"
 }

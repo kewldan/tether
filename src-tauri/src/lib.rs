@@ -3,6 +3,7 @@ mod commands;
 pub mod device;
 pub mod error;
 pub mod localfs;
+mod login;
 pub mod mirror;
 mod notifications;
 mod state;
@@ -16,6 +17,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(login::plugin())
+        .manage(login::LoginLaunch::default())
         .manage(state::AppState::default())
         .manage(commands::files::FilesState::default())
         .manage(commands::logcat::LogcatSessions::default())
@@ -29,6 +32,7 @@ pub fn run() {
         .manage(tray::TrayState::default())
         .setup(|app| {
             notifications::setup(app.handle());
+            login::setup(app);
             Ok(())
         })
         .on_window_event(tray::on_window_event)
@@ -157,6 +161,8 @@ pub fn run() {
             commands::mirror::mirror_popout_close,
             commands::mirror::mirror_record_start,
             commands::mirror::mirror_record_stop,
+            commands::adb::platform_tools_latest,
+            commands::login::login_launch_settle,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")

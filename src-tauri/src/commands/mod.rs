@@ -9,6 +9,7 @@ pub mod files;
 pub mod gallery;
 pub mod intents;
 pub mod logcat;
+pub mod login;
 pub mod mirror;
 pub mod multi;
 pub mod overview;
