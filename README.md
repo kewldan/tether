@@ -50,7 +50,11 @@ serial number to type.
 It runs on the standard adb server, so Android Studio, scrcpy and your
 terminal keep working next to it.
 
-<!-- 📸 Hero screenshot / GIF goes here: docs/media/hero.png -->
+<p align="center">
+  <img alt="Tether's device overview: battery, storage, memory, CPU, display and network for a connected Pixel, with quick actions for screenshot, recording, mirroring and installing an APK" src="docs/media/overview.png" width="100%">
+  <br>
+  <sub>📊 Device overview: live vitals and one-click actions for the selected device.</sub>
+</p>
 
 ## ✨ Highlights
 
@@ -97,10 +101,34 @@ What comes next is in the [🗺️ roadmap](ROADMAP.md).
 
 ## 📸 Screenshots
 
-<!-- Screenshots and GIFs coming soon:
-     docs/media/overview.png · docs/media/logcat.gif · docs/media/files.gif · docs/media/mirror.gif -->
+<p align="center">
+  <img alt="Jumping between Overview, Screen, Files, Apps, Logcat, Performance and Device settings in Tether" src="docs/media/tour.gif" width="100%">
+  <br>
+  <sub>🧭 Every screen, one sidebar away.</sub>
+</p>
 
-_Coming soon._
+<table>
+  <tr>
+    <td width="50%"><img alt="The emulator's screen mirrored inside Tether while apps are opened on it" src="docs/media/mirror.gif"><br><sub>🖥️ Mirror and control the screen, with audio, recording and a pop-out window.</sub></td>
+    <td width="50%"><img alt="Logcat streaming live with level counters, filters and a folded stack trace" src="docs/media/logcat.gif"><br><sub>📜 Logcat that keeps up, with filters, presets and crash folding.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="Typing perf into the command palette and jumping to Performance" src="docs/media/palette.gif"><br><sub>⌨️ <code>⌘K</code> / <code>Ctrl+K</code> jumps to any screen, device or action.</sub></td>
+    <td width="50%"><img alt="File manager listing screenshots on the device with an image preview and file details" src="docs/media/files.png"><br><sub>📁 Browse, preview and transfer files, or work in two panes.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="Apps list with icons, versions, sizes and system badges" src="docs/media/apps.png"><br><sub>🧩 Apps with real names and icons, installs on many devices.</sub></td>
+    <td width="50%"><img alt="Performance charts for CPU, memory, network and battery above a process table" src="docs/media/performance.png"><br><sub>📈 Live performance charts and a process table.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="Developer toggles for dark theme, animation scale, font scale, screen size, overlays, language and connectivity" src="docs/media/devsettings.png"><br><sub>🎛️ Developer toggles, profiles and one-click revert.</sub></td>
+    <td width="50%"><img alt="Device overview in the light theme" src="docs/media/overview-light.png"><br><sub>🌗 Real dark and light themes.</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img alt="First launch: Tether finds adb in the Android Studio SDK" src="docs/media/onboarding.png"><br><sub>📦 Finds your adb, or downloads the official platform-tools.</sub></td>
+    <td width="50%"><img alt="The mirrored screen with stream and device settings" src="docs/media/screen.png"><br><sub>⚙️ Bitrate, resolution, codec and device options per session.</sub></td>
+  </tr>
+</table>
 
 ## 🚀 Getting started
 

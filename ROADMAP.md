@@ -8,7 +8,6 @@ already works; this is the work that comes next.
 - [ ] Test on a real phone over USB and Wi-Fi pairing (QR and pairing code)
 - [ ] Test the full app on Windows and Linux (titlebar, drivers, udev, WebKitGTK)
 - [ ] End-to-end OTA update from one published release to the next
-- [ ] Screenshots and GIFs for the README
 
 ## 📦 Distribution
 
