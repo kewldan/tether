@@ -9,7 +9,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 import {
+  attachMirror,
   type ControlMessage,
+  type MirrorEvent,
   type MirrorInfo,
   type MirrorOptions,
   sendControl,
@@ -27,7 +29,9 @@ export type MirrorStatus =
   | { kind: "connecting" }
   | { kind: "streaming" }
   | { kind: "error"; reason: "start" | "codec" | "decode"; error: AppError }
-  | { kind: "stopped"; error: AppError | null };
+  | { kind: "stopped"; error: AppError | null }
+  /** Another window took the session over. */
+  | { kind: "detached" };
 
 export interface VideoSize {
   width: number;
@@ -50,16 +54,28 @@ function asAppError(e: unknown): AppError {
 }
 
 /**
- * Owns one mirroring session for `serial`: starts it (again when stream
- * settings change), feeds the decoder, tracks fps/bitrate and stops the
- * server on unmount or device change.
+ * How this view gets its stream: `start` runs a session with the current
+ * settings (taking over a running one with the same settings), `attach`
+ * shows the running session as is (the pop-out), `off` shows nothing.
+ */
+export type SessionMode = "start" | "attach" | "off";
+
+/**
+ * Shows one mirroring session for `serial`: starts or attaches to it
+ * (again when stream settings change), feeds the decoder, tracks
+ * fps/bitrate and lets the session go on unmount or device change.
  */
 export function useMirrorSession(
   serial: string | null,
   canvas: RefObject<HTMLCanvasElement | null>,
+  mode: SessionMode = "start",
 ) {
   const { t } = useTranslation("mirror");
-  const optionsKey = useMirrorSettings((s) => JSON.stringify(streamOptions(s)));
+  const settingsKey = useMirrorSettings((s) =>
+    JSON.stringify(streamOptions(s)),
+  );
+  // Attached views show the stream as it is; settings belong to its owner.
+  const optionsKey = mode === "attach" ? "" : settingsKey;
   const screenOff = useMirrorSettings((s) => s.screenOff);
   const [attempt, setAttempt] = useState(0);
   const [status, setStatus] = useState<MirrorStatus>({ kind: "idle" });
@@ -83,7 +99,7 @@ export function useMirrorSession(
     setInfo(null);
     setSize(null);
     setStats({ fps: 0, mbps: 0 });
-    if (!serial || !target) {
+    if (!serial || !target || mode === "off") {
       setStatus({ kind: "idle" });
       return;
     }
@@ -92,7 +108,10 @@ export function useMirrorSession(
       return;
     }
 
-    const options = JSON.parse(optionsKey) as MirrorOptions;
+    // Attached views only need to know whether the stream carries audio.
+    const options: MirrorOptions = optionsKey
+      ? JSON.parse(optionsKey)
+      : streamOptions(useMirrorSettings.getState());
     let cancelled = false;
     let sessionId: number | undefined;
     setStatus({ kind: "connecting" });
@@ -115,7 +134,7 @@ export function useMirrorSession(
       onFirstFrame: () => {
         if (cancelled) return;
         setStatus({ kind: "streaming" });
-        if (useMirrorSettings.getState().screenOff) {
+        if (mode === "start" && useMirrorSettings.getState().screenOff) {
           sendControl(serial, { type: "setDisplayPower", on: false }).catch(
             () => {},
           );
@@ -137,12 +156,16 @@ export function useMirrorSession(
       pipeline.bytes = 0;
     }, 1000);
 
-    const timer = setTimeout(() => {
-      startMirror(
-        serial,
-        options,
-        (batch) => pipeline.push(batch),
-        (event) => {
+    const timer = setTimeout(
+      () => {
+        const onVideo = (batch: ArrayBuffer) => pipeline.push(batch);
+        const open =
+          mode === "attach"
+            ? (onEvent: (e: MirrorEvent) => void) =>
+                attachMirror(serial, onVideo, onEvent)
+            : (onEvent: (e: MirrorEvent) => void) =>
+                startMirror(serial, options, onVideo, onEvent);
+        open((event) => {
           if (cancelled) return;
           switch (event.type) {
             case "clipboard":
@@ -161,22 +184,31 @@ export function useMirrorSession(
               sessionId = undefined;
               setStatus({ kind: "stopped", error: event.error });
               break;
+            case "detached":
+              sessionId = undefined;
+              setStatus({ kind: "detached" });
+              break;
           }
-        },
-      )
-        .then((started) => {
-          if (cancelled) {
-            void stopMirror(serial, started.sessionId);
-            return;
-          }
-          sessionId = started.sessionId;
-          setInfo(started);
         })
-        .catch((e: unknown) => {
-          if (!cancelled)
-            setStatus({ kind: "error", reason: "start", error: asAppError(e) });
-        });
-    }, START_DELAY);
+          .then((started) => {
+            if (cancelled) {
+              void stopMirror(serial, started.sessionId);
+              return;
+            }
+            sessionId = started.sessionId;
+            setInfo(started);
+          })
+          .catch((e: unknown) => {
+            if (!cancelled)
+              setStatus({
+                kind: "error",
+                reason: "start",
+                error: asAppError(e),
+              });
+          });
+      },
+      mode === "attach" ? 0 : START_DELAY,
+    );
 
     const copyToHost = (text: string) => {
       navigator.clipboard.writeText(text).catch(() => {
@@ -199,7 +231,7 @@ export function useMirrorSession(
       audioRef.current = null;
       if (sessionId !== undefined) void stopMirror(serial, sessionId);
     };
-  }, [serial, optionsKey, attempt, canvas, t]);
+  }, [serial, optionsKey, mode, attempt, canvas, t]);
 
   // Screen power follows the switch while streaming.
   const streaming = status.kind === "streaming";

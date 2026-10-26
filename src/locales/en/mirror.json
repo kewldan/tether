@@ -30,7 +30,9 @@
     "audioUnavailable": "Audio needs Android 11 or newer",
     "alwaysOnTop": "Always on top",
     "fullscreen": "Full screen",
-    "exitFullscreen": "Exit full screen"
+    "exitFullscreen": "Exit full screen",
+    "record": "Record screen",
+    "stopRecording": "Stop recording"
   },
   "settings": {
     "label": "Mirroring settings",
@@ -84,5 +86,30 @@
   },
   "window": {
     "failed": "Couldn't change the window"
+  },
+  "recording": {
+    "title": "Recording",
+    "badge": "REC {{time}}",
+    "idle": "Saves an MP4 of the mirrored screen to the Captures folder.",
+    "notRecording": "Not recording",
+    "saved": "Recording saved",
+    "failed": "Recording failed",
+    "reveal": {
+      "macos": "Show in Finder",
+      "windows": "Show in Explorer",
+      "linux": "Show in folder"
+    }
+  },
+  "popout": {
+    "open": "Pop out",
+    "bringBack": "Bring back",
+    "failed": "Couldn't open the pop-out window",
+    "shownTitle": "Shown in a separate window",
+    "shown": "The screen is in the pop-out window. Close it to mirror here again.",
+    "badge": "PiP",
+    "back": "Back to main window",
+    "close": "Close",
+    "connecting": "Connecting…",
+    "detached": "The main window shows this device now."
   }
 }

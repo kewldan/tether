@@ -27,22 +27,23 @@ const FALLBACK: VideoSize = { width: 1344, height: 2992 };
 function useFit(
   container: RefObject<HTMLDivElement | null>,
   aspect: number,
+  bezel: number,
 ): { width: number; height: number } {
   const [box, setBox] = useState({ width: 0, height: 0 });
   useLayoutEffect(() => {
     const el = container.current;
     if (!el) return;
     const update = () => {
-      const w = Math.max(0, el.clientWidth - BEZEL * 2);
-      const h = Math.max(0, el.clientHeight - BEZEL * 2);
+      const w = Math.max(0, el.clientWidth - bezel * 2);
+      const h = Math.max(0, el.clientHeight - bezel * 2);
       const width = Math.min(w, h * aspect);
-      setBox({ width: width + BEZEL * 2, height: width / aspect + BEZEL * 2 });
+      setBox({ width: width + bezel * 2, height: width / aspect + bezel * 2 });
     };
     update();
     const observer = new ResizeObserver(update);
     observer.observe(el);
     return () => observer.disconnect();
-  }, [container, aspect]);
+  }, [container, aspect, bezel]);
   return box;
 }
 
@@ -58,6 +59,7 @@ export function MirrorScreen({
   overlay,
   control,
   onInteract,
+  compact = false,
 }: {
   canvas: RefObject<HTMLCanvasElement | null>;
   size: VideoSize | null;
@@ -67,11 +69,14 @@ export function MirrorScreen({
   overlay: ReactNode;
   control: (message: ControlMessage) => void;
   onInteract: () => void;
+  /** Pop-out: no bezel or margins, small corner radius. */
+  compact?: boolean;
 }) {
   const { t } = useTranslation("mirror");
   const area = useRef<HTMLDivElement>(null);
   const video = size ?? FALLBACK;
-  const box = useFit(area, video.width / video.height);
+  const bezel = compact ? 0 : BEZEL;
+  const box = useFit(area, video.width / video.height, bezel);
   const pointer = useRef<number | null>(null);
 
   const position = (e: { clientX: number; clientY: number }) => {
@@ -180,11 +185,19 @@ export function MirrorScreen({
   return (
     <div
       ref={area}
-      className="flex min-h-0 flex-1 items-center justify-center px-5 pt-1 pb-5"
+      className={cn(
+        "flex min-h-0 flex-1 items-center justify-center",
+        !compact && "px-5 pt-1 pb-5",
+      )}
     >
       <div
-        className="ring-input relative rounded-[26px] bg-black shadow-lg ring-1"
-        style={{ width: box.width, height: box.height, padding: BEZEL }}
+        className={cn(
+          "relative bg-black",
+          compact
+            ? "rounded-[9px]"
+            : "ring-input rounded-[26px] shadow-lg ring-1",
+        )}
+        style={{ width: box.width, height: box.height, padding: bezel }}
       >
         <div
           role="application"
@@ -194,7 +207,10 @@ export function MirrorScreen({
           onKeyDown={(e) => onKey(e, "down")}
           onKeyUp={(e) => onKey(e, "up")}
           onPaste={onPaste}
-          className="focus-visible:outline-ring relative h-full w-full overflow-hidden rounded-[21px] outline-offset-4 focus-visible:outline-2"
+          className={cn(
+            "focus-visible:outline-ring relative h-full w-full overflow-hidden outline-offset-4 focus-visible:outline-2",
+            compact ? "rounded-[9px] outline-offset-0" : "rounded-[21px]",
+          )}
         >
           <canvas
             ref={canvas}

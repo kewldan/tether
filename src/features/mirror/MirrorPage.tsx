@@ -1,4 +1,4 @@
-import { PanelRight } from "lucide-react";
+import { PanelRight, PictureInPicture2 } from "lucide-react";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -17,12 +17,19 @@ import { useReadySerial, useSelectedDevice } from "@/features/devices/store";
 import type { VideoCodec } from "@/features/mirror/api";
 import { DeviceToolbar } from "@/features/mirror/DeviceToolbar";
 import { ConnectingScreen, MirrorScreen } from "@/features/mirror/MirrorScreen";
+import { popIn, popOut, usePopouts } from "@/features/mirror/popout";
+import {
+  formatTimer,
+  useMirrorRecording,
+  useNow,
+} from "@/features/mirror/recording";
 import { SettingsPanel } from "@/features/mirror/SettingsPanel";
 import { useMirrorSettings } from "@/features/mirror/store";
 import {
   type MirrorStatus,
   useMirrorSession,
 } from "@/features/mirror/useMirrorSession";
+import { hasMod } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 
 /** Raw audio forwarding needs Android 11 (SDK 30). */
@@ -159,6 +166,21 @@ function LiveBadge({
   }
 }
 
+function RecBadge({ startedAt }: { startedAt: number }) {
+  const { t } = useTranslation("mirror");
+  const now = useNow(true);
+  return (
+    <Badge
+      variant="error"
+      role="status"
+      className="text-small h-[26px] px-2.5 tabular-nums"
+    >
+      <StatusDot tone="error" />
+      {t("recording.badge", { time: formatTimer(now - startedAt) })}
+    </Badge>
+  );
+}
+
 export default function MirrorPage() {
   const { t } = useTranslation("mirror");
   const { t: tc } = useTranslation();
@@ -166,7 +188,8 @@ export default function MirrorPage() {
   const serial = useReadySerial();
   const { data: info } = useDeviceInfo(serial);
   const canvas = useRef<HTMLCanvasElement>(null);
-  const session = useMirrorSession(serial, canvas);
+  const poppedOut = usePopouts((s) => (serial ? !!s.open[serial] : false));
+  const session = useMirrorSession(serial, canvas, poppedOut ? "off" : "start");
   const { status, size, control } = session;
   const panelOpen = useMirrorSettings((s) => s.panelOpen);
   const setSettings = useMirrorSettings((s) => s.set);
@@ -176,6 +199,28 @@ export default function MirrorPage() {
   const live = status.kind === "streaming";
   const audioAvailable = (info?.sdk ?? AUDIO_MIN_SDK) >= AUDIO_MIN_SDK;
   const name = device ? deviceName(device, info) : tc("sidebar.noDevice");
+  const recorder = useMirrorRecording(serial, name);
+  const recording = recorder.recording;
+  // A session runs here or in the pop-out.
+  const canRecord = live || poppedOut;
+
+  const popOutNow = () => {
+    if (!serial) return;
+    popOut(serial, name, size).catch(() => toast.error(t("popout.failed")));
+  };
+
+  // ⌘⇧R toggles recording, even while the screen has the keyboard.
+  const toggleRecording = recorder.toggle;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!hasMod(e) || !e.shiftKey || e.code !== "KeyR" || e.repeat) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (canRecord || recording) toggleRecording();
+    };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [canRecord, recording, toggleRecording]);
 
   const toggleOnTop = async () => {
     const next = !onTop;
@@ -252,6 +297,25 @@ export default function MirrorPage() {
                 state: tc(`state.${device.state.kind}`),
               })
             : t("state.noDevice")}
+        </StateMessage>
+      );
+    }
+    if (poppedOut) {
+      return (
+        <StateMessage
+          tone="neutral"
+          title={t("popout.shownTitle")}
+          action={
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => void popIn(serial).catch(() => {})}
+            >
+              {t("popout.bringBack")}
+            </Button>
+          }
+        >
+          {t("popout.shown")}
         </StateMessage>
       );
     }
@@ -340,15 +404,29 @@ export default function MirrorPage() {
       parent={device ? { label: name } : undefined}
       body="fill"
       actions={
-        <Button
-          size="icon-sm"
-          variant="ghost"
-          aria-label={panelOpen ? t("panel.hide") : t("panel.show")}
-          aria-pressed={panelOpen}
-          onClick={() => setSettings({ panelOpen: !panelOpen })}
-        >
-          <PanelRight />
-        </Button>
+        <>
+          {recording && <RecBadge startedAt={recording.startedAt} />}
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={!poppedOut && !live}
+            onClick={() =>
+              poppedOut ? void popIn(serial ?? "").catch(() => {}) : popOutNow()
+            }
+          >
+            <PictureInPicture2 />
+            {poppedOut ? t("popout.bringBack") : t("popout.open")}
+          </Button>
+          <Button
+            size="icon-sm"
+            variant="ghost"
+            aria-label={panelOpen ? t("panel.hide") : t("panel.show")}
+            aria-pressed={panelOpen}
+            onClick={() => setSettings({ panelOpen: !panelOpen })}
+          >
+            <PanelRight />
+          </Button>
+        </>
       }
     >
       <div className="flex min-h-0 flex-1">
@@ -365,6 +443,9 @@ export default function MirrorPage() {
             audioAvailable={audioAvailable}
             alwaysOnTop={onTop}
             fullscreen={fullscreen}
+            recording={recording !== null}
+            canRecord={canRecord}
+            onRecord={recorder.toggle}
             onScreenshot={screenshot}
             onAlwaysOnTop={() => void toggleOnTop()}
             onFullscreen={() => void toggleFullscreen()}
@@ -384,6 +465,7 @@ export default function MirrorPage() {
             size={size}
             audioAvailable={audioAvailable}
             supportedCodecs={codecSupport}
+            recording={recording}
           />
         )}
       </div>

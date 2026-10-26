@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   Camera,
   Circle,
+  CircleDot,
   ClipboardCheck,
   ClipboardX,
   Maximize,
@@ -28,12 +29,15 @@ import { cn } from "@/lib/utils";
 function Tool({
   label,
   on,
+  danger,
   disabled,
   onClick,
   children,
 }: {
   label: string;
   on?: boolean;
+  /** Pressed in the error tone (recording). */
+  danger?: boolean;
   disabled?: boolean;
   onClick: () => void;
   children: ReactNode;
@@ -51,6 +55,8 @@ function Tool({
             className={cn(
               "text-secondary-foreground hover:bg-accent hover:text-foreground focus-visible:outline-ring ease-spring-snappy flex size-[34px] items-center justify-center rounded-md transition-[background-color,color,transform] duration-[340ms] outline-none focus-visible:outline-2 active:scale-[.97] disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-[18px]",
               on && "bg-brand/15 text-brand hover:bg-brand/15 hover:text-brand",
+              danger &&
+                "bg-error/13 text-error hover:bg-error/20 hover:text-error",
             )}
           />
         }
@@ -61,6 +67,13 @@ function Tool({
     </Tooltip>
   );
 }
+
+/** Filled stop square, as on the board. */
+const StopIcon = () => (
+  <svg viewBox="0 0 24 24" aria-hidden>
+    <rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor" />
+  </svg>
+);
 
 const Separator = () => (
   <span aria-hidden className="bg-input mx-1 h-5 w-px flex-none" />
@@ -73,11 +86,18 @@ export function DeviceToolbar({
   audioAvailable,
   alwaysOnTop,
   fullscreen,
+  recording,
+  canRecord,
   onScreenshot,
+  onRecord,
   onAlwaysOnTop,
   onFullscreen,
 }: {
   live: boolean;
+  recording: boolean;
+  /** A session is running (here or in the pop-out). */
+  canRecord: boolean;
+  onRecord: () => void;
   control: (message: ControlMessage) => void;
   audioAvailable: boolean;
   alwaysOnTop: boolean;
@@ -163,6 +183,14 @@ export function DeviceToolbar({
           onClick={onScreenshot}
         >
           <Camera />
+        </Tool>
+        <Tool
+          label={recording ? t("toolbar.stopRecording") : t("toolbar.record")}
+          danger={recording}
+          disabled={!recording && !canRecord}
+          onClick={onRecord}
+        >
+          {recording ? <StopIcon /> : <CircleDot />}
         </Tool>
         <Tool
           label={

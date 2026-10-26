@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { type ReactNode, useId } from "react";
 import { useTranslation } from "react-i18next";
+import { Kbd } from "@/components/ui/kbd";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,11 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import type { MirrorInfo, VideoCodec } from "@/features/mirror/api";
 import {
+  formatTimer,
+  type MirrorRecording,
+  useNow,
+} from "@/features/mirror/recording";
+import {
   BITRATE_RANGE,
   CODECS,
   FRAME_RATES,
@@ -19,7 +25,9 @@ import {
   useMirrorSettings,
 } from "@/features/mirror/store";
 import type { VideoSize } from "@/features/mirror/useMirrorSession";
+import { formatBytes } from "@/features/overview/format";
 import { spring } from "@/lib/motion";
+import { modKey } from "@/lib/platform";
 import { cn } from "@/lib/utils";
 
 const CODEC_LABEL: Record<VideoCodec, string> = {
@@ -134,13 +142,59 @@ function Toggle({
   );
 }
 
+/** ⌘⇧R / Ctrl+Shift+R. */
+export function RecordShortcut() {
+  return (
+    <span className="flex flex-none gap-[3px]">
+      <Kbd>{modKey}</Kbd>
+      <Kbd>⇧</Kbd>
+      <Kbd>R</Kbd>
+    </span>
+  );
+}
+
+function RecordingSection({
+  recording,
+}: {
+  recording: MirrorRecording | null;
+}) {
+  const { t } = useTranslation("mirror");
+  const now = useNow(recording !== null);
+  return (
+    <>
+      <span className="font-semibold">{t("recording.title")}</span>
+      {recording ? (
+        <div className="text-muted-foreground text-caption font-mono break-all">
+          {recording.dir}
+          <br />
+          {recording.name}
+        </div>
+      ) : (
+        <div className="text-muted-foreground text-caption">
+          {t("recording.idle")}
+        </div>
+      )}
+      <div className="text-muted-foreground text-small flex items-center justify-between gap-2">
+        <span className="tabular-nums">
+          {recording
+            ? `${formatTimer(now - recording.startedAt)} · ${formatBytes(recording.bytes)}`
+            : t("recording.notRecording")}
+        </span>
+        <RecordShortcut />
+      </div>
+    </>
+  );
+}
+
 /** Right-hand stream and device settings of the mirror page. */
 export function SettingsPanel({
   info,
   size,
   audioAvailable,
   supportedCodecs,
+  recording,
 }: {
+  recording: MirrorRecording | null;
   info: MirrorInfo | null;
   size: VideoSize | null;
   audioAvailable: boolean;
@@ -257,6 +311,9 @@ export function SettingsPanel({
         disabled={!audioAvailable}
         onChange={(audio) => s.set({ audio })}
       />
+
+      <div className="bg-border h-px flex-none" />
+      <RecordingSection recording={recording} />
 
       <div className="text-muted-foreground text-caption mt-auto">
         {info

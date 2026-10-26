@@ -1,8 +1,11 @@
 import { channel, type MockHandlers, sleep } from "@/dev/mockBackend";
+import { addMockCapture } from "@/dev/mocks/gallery";
 import type {
   ControlMessage,
   MirrorInfo,
   MirrorOptions,
+  RecordEvent,
+  RecordingStarted,
 } from "@/features/mirror/api";
 import { encodeRecord, FLAG_KEY, RECORD } from "@/features/mirror/records";
 
@@ -177,6 +180,24 @@ async function startFake(
   return fake;
 }
 
+const MOCK_OPTIONS: MirrorOptions = {
+  videoCodec: "h264",
+  maxSize: 1280,
+  videoBitRate: 8_000_000,
+  maxFps: 60,
+  audio: false,
+  showTouches: false,
+  stayAwake: true,
+};
+
+/** Recordings in progress: progress timer and file name. */
+const recordings = new Map<
+  string,
+  { timer: ReturnType<typeof setInterval>; device: string; name: string }
+>();
+/** Pop-outs are browser popups here; each runs its own mock backend. */
+const popups = new Map<string, Window>();
+
 const handlers: MockHandlers = {
   mirror_start: async ({ serial, options, onVideo }) => {
     const id = serial as string;
@@ -204,6 +225,79 @@ const handlers: MockHandlers = {
       scrcpyVersion: "5.0.1",
     };
     return info;
+  },
+  // The pop-out page has its own fake stream in the browser.
+  mirror_attach: async ({ serial, onVideo }) => {
+    const id = serial as string;
+    sessions.get(id)?.stop();
+    await sleep(300);
+    sessions.set(id, await startFake(MOCK_OPTIONS, channel(onVideo)));
+    const info: MirrorInfo = {
+      sessionId: nextSession++,
+      deviceName: "sdk_gphone64_arm64",
+      videoCodec: "h264",
+      audio: false,
+      scrcpyVersion: "5.0.1",
+    };
+    return info;
+  },
+  mirror_popout: ({ serial, name, width, height, onClosed }) => {
+    const id = serial as string;
+    const url = `${location.pathname}?popout=${encodeURIComponent(id)}&name=${encodeURIComponent(name as string)}`;
+    const popup = window.open(
+      url,
+      `popout-${id}`,
+      `popup,width=${width as number},height=${height as number}`,
+    );
+    if (!popup) throw { kind: "device", message: "popup blocked", hint: null };
+    popups.set(id, popup);
+    const closed = channel<null>(onClosed);
+    const poll = setInterval(() => {
+      if (!popup.closed) return;
+      clearInterval(poll);
+      popups.delete(id);
+      closed(null);
+    }, 400);
+    return null;
+  },
+  mirror_popout_close: ({ serial }) => {
+    popups.get(serial as string)?.close();
+    window.focus();
+    return null;
+  },
+  "plugin:window|close": () => {
+    window.close();
+    return null;
+  },
+  mirror_record_start: ({ serial, deviceName, stamp, onEvent }) => {
+    const id = serial as string;
+    if (recordings.has(id)) {
+      throw { kind: "invalid_input", message: "already recording", hint: null };
+    }
+    const send = channel<RecordEvent>(onEvent);
+    const started = Date.now();
+    const timer = setInterval(() => {
+      const ms = Date.now() - started;
+      send({ type: "progress", bytes: Math.round(ms * 460), durationMs: ms });
+    }, 1000);
+    const name = `Recording_${stamp as string}.mp4`;
+    recordings.set(id, { timer, device: deviceName as string, name });
+    const result: RecordingStarted = {
+      path: `/Users/me/Pictures/Tether/${deviceName as string}/${name}`,
+      name,
+      dir: `~/Pictures/Tether/${deviceName as string}/`,
+    };
+    return result;
+  },
+  mirror_record_stop: async ({ serial }) => {
+    const rec = recordings.get(serial as string);
+    if (!rec) {
+      throw { kind: "invalid_input", message: "not recording", hint: null };
+    }
+    recordings.delete(serial as string);
+    clearInterval(rec.timer);
+    await sleep(300);
+    return addMockCapture(rec.device, rec.name, "recording");
   },
   mirror_stop: ({ serial }) => {
     sessions.get(serial as string)?.stop();
