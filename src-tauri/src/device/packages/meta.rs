@@ -14,8 +14,9 @@ use super::read_apk_entry;
 use crate::adb::server::AdbServer;
 use crate::device::apk::Value;
 use crate::device::apk::arsc::ResourceTable;
-use crate::device::apk::icon::{self, AppIcon, IconPlan, Layer};
+use crate::device::apk::icon::{self, AppIcon, IconPlan, Layer, XmlIcon};
 use crate::device::apk::manifest::Manifest;
+use crate::device::apk::vector::{Files, Rendered};
 use crate::state::lock;
 
 /// What the frontend knows about an app, enough to find and key it.
@@ -49,8 +50,9 @@ impl MetaCache {
     }
 
     fn key(req: &MetaRequest, locale: &str) -> String {
+        // `v2`: vector drawable icons; entries cached without them are stale.
         let raw = format!(
-            "{}@{}@{}@{}",
+            "v2@{}@{}@{}@{}",
             req.package,
             req.version_code,
             req.last_update.unwrap_or(0),
@@ -141,31 +143,65 @@ pub async fn load(server: &AdbServer, serial: &str, req: &MetaRequest, locale: &
                 }
             }
             IconPlan::Adaptive(path) => {
-                let Some(xml) = read(path).await else {
+                let Some(xml) = read(path.clone()).await else {
                     continue;
                 };
-                let Some((bg, fg)) = icon::adaptive_layers(&table, &xml) else {
-                    continue;
-                };
-                let render = |layer: Option<Layer>| async move {
-                    match layer? {
-                        Layer::Color(c) => Some(icon::css_color(c)),
-                        Layer::Bitmap(p) => read(p.clone()).await.map(|d| icon::data_url(&p, &d)),
+                match icon::xml_icon(&table, &xml) {
+                    Some(XmlIcon::Adaptive {
+                        background,
+                        foreground: Some(fg),
+                    }) => {
+                        let Some(foreground) = render_layer(&table, fg, &read).await else {
+                            continue;
+                        };
+                        let background = match background {
+                            Some(bg) => render_layer(&table, bg, &read).await,
+                            None => None,
+                        };
+                        meta.icon = Some(AppIcon::Adaptive {
+                            background,
+                            foreground: Some(foreground),
+                        });
+                        break;
                     }
-                };
-                let foreground = render(fg).await;
-                if foreground.is_none() {
-                    continue;
+                    Some(XmlIcon::Drawable) => {
+                        if let Some(src) = render_layer(&table, Layer::File(path), &read)
+                            .await
+                            .filter(|s| s.starts_with("data:"))
+                        {
+                            meta.icon = Some(AppIcon::Bitmap { src });
+                            break;
+                        }
+                    }
+                    _ => {}
                 }
-                meta.icon = Some(AppIcon::Adaptive {
-                    background: render(bg).await,
-                    foreground,
-                });
-                break;
             }
         }
     }
     meta
+}
+
+/// [`icon::render_layer`] over device reads: renders, fetches the files
+/// the drawable still needs, and renders again.
+async fn render_layer<F, Fut>(table: &ResourceTable<'_>, layer: Layer, read: &F) -> Option<String>
+where
+    F: Fn(String) -> Fut,
+    Fut: Future<Output = Option<Vec<u8>>>,
+{
+    let mut files = Files::new();
+    for _ in 0..icon::MAX_RENDER_ROUNDS {
+        match icon::render_step(table, &layer, &files) {
+            Rendered::Done(out) => return Some(out),
+            Rendered::Unsupported => return None,
+            Rendered::Need(paths) => {
+                for p in paths {
+                    let data = read(p.clone()).await;
+                    files.insert(p, data);
+                }
+            }
+        }
+    }
+    None
 }
 
 #[cfg(test)]
@@ -197,6 +233,6 @@ mod tests {
         fresh.set_dir(dir.path().to_owned());
         assert_eq!(fresh.get(&req, "en-US"), Some(meta));
         assert_eq!(fresh.get(&req, "ru"), None);
-        assert!(MetaCache::key(&req, "en-US").starts_with("com.example.shop@2140@"));
+        assert!(MetaCache::key(&req, "en-US").starts_with("v2@com.example.shop@2140@"));
     }
 }

@@ -10,7 +10,7 @@ use zip::ZipArchive;
 
 use super::Value;
 use super::arsc::ResourceTable;
-use super::icon::{self, AppIcon, IconPlan, Layer};
+use super::icon::{self, AppIcon, IconPlan, Layer, XmlIcon};
 use super::manifest::Manifest;
 use crate::error::{AppError, AppResult};
 
@@ -186,21 +186,31 @@ pub fn load_icon(
             }
             IconPlan::Adaptive(path) => {
                 let Some(xml) = read(&path) else { continue };
-                let Some((bg, fg)) = icon::adaptive_layers(table, &xml) else {
-                    continue;
-                };
-                let mut render = |layer: Option<Layer>| match layer? {
-                    Layer::Color(c) => Some(icon::css_color(c)),
-                    Layer::Bitmap(p) => read(&p).map(|d| icon::data_url(&p, &d)),
-                };
-                let foreground = render(fg);
-                if foreground.is_none() {
-                    continue;
+                match icon::xml_icon(table, &xml) {
+                    Some(XmlIcon::Adaptive {
+                        background,
+                        foreground: Some(fg),
+                    }) => {
+                        let Some(foreground) = icon::render_layer(table, &fg, &mut read) else {
+                            continue;
+                        };
+                        let background =
+                            background.and_then(|bg| icon::render_layer(table, &bg, &mut read));
+                        return Some(AppIcon::Adaptive {
+                            background,
+                            foreground: Some(foreground),
+                        });
+                    }
+                    Some(XmlIcon::Drawable) => {
+                        let layer = Layer::File(path);
+                        if let Some(src) = icon::render_layer(table, &layer, &mut read)
+                            .filter(|s| s.starts_with("data:"))
+                        {
+                            return Some(AppIcon::Bitmap { src });
+                        }
+                    }
+                    _ => {}
                 }
-                return Some(AppIcon::Adaptive {
-                    background: render(bg),
-                    foreground,
-                });
             }
         }
     }

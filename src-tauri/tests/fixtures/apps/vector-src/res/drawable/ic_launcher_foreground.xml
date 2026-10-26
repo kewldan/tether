@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#3DDC84"
+        android:pathData="M0,0h108v108h-108z" />
+    <path
+        android:fillColor="@color/navy"
+        android:fillType="evenOdd"
+        android:pathData="M30,30h48v48h-48z M40,40h28v28h-28z" />
+    <path android:pathData="M34,74L74,34">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="34"
+                android:startY="74"
+                android:endX="74"
+                android:endY="34">
+                <item android:offset="0" android:color="#FF4285F4" />
+                <item android:offset="1" android:color="@color/accent" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <path
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M20,88L88,20" />
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="45"
+        android:scaleX="0.5"
+        android:scaleY="0.5">
+        <clip-path android:pathData="M44,44h20v20h-20z" />
+        <path
+            android:fillColor="#80FFFFFF"
+            android:fillAlpha="0.5"
+            android:pathData="M40,40h28v28h-28z" />
+    </group>
+</vector>

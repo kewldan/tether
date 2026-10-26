@@ -1,28 +1,46 @@
 //! Launcher icon selection. Works in two steps so the same logic serves
 //! local files and APKs on a device: [`plan`] names the files to read,
-//! [`adaptive_layers`] turns an `<adaptive-icon>` into layer files/colors.
+//! [`xml_icon`] turns an `<adaptive-icon>` into layer files/colors and
+//! [`render_layer`] draws a layer (bitmaps as-is, vector drawables as SVG).
 
 use serde::{Deserialize, Serialize};
 
 use super::Value;
 use super::arsc::{Config, DENSITY_ANY, DENSITY_DEFAULT, DENSITY_NONE, ResourceTable};
-use super::axml;
+use super::axml::{self, Element};
 use super::manifest::Manifest;
+use super::vector::{self, Files, Rendered};
 
 const ATTR_DRAWABLE: u32 = 0x0101_0199;
+/// A drawable rarely nests deeper than inset → vector → gradient.
+pub const MAX_RENDER_ROUNDS: usize = 5;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IconPlan {
     /// A PNG / WebP / JPEG inside the APK.
     Bitmap(String),
-    /// A compiled `<adaptive-icon>` XML inside the APK.
+    /// A compiled XML inside the APK: `<adaptive-icon>` or a drawable.
     Adaptive(String),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Layer {
     Color(u32),
-    Bitmap(String),
+    /// A bitmap or a drawable XML (vector, inset, shape) in the APK.
+    File(String),
+    /// A drawable written inside `<foreground>` / `<background>`.
+    Inline(Box<Element>),
+}
+
+/// What an icon XML holds: an `<adaptive-icon>`'s layers, or a drawable
+/// (usually a `<vector>`) that is the whole icon.
+#[derive(Debug, Clone, PartialEq)]
+pub enum XmlIcon {
+    Adaptive {
+        background: Option<Layer>,
+        foreground: Option<Layer>,
+    },
+    Drawable,
 }
 
 /// Icon as the frontend draws it: a single image, or an adaptive icon's
@@ -48,28 +66,30 @@ pub fn plan(table: &ResourceTable<'_>, manifest: &Manifest) -> Vec<IconPlan> {
         if let Some(path) = best_bitmap(&files) {
             out.push(IconPlan::Bitmap(path));
         }
-        if let Some((_, path)) = files.iter().find(|(_, p)| p.ends_with(".xml")) {
-            out.push(IconPlan::Adaptive(path.clone()));
+        if let Some(path) = best_xml(&files) {
+            out.push(IconPlan::Adaptive(path));
         }
     }
     out.dedup();
     out
 }
 
-/// Background and foreground of a compiled `<adaptive-icon>`; vector
-/// drawables are not rendered and come back as `None`.
-pub fn adaptive_layers(
-    table: &ResourceTable<'_>,
-    xml: &[u8],
-) -> Option<(Option<Layer>, Option<Layer>)> {
+/// Classifies an icon XML and resolves an adaptive icon's layers.
+pub fn xml_icon(table: &ResourceTable<'_>, xml: &[u8]) -> Option<XmlIcon> {
     let root = axml::parse(xml)?;
     if root.name != "adaptive-icon" {
-        return None;
+        return Some(XmlIcon::Drawable);
     }
     let layer = |tag: &str| -> Option<Layer> {
-        let value = root.child(tag)?.attr(ATTR_DRAWABLE, "drawable")?;
+        let el = root.child(tag)?;
+        let Some(value) = el.attr(ATTR_DRAWABLE, "drawable") else {
+            return Some(Layer::Inline(Box::new(el.children.first()?.clone())));
+        };
         match value {
             Value::Color(c) => Some(Layer::Color(*c)),
+            Value::Reference(id) if vector::framework_color(*id).is_some() => {
+                vector::framework_color(*id).map(Layer::Color)
+            }
             Value::Reference(id) => {
                 let resolved = resolve_all(table, *id, 0);
                 if let Some(Value::Color(c)) = resolved
@@ -83,12 +103,47 @@ pub fn adaptive_layers(
                     .into_iter()
                     .filter_map(|(c, v)| Some((c, v.as_str()?.to_owned())))
                     .collect();
-                best_bitmap(&files).map(Layer::Bitmap)
+                best_file(&files).map(Layer::File)
             }
             _ => None,
         }
     };
-    Some((layer("background"), layer("foreground")))
+    Some(XmlIcon::Adaptive {
+        background: layer("background"),
+        foreground: layer("foreground"),
+    })
+}
+
+/// A layer as the frontend draws it (CSS color or data URL), reading the
+/// files it needs through `read`.
+pub fn render_layer(
+    table: &ResourceTable<'_>,
+    layer: &Layer,
+    mut read: impl FnMut(&str) -> Option<Vec<u8>>,
+) -> Option<String> {
+    let mut files = Files::new();
+    for _ in 0..MAX_RENDER_ROUNDS {
+        match render_step(table, layer, &files) {
+            Rendered::Done(out) => return Some(out),
+            Rendered::Unsupported => return None,
+            Rendered::Need(paths) => {
+                for p in paths {
+                    let data = read(&p).filter(|d| !d.is_empty());
+                    files.insert(p, data);
+                }
+            }
+        }
+    }
+    None
+}
+
+/// One rendering pass over the files fetched so far.
+pub fn render_step(table: &ResourceTable<'_>, layer: &Layer, files: &Files) -> Rendered {
+    match layer {
+        Layer::Color(c) => Rendered::Done(css_color(*c)),
+        Layer::File(path) => vector::render(table, path, files),
+        Layer::Inline(el) => vector::render_element(table, el, files),
+    }
 }
 
 fn resolve_all(table: &ResourceTable<'_>, id: u32, depth: u8) -> Vec<(Config, Value)> {
@@ -112,11 +167,15 @@ fn files(table: &ResourceTable<'_>, id: u32, depth: u8) -> Vec<(Config, String)>
         .collect()
 }
 
+/// Anything that is not compiled XML. Shrunk APKs (R8 resource
+/// obfuscation) drop extensions (`res/Qt`), so the bytes decide later.
 fn is_bitmap(path: &str) -> bool {
-    let lower = path.to_ascii_lowercase();
-    [".png", ".webp", ".jpg", ".jpeg"]
-        .iter()
-        .any(|ext| lower.ends_with(ext))
+    !path.to_ascii_lowercase().ends_with(".xml")
+}
+
+/// The sharpest bitmap, else the newest drawable XML.
+pub(crate) fn best_file(files: &[(Config, String)]) -> Option<String> {
+    best_bitmap(files).or_else(|| best_xml(files))
 }
 
 fn density_rank(density: u16) -> u16 {
@@ -124,6 +183,16 @@ fn density_rank(density: u16) -> u16 {
         DENSITY_DEFAULT | DENSITY_NONE | DENSITY_ANY => 160,
         d => d,
     }
+}
+
+/// The drawable XML for the newest platform version (`drawable-v24` over
+/// `drawable`).
+fn best_xml(files: &[(Config, String)]) -> Option<String> {
+    files
+        .iter()
+        .filter(|(_, p)| p.ends_with(".xml"))
+        .max_by_key(|(c, _)| c.sdk)
+        .map(|(_, p)| p.clone())
 }
 
 fn best_bitmap(files: &[(Config, String)]) -> Option<String> {
@@ -203,15 +272,62 @@ mod tests {
         let arsc = fixtures::zip_entry(fixtures::PLAIN_APK, "resources.arsc");
         let table = ResourceTable::parse(&arsc).unwrap();
         let xml = fixtures::zip_entry(fixtures::PLAIN_APK, "res/mipmap-anydpi-v26/ic_round.xml");
-        let (bg, fg) = adaptive_layers(&table, &xml).unwrap();
-        assert_eq!(bg, Some(Layer::Color(0xffe8_603c)));
         assert_eq!(
-            fg,
-            Some(Layer::Bitmap(
-                "res/mipmap-xxxhdpi-v4/ic_launcher_foreground.png".into()
-            ))
+            xml_icon(&table, &xml),
+            Some(XmlIcon::Adaptive {
+                background: Some(Layer::Color(0xffe8_603c)),
+                foreground: Some(Layer::File(
+                    "res/mipmap-xxxhdpi-v4/ic_launcher_foreground.png".into()
+                )),
+            })
         );
         assert_eq!(css_color(0xffe8_603c), "#e8603cff");
+    }
+
+    #[test]
+    fn renders_vector_adaptive_layers() {
+        let apk = fixtures::VECTOR_APK;
+        let arsc = fixtures::zip_entry(apk, "resources.arsc");
+        let table = ResourceTable::parse(&arsc).unwrap();
+        let manifest = Manifest::parse(&fixtures::zip_entry(apk, "AndroidManifest.xml")).unwrap();
+        assert_eq!(
+            plan(&table, &manifest),
+            [
+                IconPlan::Adaptive("res/mipmap-anydpi-v26/ic_launcher.xml".into()),
+                IconPlan::Adaptive("res/mipmap-anydpi-v26/ic_inset.xml".into()),
+            ]
+        );
+        let xml = fixtures::zip_entry(apk, "res/mipmap-anydpi-v26/ic_launcher.xml");
+        let Some(XmlIcon::Adaptive {
+            background: Some(bg),
+            foreground: Some(fg),
+        }) = xml_icon(&table, &xml)
+        else {
+            panic!("no layers");
+        };
+        assert_eq!(
+            fg,
+            Layer::File("res/drawable/ic_launcher_foreground.xml".into())
+        );
+        let mut reads = Vec::new();
+        let svg = render_layer(&table, &fg, |p| {
+            reads.push(p.to_owned());
+            Some(fixtures::zip_entry(apk, p))
+        })
+        .unwrap();
+        assert!(svg.starts_with("data:image/svg+xml;base64,"));
+        assert_eq!(
+            reads,
+            [
+                "res/drawable/ic_launcher_foreground.xml",
+                "res/drawable/$ic_launcher_foreground__0.xml",
+            ]
+        );
+        let bg = render_layer(&table, &bg, |p| Some(fixtures::zip_entry(apk, p)));
+        assert_eq!(bg.as_deref(), Some("#ffffffff"));
+        // A vector used directly as the icon is a drawable, not adaptive.
+        let glyph = fixtures::zip_entry(apk, "res/drawable/ic_glyph.xml");
+        assert_eq!(xml_icon(&table, &glyph), Some(XmlIcon::Drawable));
     }
 
     #[test]
