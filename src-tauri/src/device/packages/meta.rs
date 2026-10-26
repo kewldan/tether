@@ -50,9 +50,10 @@ impl MetaCache {
     }
 
     fn key(req: &MetaRequest, locale: &str) -> String {
-        // `v2`: vector drawable icons; entries cached without them are stale.
+        // `v3`: labels no longer come from pseudo-locales (en-XA); `v2`:
+        // vector drawable icons. Older entries are stale.
         let raw = format!(
-            "v2@{}@{}@{}@{}",
+            "v3@{}@{}@{}@{}",
             req.package,
             req.version_code,
             req.last_update.unwrap_or(0),
@@ -233,6 +234,6 @@ mod tests {
         fresh.set_dir(dir.path().to_owned());
         assert_eq!(fresh.get(&req, "en-US"), Some(meta));
         assert_eq!(fresh.get(&req, "ru"), None);
-        assert!(MetaCache::key(&req, "en-US").starts_with("v2@com.example.shop@2140@"));
+        assert!(MetaCache::key(&req, "en-US").starts_with("v3@com.example.shop@2140@"));
     }
 }

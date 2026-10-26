@@ -229,18 +229,29 @@ fn unpack_language(b: &[u8]) -> String {
         .collect()
 }
 
-/// Locale-aware choice among configuration values: exact `lang-REGION`,
-/// then the language alone, then the default configuration, then anything.
+/// Locale-aware choice among configuration values, the way Android picks:
+/// exact `lang-REGION`, then the language alone, then the default
+/// configuration, then the language in another region, then anything.
+/// Pseudo-locales (`en-XA`, `ar-XB`) are never picked unless asked for.
 pub fn pick_locale<'v>(values: &'v [(Config, Value)], locale: &str) -> Option<&'v Value> {
     let (lang, region) = locale
         .split_once(['-', '_'])
         .map_or((locale, ""), |(l, r)| (l, r.trim_start_matches('r')));
-    let find =
-        |pred: &dyn Fn(&Config) -> bool| values.iter().find(|(c, _)| pred(c)).map(|(_, v)| v);
+    let pseudo = |c: &Config| {
+        let r = c.country.to_ascii_uppercase();
+        (r == "XA" || r == "XB") && !r.eq_ignore_ascii_case(region)
+    };
+    let find = |pred: &dyn Fn(&Config) -> bool| {
+        values
+            .iter()
+            .find(|(c, _)| !pseudo(c) && pred(c))
+            .map(|(_, v)| v)
+    };
     find(&|c| !lang.is_empty() && c.language == lang && c.country.eq_ignore_ascii_case(region))
         .or_else(|| find(&|c| !lang.is_empty() && c.language == lang && c.country.is_empty()))
-        .or_else(|| find(&|c| !lang.is_empty() && c.language == lang))
         .or_else(|| find(&|c| c.language.is_empty()))
+        .or_else(|| find(&|c| !lang.is_empty() && c.language == lang))
+        .or_else(|| find(&|_| true))
         .or_else(|| values.first().map(|(_, v)| v))
 }
 
@@ -316,6 +327,31 @@ mod tests {
         assert!(table.values(0x7f7f_7f7f).is_empty());
         assert!(table.values(0x0101_0001).is_empty());
         assert!(ResourceTable::parse(b"not a table").is_none());
+    }
+
+    #[test]
+    fn skips_pseudo_locales_and_prefers_default() {
+        let cfg = |language: &str, country: &str| Config {
+            language: language.into(),
+            country: country.into(),
+            ..Config::default()
+        };
+        let s = |v: &str| Value::String(v.into());
+        let values = vec![
+            (cfg("en", "XA"), s("[Ŝéţţîñĝš one two]")),
+            (cfg("ar", "XB"), s("sgnitteS")),
+            (cfg("", ""), s("Settings")),
+            (cfg("en", "GB"), s("Settings (UK)")),
+            (cfg("ru", ""), s("Настройки")),
+        ];
+        let pick = |l: &str| match pick_locale(&values, l) {
+            Some(Value::String(v)) => v.clone(),
+            other => panic!("unexpected {other:?}"),
+        };
+        assert_eq!(pick("en-US"), "Settings");
+        assert_eq!(pick("en-GB"), "Settings (UK)");
+        assert_eq!(pick("ru-RU"), "Настройки");
+        assert_eq!(pick("en-XA"), "[Ŝéţţîñĝš one two]");
     }
 
     #[test]
