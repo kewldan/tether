@@ -58,7 +58,6 @@ already works; this is the work that comes next.
 
 ## ⚙️ App
 
-- [ ] Compact density mode in the stylesheet (the setting exists)
 - [ ] Editable keyboard shortcuts
 - [ ] Open at login
 - [ ] "New platform-tools available" notice
