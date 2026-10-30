@@ -7,13 +7,12 @@ already works; this is the work that comes next.
 
 - [ ] Test on a real phone over USB and Wi-Fi pairing (QR and pairing code)
 - [ ] Test the full app on Windows and Linux (titlebar, drivers, udev, WebKitGTK)
-- [ ] End-to-end OTA update from one published release to the next
 
 ## 📦 Distribution
 
-- [ ] macOS code signing and notarization (Developer ID)
+- [ ] macOS Developer ID signing and notarization (needs a paid Apple Developer Program membership)
 - [ ] Windows Authenticode signing (no SmartScreen warning)
-- [ ] Get microsoft/winget-pkgs#462140 merged, then add `WINGET_TOKEN` for automatic updates
+- [ ] Get microsoft/winget-pkgs#462140 merged (automatic winget updates start working after that)
 - [ ] Flathub package
 - [ ] Linux arm64 builds (Google ships no platform-tools there, so adb comes
       from the package manager)
