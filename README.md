@@ -141,6 +141,11 @@ Or download the installer for your OS from the
 [latest release](https://github.com/kewldan/tether/releases/latest), or
 build from source (see below).
 
+> [!NOTE]
+> The macOS build isn't notarized yet. If macOS says it can't verify
+> Tether, open **System Settings › Privacy & Security** and click
+> **Open Anyway** once.
+
 On first launch Tether looks for an existing adb (PATH, `ANDROID_HOME`, the
 Android Studio SDK, Homebrew, scoop, winget). If none is found, it offers to
 download the official platform-tools for you.

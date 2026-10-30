@@ -52,7 +52,10 @@
     "category": "DeveloperTool",
     "shortDescription": "A quiet, fast desktop GUI for Android Debug Bridge",
     "copyright": "\u00a9 2026 kewldan",
-    "license": "MIT"
+    "license": "MIT",
+    "macOS": {
+      "signingIdentity": "-"
+    }
   },
   "plugins": {
     "updater": {
